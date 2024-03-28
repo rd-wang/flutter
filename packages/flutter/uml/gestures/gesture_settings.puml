@@ -1,0 +1,28 @@
+@startuml
+set namespaceSeparator ::
+
+class "gestures::gesture_settings.dart::DeviceGestureSettings" {
+  +double? touchSlop
+  +double? panSlop
+  +int hashCode
+  +bool ==()
+  +String toString()
+}
+
+abstract class "dart::ui::FlutterView" {
+  +PlatformDispatcher platformDispatcher
+  +ViewConfiguration viewConfiguration
+  +double devicePixelRatio
+  +Rect physicalGeometry
+  +Size physicalSize
+  +WindowPadding viewInsets
+  +WindowPadding viewPadding
+  +WindowPadding systemGestureInsets
+  +WindowPadding padding
+  +List<DisplayFeature> displayFeatures
+  +void render()
+  -void _render()
+}
+
+
+@enduml

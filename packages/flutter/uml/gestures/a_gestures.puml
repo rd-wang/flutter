@@ -1,0 +1,3372 @@
+@startuml
+set namespaceSeparator ::
+
+class "gestures::lsq_solver.dart::_Vector" {
+  -int _offset
+  -int _length
+  -List<double> _elements
+  +double []()
+  +void []=()
+  +double *()
+  +double norm()
+}
+
+class "gestures::lsq_solver.dart::_Matrix" {
+  -int _columns
+  -List<double> _elements
+  +double get()
+  +void set()
+  +_Vector getRow()
+}
+
+class "gestures::lsq_solver.dart::PolynomialFit" {
+  +List<double> coefficients
+  +double confidence
+  +String toString()
+}
+
+class "gestures::lsq_solver.dart::LeastSquaresSolver" {
+  +List<double> x
+  +List<double> y
+  +List<double> w
+  +PolynomialFit? solve()
+}
+
+abstract class "gestures::drag.dart::Drag" {
+  +void update()
+  +void end()
+  +void cancel()
+}
+
+class "gestures::drag_details.dart::DragUpdateDetails" {
+  +Duration? sourceTimeStamp
+  +Offset delta
+  +double? primaryDelta
+  +Offset globalPosition
+  +Offset localPosition
+  +String toString()
+}
+
+class "gestures::drag_details.dart::DragEndDetails" {
+  +Velocity velocity
+  +double? primaryVelocity
+  +String toString()
+}
+
+class "gestures::eager.dart::EagerGestureRecognizer" {
+  +String debugDescription
+  +void addAllowedPointer()
+  +void didStopTrackingLastPointer()
+  +void handleEvent()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+abstract class "gestures::events.dart::PointerEvent" {
+  +int viewId
+  +int embedderId
+  +Duration timeStamp
+  +int pointer
+  +PointerDeviceKind kind
+  +int device
+  +Offset position
+  +Offset delta
+  +int buttons
+  +bool down
+  +bool obscured
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +bool synthesized
+  +Matrix4? transform
+  +PointerEvent? original
+  +Offset localPosition
+  +Offset localDelta
+  +double distanceMin
+  +PointerEvent transformed()
+  +PointerEvent copyWith()
+  {static} +Offset transformPosition()
+  {static} +Offset transformDeltaViaPositions()
+  {static} +Matrix4 removePerspectiveTransform()
+}
+
+class "gestures::events.dart::PointerDownEvent" {
+  +PointerDownEvent transformed()
+}
+
+class "gestures::team.dart::_CombiningGestureArenaEntry" {
+  -_CombiningGestureArenaMember _combiner
+  -GestureArenaMember _member
+  +void resolve()
+}
+
+class "gestures::team.dart::_CombiningGestureArenaMember" {
+  -GestureArenaTeam _owner
+  -List<GestureArenaMember> _members
+  -int _pointer
+  -bool _resolved
+  -GestureArenaMember? _winner
+  -GestureArenaEntry? _entry
+  +void acceptGesture()
+  +void rejectGesture()
+  -void _close()
+  -GestureArenaEntry _add()
+  -void _resolve()
+}
+
+class "gestures::team.dart::GestureArenaTeam" {
+  -Map<int, _CombiningGestureArenaMember> _combiners
+  +GestureArenaMember? captain
+  +GestureArenaEntry add()
+}
+
+abstract class "gestures::arena.dart::GestureArenaMember" {
+  +void acceptGesture()
+  +void rejectGesture()
+}
+
+class "gestures::arena.dart::GestureArenaEntry" {
+  -GestureArenaManager _arena
+  -int _pointer
+  -GestureArenaMember _member
+  +void resolve()
+}
+
+class "gestures::multitap.dart::_CountdownZoned" {
+  -bool _timeout
+  +bool timeout
+  -void _onTimeout()
+}
+
+class "gestures::multitap.dart::_TapTracker" {
+  +DeviceGestureSettings? gestureSettings
+  +int pointer
+  +GestureArenaEntry entry
+  -Offset _initialGlobalPosition
+  +int initialButtons
+  -_CountdownZoned _doubleTapMinTimeCountdown
+  -bool _isTrackingPointer
+  +void startTrackingPointer()
+  +void stopTrackingPointer()
+  +bool isWithinGlobalTolerance()
+  +bool hasElapsedMinTime()
+  +bool hasSameButton()
+}
+
+class "gestures::multitap.dart::DoubleTapGestureRecognizer" {
+  +void Function(TapDownDetails)? onDoubleTapDown
+  +void Function()? onDoubleTap
+  +void Function()? onDoubleTapCancel
+  -Timer? _doubleTapTimer
+  -_TapTracker? _firstTap
+  -Map<int, _TapTracker> _trackers
+  +String debugDescription
+  {static} -bool _defaultButtonAcceptBehavior()
+  +bool isPointerAllowed()
+  +void addAllowedPointer()
+  -void _trackTap()
+  -void _handleEvent()
+  +void acceptGesture()
+  +void rejectGesture()
+  -void _reject()
+  +void dispose()
+  -void _reset()
+  -void _registerFirstTap()
+  -void _registerSecondTap()
+  -void _clearTrackers()
+  -void _freezeTracker()
+  -void _startDoubleTapTimer()
+  -void _stopDoubleTapTimer()
+  -void _checkUp()
+  -void _checkCancel()
+}
+
+class "gestures::multitap.dart::_TapGesture" {
+  +MultiTapGestureRecognizer gestureRecognizer
+  -bool _wonArena
+  -Timer? _timer
+  -OffsetPair _lastPosition
+  -OffsetPair? _finalPosition
+  +void handleEvent()
+  +void stopTrackingPointer()
+  +void accept()
+  +void reject()
+  +void cancel()
+  -void _check()
+}
+
+class "gestures::multitap.dart::MultiTapGestureRecognizer" {
+  +void Function(int, TapDownDetails)? onTapDown
+  +void Function(int, TapUpDetails)? onTapUp
+  +void Function(int)? onTap
+  +void Function(int)? onTapCancel
+  +Duration longTapDelay
+  +void Function(int, TapDownDetails)? onLongTapDown
+  -Map<int, _TapGesture> _gestureMap
+  +String debugDescription
+  +void addAllowedPointer()
+  +void acceptGesture()
+  +void rejectGesture()
+  -void _dispatchCancel()
+  -void _dispatchTap()
+  -void _dispatchLongTap()
+  +void dispose()
+}
+
+class "gestures::multitap.dart::SerialTapDownDetails" {
+  +Offset globalPosition
+  +Offset localPosition
+  +PointerDeviceKind kind
+  +int buttons
+  +int count
+}
+
+class "gestures::multitap.dart::SerialTapCancelDetails" {
+  +int count
+}
+
+class "gestures::multitap.dart::SerialTapUpDetails" {
+  +Offset globalPosition
+  +Offset localPosition
+  +PointerDeviceKind? kind
+  +int count
+}
+
+class "gestures::multitap.dart::SerialTapGestureRecognizer" {
+  +void Function(SerialTapDownDetails)? onSerialTapDown
+  +void Function(SerialTapCancelDetails)? onSerialTapCancel
+  +void Function(SerialTapUpDetails)? onSerialTapUp
+  -Timer? _serialTapTimer
+  -List<_TapTracker> _completedTaps
+  -Map<int, GestureDisposition> _gestureResolutions
+  -_TapTracker? _pendingTap
+  +bool isTrackingPointer
+  +String debugDescription
+  +bool isPointerAllowed()
+  +void addAllowedPointer()
+  -bool _representsSameSeries()
+  -void _trackTap()
+  -void _handleEvent()
+  +void acceptGesture()
+  +void rejectGesture()
+  -void _rejectPendingTap()
+  +void dispose()
+  -void _reset()
+  -void _registerTap()
+  -void _stopTrackingPointer()
+  -void _startSerialTapTimer()
+  -void _stopSerialTapTimer()
+  -void _checkUp()
+  -void _checkCancel()
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+class "gestures::events.dart::PointerDownEvent" {
+  +PointerDownEvent transformed()
+}
+
+class "gestures::tap.dart::TapDownDetails" {
+  +Offset globalPosition
+  +PointerDeviceKind? kind
+  +Offset localPosition
+}
+
+class "gestures::tap.dart::TapUpDetails" {
+  +Offset globalPosition
+  +Offset localPosition
+  +PointerDeviceKind kind
+}
+
+class "gestures::velocity_tracker.dart::Velocity" {
+  {static} +Velocity zero
+  +Offset pixelsPerSecond
+  +int hashCode
+  +Velocity unary-()
+  +Velocity -()
+  +Velocity +()
+  +Velocity clampMagnitude()
+  +bool ==()
+  +String toString()
+}
+
+class "gestures::velocity_tracker.dart::VelocityEstimate" {
+  +Offset pixelsPerSecond
+  +double confidence
+  +Duration duration
+  +Offset offset
+  +String toString()
+}
+
+class "gestures::velocity_tracker.dart::_PointAtTime" {
+  +Duration time
+  +Offset point
+  +String toString()
+}
+
+class "gestures::velocity_tracker.dart::VelocityTracker" {
+  {static} -int _assumePointerMoveStoppedMilliseconds
+  {static} -int _historySize
+  {static} -int _horizonMilliseconds
+  {static} -int _minSampleSize
+  +PointerDeviceKind kind
+  -Stopwatch _sinceLastSample
+  -List<_PointAtTime?> _samples
+  -int _index
+  +void addPosition()
+  +VelocityEstimate? getVelocityEstimate()
+  +Velocity getVelocity()
+}
+
+class "gestures::velocity_tracker.dart::IOSScrollViewFlingVelocityTracker" {
+  {static} -int _sampleSize
+  -List<_PointAtTime?> _touchSamples
+  +void addPosition()
+  -Offset _previousVelocityAt()
+  +VelocityEstimate getVelocityEstimate()
+}
+
+class "gestures::velocity_tracker.dart::MacOSScrollViewFlingVelocityTracker" {
+  +VelocityEstimate getVelocityEstimate()
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+class "gestures::hit_test.dart::HitTestable" {
+  +void hitTest()
+  +void hitTestInView()
+}
+
+class "gestures::hit_test.dart::HitTestDispatcher" {
+  +void dispatchEvent()
+}
+
+class "gestures::hit_test.dart::HitTestTarget" {
+  +void handleEvent()
+}
+
+class "gestures::hit_test.dart::HitTestEntry" {
+  +T target
+  -Matrix4? _transform
+  +Matrix4? transform
+  +String toString()
+}
+
+abstract class "gestures::hit_test.dart::_TransformPart" {
+  +Matrix4 multiply()
+}
+
+class "gestures::hit_test.dart::_MatrixTransformPart" {
+  +Matrix4 matrix
+  +Matrix4 multiply()
+}
+
+class "gestures::hit_test.dart::_OffsetTransformPart" {
+  +Offset offset
+  +Matrix4 multiply()
+}
+
+class "gestures::hit_test.dart::HitTestResult" {
+  -List<HitTestEntry<HitTestTarget>> _path
+  -List<Matrix4> _transforms
+  -List<_TransformPart> _localTransforms
+  +Iterable<HitTestEntry<HitTestTarget>> path
+  -Matrix4 _lastTransform
+  -void _globalizeTransforms()
+  +void add()
+  #void pushTransform()
+  #void pushOffset()
+  #void popTransform()
+  -bool _debugVectorMoreOrLessEquals()
+  +String toString()
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "vector_math::vector_math_64.dart::Matrix4" {
+  -Float64List _m4storage
+  {static} -Vector3? _decomposeV
+  {static} -Matrix4? _decomposeM
+  {static} -Matrix3? _decomposeR
+  +Float64List storage
+  +int dimension
+  +int hashCode
+  +Vector4 row0
+  +Vector4 row1
+  +Vector4 row2
+  +Vector4 row3
+  +Vector3 right
+  +Vector3 up
+  +Vector3 forward
+  {static} +void solve2()
+  {static} +void solve3()
+  {static} +void solve()
+  {static} +Matrix4? tryInvert()
+  +int index()
+  +double entry()
+  +void setEntry()
+  +void splatDiagonal()
+  +void setValues()
+  +void setColumns()
+  +void setFrom()
+  +void setFromTranslationRotation()
+  +void setFromTranslationRotationScale()
+  +void setUpper2x2()
+  +void setDiagonal()
+  +void setOuter()
+  +String toString()
+  +double []()
+  +void []=()
+  +bool ==()
+  +void setRow()
+  +Vector4 getRow()
+  +void setColumn()
+  +Vector4 getColumn()
+  +Matrix4 clone()
+  +Matrix4 copyInto()
+  +Matrix4 unary-()
+  +dynamic *()
+  +Matrix4 +()
+  +Matrix4 -()
+  +void translate()
+  +void leftTranslate()
+  +void rotate()
+  +void rotateX()
+  +void rotateY()
+  +void rotateZ()
+  +void scale()
+  +Matrix4 scaled()
+  +void setZero()
+  +void setIdentity()
+  +Matrix4 transposed()
+  +void transpose()
+  +Matrix4 absolute()
+  +double determinant()
+  +double dotRow()
+  +double dotColumn()
+  +double trace()
+  +double infinityNorm()
+  +double relativeError()
+  +double absoluteError()
+  +Vector3 getTranslation()
+  +void setTranslation()
+  +void setTranslationRaw()
+  +Matrix3 getRotation()
+  +void copyRotation()
+  +void setRotation()
+  +Matrix3 getNormalMatrix()
+  +double getMaxScaleOnAxis()
+  +void transposeRotation()
+  +double invert()
+  +double copyInverse()
+  +double invertRotation()
+  +void setRotationX()
+  +void setRotationY()
+  +void setRotationZ()
+  +void scaleAdjoint()
+  +Vector3 absoluteRotate()
+  +void add()
+  +void sub()
+  +void negate()
+  +void multiply()
+  +Matrix4 multiplied()
+  +void transposeMultiply()
+  +void multiplyTranspose()
+  +void decompose()
+  +Vector3 rotate3()
+  +Vector3 rotated3()
+  +Vector3 transform3()
+  +Vector3 transformed3()
+  +Vector4 transform()
+  +Vector3 perspectiveTransform()
+  +Vector4 transformed()
+  +void copyIntoArray()
+  +void copyFromArray()
+  +List<double> applyToVector3Array()
+  +bool isIdentity()
+  +bool isZero()
+}
+
+abstract class "gestures::events.dart::PointerEvent" {
+  +int viewId
+  +int embedderId
+  +Duration timeStamp
+  +int pointer
+  +PointerDeviceKind kind
+  +int device
+  +Offset position
+  +Offset delta
+  +int buttons
+  +bool down
+  +bool obscured
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +bool synthesized
+  +Matrix4? transform
+  +PointerEvent? original
+  +Offset localPosition
+  +Offset localDelta
+  +double distanceMin
+  +PointerEvent transformed()
+  +PointerEvent copyWith()
+  {static} +Offset transformPosition()
+  {static} +Offset transformDeltaViaPositions()
+  {static} +Matrix4 removePerspectiveTransform()
+}
+
+class "gestures::tap.dart::TapDownDetails" {
+  +Offset globalPosition
+  +PointerDeviceKind? kind
+  +Offset localPosition
+}
+
+class "gestures::tap.dart::TapUpDetails" {
+  +Offset globalPosition
+  +Offset localPosition
+  +PointerDeviceKind kind
+}
+
+abstract class "gestures::tap.dart::BaseTapGestureRecognizer" {
+  -bool _sentTapDown
+  -bool _wonArenaForPrimaryPointer
+  -PointerDownEvent? _down
+  -PointerUpEvent? _up
+  +String debugDescription
+  #void handleTapDown()
+  #void handleTapUp()
+  #void handleTapCancel()
+  +void addAllowedPointer()
+  #void startTrackingPointer()
+  +void handlePrimaryPointer()
+  +void resolve()
+  +void didExceedDeadline()
+  +void acceptGesture()
+  +void rejectGesture()
+  -void _checkDown()
+  -void _checkUp()
+  -void _checkCancel()
+  -void _reset()
+  +void debugFillProperties()
+}
+
+class "gestures::tap.dart::TapGestureRecognizer" {
+  +void Function(TapDownDetails)? onTapDown
+  +void Function(TapUpDetails)? onTapUp
+  +void Function()? onTap
+  +void Function()? onTapCancel
+  +void Function()? onSecondaryTap
+  +void Function(TapDownDetails)? onSecondaryTapDown
+  +void Function(TapUpDetails)? onSecondaryTapUp
+  +void Function()? onSecondaryTapCancel
+  +void Function(TapDownDetails)? onTertiaryTapDown
+  +void Function(TapUpDetails)? onTertiaryTapUp
+  +void Function()? onTertiaryTapCancel
+  +String debugDescription
+  +bool isPointerAllowed()
+  #void handleTapDown()
+  #void handleTapUp()
+  #void handleTapCancel()
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+class "flutter::src::foundation::diagnostics.dart::DiagnosticPropertiesBuilder" {
+  +List<DiagnosticsNode> properties
+  +DiagnosticsTreeStyle defaultDiagnosticsTreeStyle
+  +String? emptyBodyDescription
+  +void add()
+}
+
+class "flutter::src::foundation::diagnostics.dart::DiagnosticPropertiesBuilder" {
+  +List<DiagnosticsNode> properties
+  +DiagnosticsTreeStyle defaultDiagnosticsTreeStyle
+  +String? emptyBodyDescription
+  +void add()
+}
+
+class "vector_math::vector_math_64.dart::Matrix4" {
+  -Float64List _m4storage
+  {static} -Vector3? _decomposeV
+  {static} -Matrix4? _decomposeM
+  {static} -Matrix3? _decomposeR
+  +Float64List storage
+  +int dimension
+  +int hashCode
+  +Vector4 row0
+  +Vector4 row1
+  +Vector4 row2
+  +Vector4 row3
+  +Vector3 right
+  +Vector3 up
+  +Vector3 forward
+  {static} +void solve2()
+  {static} +void solve3()
+  {static} +void solve()
+  {static} +Matrix4? tryInvert()
+  +int index()
+  +double entry()
+  +void setEntry()
+  +void splatDiagonal()
+  +void setValues()
+  +void setColumns()
+  +void setFrom()
+  +void setFromTranslationRotation()
+  +void setFromTranslationRotationScale()
+  +void setUpper2x2()
+  +void setDiagonal()
+  +void setOuter()
+  +String toString()
+  +double []()
+  +void []=()
+  +bool ==()
+  +void setRow()
+  +Vector4 getRow()
+  +void setColumn()
+  +Vector4 getColumn()
+  +Matrix4 clone()
+  +Matrix4 copyInto()
+  +Matrix4 unary-()
+  +dynamic *()
+  +Matrix4 +()
+  +Matrix4 -()
+  +void translate()
+  +void leftTranslate()
+  +void rotate()
+  +void rotateX()
+  +void rotateY()
+  +void rotateZ()
+  +void scale()
+  +Matrix4 scaled()
+  +void setZero()
+  +void setIdentity()
+  +Matrix4 transposed()
+  +void transpose()
+  +Matrix4 absolute()
+  +double determinant()
+  +double dotRow()
+  +double dotColumn()
+  +double trace()
+  +double infinityNorm()
+  +double relativeError()
+  +double absoluteError()
+  +Vector3 getTranslation()
+  +void setTranslation()
+  +void setTranslationRaw()
+  +Matrix3 getRotation()
+  +void copyRotation()
+  +void setRotation()
+  +Matrix3 getNormalMatrix()
+  +double getMaxScaleOnAxis()
+  +void transposeRotation()
+  +double invert()
+  +double copyInverse()
+  +double invertRotation()
+  +void setRotationX()
+  +void setRotationY()
+  +void setRotationZ()
+  +void scaleAdjoint()
+  +Vector3 absoluteRotate()
+  +void add()
+  +void sub()
+  +void negate()
+  +void multiply()
+  +Matrix4 multiplied()
+  +void transposeMultiply()
+  +void multiplyTranspose()
+  +void decompose()
+  +Vector3 rotate3()
+  +Vector3 rotated3()
+  +Vector3 transform3()
+  +Vector3 transformed3()
+  +Vector4 transform()
+  +Vector3 perspectiveTransform()
+  +Vector4 transformed()
+  +void copyIntoArray()
+  +void copyFromArray()
+  +List<double> applyToVector3Array()
+  +bool isIdentity()
+  +bool isZero()
+}
+
+class "gestures::arena.dart::GestureDisposition" {
+  +int index
+  {static} +List<GestureDisposition> values
+  {static} +GestureDisposition accepted
+  {static} +GestureDisposition rejected
+}
+
+abstract class "gestures::events.dart::PointerEvent" {
+  +int viewId
+  +int embedderId
+  +Duration timeStamp
+  +int pointer
+  +PointerDeviceKind kind
+  +int device
+  +Offset position
+  +Offset delta
+  +int buttons
+  +bool down
+  +bool obscured
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +bool synthesized
+  +Matrix4? transform
+  +PointerEvent? original
+  +Offset localPosition
+  +Offset localDelta
+  +double distanceMin
+  +PointerEvent transformed()
+  +PointerEvent copyWith()
+  {static} +Offset transformPosition()
+  {static} +Offset transformDeltaViaPositions()
+  {static} +Matrix4 removePerspectiveTransform()
+}
+
+class "gestures::events.dart::PointerDownEvent" {
+  +PointerDownEvent transformed()
+}
+
+class "gestures::events.dart::PointerUpEvent" {
+  +PointerUpEvent transformed()
+}
+
+class "gestures::events.dart::PointerCancelEvent" {
+  +PointerCancelEvent transformed()
+}
+
+abstract class "gestures::arena.dart::GestureArenaMember" {
+  +void acceptGesture()
+  +void rejectGesture()
+}
+
+class "gestures::arena.dart::GestureArenaEntry" {
+  -GestureArenaManager _arena
+  -int _pointer
+  -GestureArenaMember _member
+  +void resolve()
+}
+
+class "gestures::arena.dart::_GestureArena" {
+  +List<GestureArenaMember> members
+  +bool isOpen
+  +bool isHeld
+  +bool hasPendingSweep
+  +GestureArenaMember? eagerWinner
+  +void add()
+  +String toString()
+}
+
+class "gestures::arena.dart::GestureArenaManager" {
+  -Map<int, _GestureArena> _arenas
+  +GestureArenaEntry add()
+  +void close()
+  +void sweep()
+  +void hold()
+  +void release()
+  -void _resolve()
+  -void _tryToResolveArena()
+  -void _resolveByDefault()
+  -void _resolveInFavorOf()
+  -bool _debugLogDiagnostic()
+}
+
+class "gestures::arena.dart::GestureDisposition" {
+  +int index
+  {static} +List<GestureDisposition> values
+  {static} +GestureDisposition accepted
+  {static} +GestureDisposition rejected
+}
+
+abstract class "gestures::recognizer.dart::GestureRecognizer" {
+  +Object? debugOwner
+  +DeviceGestureSettings? gestureSettings
+  +Set<PointerDeviceKind>? supportedDevices
+  -bool Function(int) _allowedButtonsFilter
+  -Map<int, PointerDeviceKind> _pointerToKind
+  +String debugDescription
+  {static} -bool _defaultButtonAcceptBehavior()
+  +void addPointerPanZoom()
+  #void addAllowedPointerPanZoom()
+  +void addPointer()
+  #void addAllowedPointer()
+  #void handleNonAllowedPointer()
+  #bool isPointerAllowed()
+  #void handleNonAllowedPointerPanZoom()
+  #bool isPointerPanZoomAllowed()
+  #PointerDeviceKind getKindForPointer()
+  +void dispose()
+  #T? invokeCallback()
+  +void debugFillProperties()
+}
+
+abstract class "gestures::recognizer.dart::OneSequenceGestureRecognizer" {
+  -Map<int, GestureArenaEntry> _entries
+  -Set<int> _trackedPointers
+  -GestureArenaTeam? _team
+  +GestureArenaTeam? team
+  #void addAllowedPointer()
+  #void handleNonAllowedPointer()
+  #void handleEvent()
+  +void acceptGesture()
+  +void rejectGesture()
+  #void didStopTrackingLastPointer()
+  #void resolve()
+  #void resolvePointer()
+  +void dispose()
+  -GestureArenaEntry _addPointerToArena()
+  #void startTrackingPointer()
+  #void stopTrackingPointer()
+  #void stopTrackingIfPointerNoLongerDown()
+}
+
+abstract class "gestures::recognizer.dart::PrimaryPointerGestureRecognizer" {
+  +Duration? deadline
+  +double? preAcceptSlopTolerance
+  +double? postAcceptSlopTolerance
+  -GestureRecognizerState _state
+  -int? _primaryPointer
+  -OffsetPair? _initialPosition
+  -bool _gestureAccepted
+  -Timer? _timer
+  +GestureRecognizerState state
+  +int? primaryPointer
+  +OffsetPair? initialPosition
+  +void addAllowedPointer()
+  +void handleNonAllowedPointer()
+  +void handleEvent()
+  #void handlePrimaryPointer()
+  #void didExceedDeadline()
+  #void didExceedDeadlineWithEvent()
+  +void acceptGesture()
+  +void rejectGesture()
+  +void didStopTrackingLastPointer()
+  +void dispose()
+  -void _stopTimer()
+  -double _getGlobalDistance()
+  +void debugFillProperties()
+}
+
+class "gestures::recognizer.dart::OffsetPair" {
+  {static} +OffsetPair zero
+  +Offset local
+  +Offset global
+  +OffsetPair +()
+  +OffsetPair -()
+  +String toString()
+}
+
+class "gestures::recognizer.dart::DragStartBehavior" {
+  +int index
+  {static} +List<DragStartBehavior> values
+  {static} +DragStartBehavior down
+  {static} +DragStartBehavior start
+}
+
+class "gestures::recognizer.dart::GestureRecognizerState" {
+  +int index
+  {static} +List<GestureRecognizerState> values
+  {static} +GestureRecognizerState ready
+  {static} +GestureRecognizerState possible
+  {static} +GestureRecognizerState defunct
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+class "flutter::src::foundation::diagnostics.dart::DiagnosticPropertiesBuilder" {
+  +List<DiagnosticsNode> properties
+  +DiagnosticsTreeStyle defaultDiagnosticsTreeStyle
+  +String? emptyBodyDescription
+  +void add()
+}
+
+class "flutter::src::foundation::diagnostics.dart::DiagnosticPropertiesBuilder" {
+  +List<DiagnosticsNode> properties
+  +DiagnosticsTreeStyle defaultDiagnosticsTreeStyle
+  +String? emptyBodyDescription
+  +void add()
+}
+
+class "vector_math::vector_math_64.dart::Matrix4" {
+  -Float64List _m4storage
+  {static} -Vector3? _decomposeV
+  {static} -Matrix4? _decomposeM
+  {static} -Matrix3? _decomposeR
+  +Float64List storage
+  +int dimension
+  +int hashCode
+  +Vector4 row0
+  +Vector4 row1
+  +Vector4 row2
+  +Vector4 row3
+  +Vector3 right
+  +Vector3 up
+  +Vector3 forward
+  {static} +void solve2()
+  {static} +void solve3()
+  {static} +void solve()
+  {static} +Matrix4? tryInvert()
+  +int index()
+  +double entry()
+  +void setEntry()
+  +void splatDiagonal()
+  +void setValues()
+  +void setColumns()
+  +void setFrom()
+  +void setFromTranslationRotation()
+  +void setFromTranslationRotationScale()
+  +void setUpper2x2()
+  +void setDiagonal()
+  +void setOuter()
+  +String toString()
+  +double []()
+  +void []=()
+  +bool ==()
+  +void setRow()
+  +Vector4 getRow()
+  +void setColumn()
+  +Vector4 getColumn()
+  +Matrix4 clone()
+  +Matrix4 copyInto()
+  +Matrix4 unary-()
+  +dynamic *()
+  +Matrix4 +()
+  +Matrix4 -()
+  +void translate()
+  +void leftTranslate()
+  +void rotate()
+  +void rotateX()
+  +void rotateY()
+  +void rotateZ()
+  +void scale()
+  +Matrix4 scaled()
+  +void setZero()
+  +void setIdentity()
+  +Matrix4 transposed()
+  +void transpose()
+  +Matrix4 absolute()
+  +double determinant()
+  +double dotRow()
+  +double dotColumn()
+  +double trace()
+  +double infinityNorm()
+  +double relativeError()
+  +double absoluteError()
+  +Vector3 getTranslation()
+  +void setTranslation()
+  +void setTranslationRaw()
+  +Matrix3 getRotation()
+  +void copyRotation()
+  +void setRotation()
+  +Matrix3 getNormalMatrix()
+  +double getMaxScaleOnAxis()
+  +void transposeRotation()
+  +double invert()
+  +double copyInverse()
+  +double invertRotation()
+  +void setRotationX()
+  +void setRotationY()
+  +void setRotationZ()
+  +void scaleAdjoint()
+  +Vector3 absoluteRotate()
+  +void add()
+  +void sub()
+  +void negate()
+  +void multiply()
+  +Matrix4 multiplied()
+  +void transposeMultiply()
+  +void multiplyTranspose()
+  +void decompose()
+  +Vector3 rotate3()
+  +Vector3 rotated3()
+  +Vector3 transform3()
+  +Vector3 transformed3()
+  +Vector4 transform()
+  +Vector3 perspectiveTransform()
+  +Vector4 transformed()
+  +void copyIntoArray()
+  +void copyFromArray()
+  +List<double> applyToVector3Array()
+  +bool isIdentity()
+  +bool isZero()
+}
+
+class "gestures::arena.dart::GestureDisposition" {
+  +int index
+  {static} +List<GestureDisposition> values
+  {static} +GestureDisposition accepted
+  {static} +GestureDisposition rejected
+}
+
+abstract class "gestures::events.dart::PointerEvent" {
+  +int viewId
+  +int embedderId
+  +Duration timeStamp
+  +int pointer
+  +PointerDeviceKind kind
+  +int device
+  +Offset position
+  +Offset delta
+  +int buttons
+  +bool down
+  +bool obscured
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +bool synthesized
+  +Matrix4? transform
+  +PointerEvent? original
+  +Offset localPosition
+  +Offset localDelta
+  +double distanceMin
+  +PointerEvent transformed()
+  +PointerEvent copyWith()
+  {static} +Offset transformPosition()
+  {static} +Offset transformDeltaViaPositions()
+  {static} +Matrix4 removePerspectiveTransform()
+}
+
+class "gestures::events.dart::PointerDownEvent" {
+  +PointerDownEvent transformed()
+}
+
+class "gestures::events.dart::PointerPanZoomStartEvent" {
+  +PointerPanZoomStartEvent transformed()
+}
+
+class "gestures::gesture_settings.dart::DeviceGestureSettings" {
+  +double? touchSlop
+  +double? panSlop
+  +int hashCode
+  +bool ==()
+  +String toString()
+}
+
+class "gestures::team.dart::GestureArenaTeam" {
+  -Map<int, _CombiningGestureArenaMember> _combiners
+  +GestureArenaMember? captain
+  +GestureArenaEntry add()
+}
+
+abstract class "gestures::multidrag.dart::MultiDragPointerState" {
+  +DeviceGestureSettings? gestureSettings
+  +Offset initialPosition
+  -VelocityTracker _velocityTracker
+  +PointerDeviceKind kind
+  -Drag? _client
+  -Offset? _pendingDelta
+  -Duration? _lastPendingEventTimestamp
+  -GestureArenaEntry? _arenaEntry
+  +Offset? pendingDelta
+  -void _setArenaEntry()
+  #void resolve()
+  -void _move()
+  #void checkForResolutionAfterMove()
+  #void accepted()
+  #void rejected()
+  -void _startDrag()
+  -void _up()
+  -void _cancel()
+  #void dispose()
+}
+
+abstract class "gestures::multidrag.dart::MultiDragGestureRecognizer" {
+  +Drag? Function(Offset)? onStart
+  -Map<int, MultiDragPointerState>? _pointers
+  {static} -bool _defaultButtonAcceptBehavior()
+  +void addAllowedPointer()
+  #MultiDragPointerState createNewPointerState()
+  -void _handleEvent()
+  +void acceptGesture()
+  -Drag? _startDrag()
+  +void rejectGesture()
+  -void _removeState()
+  +void dispose()
+}
+
+class "gestures::multidrag.dart::_ImmediatePointerState" {
+  +void checkForResolutionAfterMove()
+  +void accepted()
+}
+
+class "gestures::multidrag.dart::ImmediateMultiDragGestureRecognizer" {
+  +String debugDescription
+  +MultiDragPointerState createNewPointerState()
+}
+
+class "gestures::multidrag.dart::_HorizontalPointerState" {
+  +void checkForResolutionAfterMove()
+  +void accepted()
+}
+
+class "gestures::multidrag.dart::HorizontalMultiDragGestureRecognizer" {
+  +String debugDescription
+  +MultiDragPointerState createNewPointerState()
+}
+
+class "gestures::multidrag.dart::_VerticalPointerState" {
+  +void checkForResolutionAfterMove()
+  +void accepted()
+}
+
+class "gestures::multidrag.dart::VerticalMultiDragGestureRecognizer" {
+  +String debugDescription
+  +MultiDragPointerState createNewPointerState()
+}
+
+class "gestures::multidrag.dart::_DelayedPointerState" {
+  -Timer? _timer
+  -Drag? Function(Offset)? _starter
+  -void _delayPassed()
+  -void _ensureTimerStopped()
+  +void accepted()
+  +void checkForResolutionAfterMove()
+  +void dispose()
+}
+
+class "gestures::multidrag.dart::DelayedMultiDragGestureRecognizer" {
+  +Duration delay
+  +String debugDescription
+  +MultiDragPointerState createNewPointerState()
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+class "gestures::arena.dart::GestureDisposition" {
+  +int index
+  {static} +List<GestureDisposition> values
+  {static} +GestureDisposition accepted
+  {static} +GestureDisposition rejected
+}
+
+abstract class "gestures::drag.dart::Drag" {
+  +void update()
+  +void end()
+  +void cancel()
+}
+
+class "gestures::events.dart::PointerDownEvent" {
+  +PointerDownEvent transformed()
+}
+
+class "gestures::gesture_settings.dart::DeviceGestureSettings" {
+  +double? touchSlop
+  +double? panSlop
+  +int hashCode
+  +bool ==()
+  +String toString()
+}
+
+abstract class "gestures::converter.dart::PointerEventConverter" {
+  {static} +Iterable<PointerEvent> expand()
+  {static} -double _toLogicalPixels()
+}
+
+class "dart::ui::PointerData" {
+  +int embedderId
+  +Duration timeStamp
+  +PointerChange change
+  +PointerDeviceKind kind
+  +PointerSignalKind? signalKind
+  +int device
+  +int pointerIdentifier
+  +double physicalX
+  +double physicalY
+  +double physicalDeltaX
+  +double physicalDeltaY
+  +int buttons
+  +bool obscured
+  +bool synthesized
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +double scrollDeltaX
+  +double scrollDeltaY
+  +double panX
+  +double panY
+  +double panDeltaX
+  +double panDeltaY
+  +double scale
+  +double rotation
+  +String toString()
+  +String toStringFull()
+}
+
+abstract class "gestures::events.dart::PointerEvent" {
+  +int viewId
+  +int embedderId
+  +Duration timeStamp
+  +int pointer
+  +PointerDeviceKind kind
+  +int device
+  +Offset position
+  +Offset delta
+  +int buttons
+  +bool down
+  +bool obscured
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +bool synthesized
+  +Matrix4? transform
+  +PointerEvent? original
+  +Offset localPosition
+  +Offset localDelta
+  +double distanceMin
+  +PointerEvent transformed()
+  +PointerEvent copyWith()
+  {static} +Offset transformPosition()
+  {static} +Offset transformDeltaViaPositions()
+  {static} +Matrix4 removePerspectiveTransform()
+}
+
+class "gestures::force_press.dart::ForcePressDetails" {
+  +Offset globalPosition
+  +Offset localPosition
+  +double pressure
+}
+
+class "gestures::force_press.dart::ForcePressGestureRecognizer" {
+  +void Function(ForcePressDetails)? onStart
+  +void Function(ForcePressDetails)? onUpdate
+  +void Function(ForcePressDetails)? onPeak
+  +void Function(ForcePressDetails)? onEnd
+  +double startPressure
+  +double peakPressure
+  +double Function(double, double, double) interpolation
+  -OffsetPair _lastPosition
+  -double _lastPressure
+  -_ForceState _state
+  +String debugDescription
+  +void addAllowedPointer()
+  +void handleEvent()
+  +void acceptGesture()
+  +void didStopTrackingLastPointer()
+  +void rejectGesture()
+  {static} -double _inverseLerp()
+}
+
+class "gestures::force_press.dart::_ForceState" {
+  +int index
+  {static} +List<_ForceState> values
+  {static} +_ForceState ready
+  {static} +_ForceState possible
+  {static} +_ForceState accepted
+  {static} +_ForceState started
+  {static} +_ForceState peaked
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+abstract class "gestures::events.dart::PointerEvent" {
+  +int viewId
+  +int embedderId
+  +Duration timeStamp
+  +int pointer
+  +PointerDeviceKind kind
+  +int device
+  +Offset position
+  +Offset delta
+  +int buttons
+  +bool down
+  +bool obscured
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +bool synthesized
+  +Matrix4? transform
+  +PointerEvent? original
+  +Offset localPosition
+  +Offset localDelta
+  +double distanceMin
+  +PointerEvent transformed()
+  +PointerEvent copyWith()
+  {static} +Offset transformPosition()
+  {static} +Offset transformDeltaViaPositions()
+  {static} +Matrix4 removePerspectiveTransform()
+}
+
+class "gestures::events.dart::PointerDownEvent" {
+  +PointerDownEvent transformed()
+}
+
+class "gestures::tap_and_drag.dart::TapDragDownDetails" {
+  +Offset globalPosition
+  +Offset localPosition
+  +PointerDeviceKind? kind
+  +int consecutiveTapCount
+  +void debugFillProperties()
+}
+
+class "gestures::tap_and_drag.dart::TapDragUpDetails" {
+  +Offset globalPosition
+  +Offset localPosition
+  +PointerDeviceKind kind
+  +int consecutiveTapCount
+  +void debugFillProperties()
+}
+
+class "gestures::tap_and_drag.dart::TapDragStartDetails" {
+  +Duration? sourceTimeStamp
+  +Offset globalPosition
+  +Offset localPosition
+  +PointerDeviceKind? kind
+  +int consecutiveTapCount
+  +void debugFillProperties()
+}
+
+class "gestures::tap_and_drag.dart::TapDragUpdateDetails" {
+  +Duration? sourceTimeStamp
+  +Offset delta
+  +double? primaryDelta
+  +Offset globalPosition
+  +Offset localPosition
+  +PointerDeviceKind? kind
+  +Offset offsetFromOrigin
+  +Offset localOffsetFromOrigin
+  +int consecutiveTapCount
+  +void debugFillProperties()
+}
+
+class "gestures::tap_and_drag.dart::TapDragEndDetails" {
+  +Velocity velocity
+  +double? primaryVelocity
+  +int consecutiveTapCount
+  +void debugFillProperties()
+}
+
+class "gestures::tap_and_drag.dart::BaseTapAndDragGestureRecognizer" {
+  +DragStartBehavior dragStartBehavior
+  +Duration? dragUpdateThrottleFrequency
+  +int? maxConsecutiveTap
+  +void Function(TapDragDownDetails)? onTapDown
+  +void Function(TapDragUpDetails)? onTapUp
+  +void Function(TapDragStartDetails)? onDragStart
+  +void Function(TapDragUpdateDetails)? onDragUpdate
+  +void Function(TapDragEndDetails)? onDragEnd
+  +void Function()? onCancel
+  -bool _pastSlopTolerance
+  -bool _sentTapDown
+  -bool _wonArenaForPrimaryPointer
+  -int? _primaryPointer
+  -Timer? _deadlineTimer
+  -Duration _deadline
+  -_DragState _dragState
+  -PointerEvent? _start
+  -OffsetPair _initialPosition
+  -double _globalDistanceMoved
+  -double _globalDistanceMovedAllAxes
+  -OffsetPair? _correctedPosition
+  -TapDragUpdateDetails? _lastDragUpdateDetails
+  -Timer? _dragUpdateThrottleTimer
+  -Set<int> _acceptedActivePointers
+  +String debugDescription
+  -Offset _getDeltaForDetails()
+  -double? _getPrimaryValueFromOffset()
+  -bool _hasSufficientGlobalDistanceToAccept()
+  -void _handleDragUpdateThrottled()
+  +bool isPointerAllowed()
+  +void addAllowedPointer()
+  +void handleNonAllowedPointer()
+  +void acceptGesture()
+  +void didStopTrackingLastPointer()
+  +void handleEvent()
+  +void rejectGesture()
+  +void dispose()
+  -void _acceptDrag()
+  -void _checkDrag()
+  -void _checkTapDown()
+  -void _checkTapUp()
+  -void _checkDragStart()
+  -void _checkDragUpdate()
+  -void _checkDragEnd()
+  -void _checkCancel()
+  -void _didExceedDeadlineWithEvent()
+  -void _didExceedDeadline()
+  -void _giveUpPointer()
+  -void _resetTaps()
+  -void _resetDragUpdateThrottle()
+  -void _stopDeadlineTimer()
+}
+
+class "gestures::tap_and_drag.dart::TapAndHorizontalDragGestureRecognizer" {
+  +String debugDescription
+  -bool _hasSufficientGlobalDistanceToAccept()
+  -Offset _getDeltaForDetails()
+  -double _getPrimaryValueFromOffset()
+}
+
+class "gestures::tap_and_drag.dart::TapAndPanGestureRecognizer" {
+  +String debugDescription
+  -bool _hasSufficientGlobalDistanceToAccept()
+  -Offset _getDeltaForDetails()
+  -double? _getPrimaryValueFromOffset()
+}
+
+class "gestures::tap_and_drag.dart::TapAndDragGestureRecognizer" {
+  +String debugDescription
+  -bool _hasSufficientGlobalDistanceToAccept()
+  -Offset _getDeltaForDetails()
+  -double? _getPrimaryValueFromOffset()
+}
+
+class "gestures::tap_and_drag.dart::_DragState" {
+  +int index
+  {static} +List<_DragState> values
+  {static} +_DragState ready
+  {static} +_DragState possible
+  {static} +_DragState accepted
+}
+
+abstract class "gestures::tap_and_drag.dart::_TapStatusTrackerMixin" {
+  -PointerDownEvent? _down
+  -PointerUpEvent? _up
+  -int _consecutiveTapCount
+  -OffsetPair? _originPosition
+  -int? _previousButtons
+  -Timer? _consecutiveTapTimer
+  -Offset? _lastTapOffset
+  +void Function()? onTapTrackStart
+  +void Function()? onTapTrackReset
+  +PointerDownEvent? currentDown
+  +PointerUpEvent? currentUp
+  +int consecutiveTapCount
+  +int? maxConsecutiveTap
+  +void addAllowedPointer()
+  +void handleEvent()
+  +void rejectGesture()
+  +void dispose()
+  -void _trackTap()
+  -bool _hasSameButton()
+  -bool _isWithinConsecutiveTapTolerance()
+  -bool _representsSameSeries()
+  -void _consecutiveTapTimerStart()
+  -void _consecutiveTapTimerStop()
+  -void _consecutiveTapTimerTimeout()
+  -void _tapTrackerReset()
+}
+
+class "gestures::pointer_signal_resolver.dart::PointerSignalResolver" {
+  -void Function(PointerSignalEvent)? _firstRegisteredCallback
+  -PointerSignalEvent? _currentEvent
+  +void register()
+  +void resolve()
+}
+
+abstract class "gestures::events.dart::PointerSignalEvent" {
+}
+
+class "gestures::long_press.dart::LongPressDownDetails" {
+  +Offset globalPosition
+  +PointerDeviceKind? kind
+  +Offset localPosition
+}
+
+class "gestures::long_press.dart::LongPressStartDetails" {
+  +Offset globalPosition
+  +Offset localPosition
+}
+
+class "gestures::long_press.dart::LongPressMoveUpdateDetails" {
+  +Offset globalPosition
+  +Offset localPosition
+  +Offset offsetFromOrigin
+  +Offset localOffsetFromOrigin
+}
+
+class "gestures::long_press.dart::LongPressEndDetails" {
+  +Offset globalPosition
+  +Offset localPosition
+  +Velocity velocity
+}
+
+class "gestures::long_press.dart::LongPressGestureRecognizer" {
+  -bool _longPressAccepted
+  -OffsetPair? _longPressOrigin
+  -int? _initialButtons
+  +void Function(LongPressDownDetails)? onLongPressDown
+  +void Function()? onLongPressCancel
+  +void Function()? onLongPress
+  +void Function(LongPressStartDetails)? onLongPressStart
+  +void Function(LongPressMoveUpdateDetails)? onLongPressMoveUpdate
+  +void Function()? onLongPressUp
+  +void Function(LongPressEndDetails)? onLongPressEnd
+  +void Function(LongPressDownDetails)? onSecondaryLongPressDown
+  +void Function()? onSecondaryLongPressCancel
+  +void Function()? onSecondaryLongPress
+  +void Function(LongPressStartDetails)? onSecondaryLongPressStart
+  +void Function(LongPressMoveUpdateDetails)? onSecondaryLongPressMoveUpdate
+  +void Function()? onSecondaryLongPressUp
+  +void Function(LongPressEndDetails)? onSecondaryLongPressEnd
+  +void Function(LongPressDownDetails)? onTertiaryLongPressDown
+  +void Function()? onTertiaryLongPressCancel
+  +void Function()? onTertiaryLongPress
+  +void Function(LongPressStartDetails)? onTertiaryLongPressStart
+  +void Function(LongPressMoveUpdateDetails)? onTertiaryLongPressMoveUpdate
+  +void Function()? onTertiaryLongPressUp
+  +void Function(LongPressEndDetails)? onTertiaryLongPressEnd
+  -VelocityTracker? _velocityTracker
+  +String debugDescription
+  {static} -bool _defaultButtonAcceptBehavior()
+  +bool isPointerAllowed()
+  +void didExceedDeadline()
+  +void handlePrimaryPointer()
+  -void _checkLongPressDown()
+  -void _checkLongPressCancel()
+  -void _checkLongPressStart()
+  -void _checkLongPressMoveUpdate()
+  -void _checkLongPressEnd()
+  -void _reset()
+  +void resolve()
+  +void acceptGesture()
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+class "gestures::arena.dart::GestureDisposition" {
+  +int index
+  {static} +List<GestureDisposition> values
+  {static} +GestureDisposition accepted
+  {static} +GestureDisposition rejected
+}
+
+abstract class "gestures::events.dart::PointerEvent" {
+  +int viewId
+  +int embedderId
+  +Duration timeStamp
+  +int pointer
+  +PointerDeviceKind kind
+  +int device
+  +Offset position
+  +Offset delta
+  +int buttons
+  +bool down
+  +bool obscured
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +bool synthesized
+  +Matrix4? transform
+  +PointerEvent? original
+  +Offset localPosition
+  +Offset localDelta
+  +double distanceMin
+  +PointerEvent transformed()
+  +PointerEvent copyWith()
+  {static} +Offset transformPosition()
+  {static} +Offset transformDeltaViaPositions()
+  {static} +Matrix4 removePerspectiveTransform()
+}
+
+class "gestures::events.dart::PointerDownEvent" {
+  +PointerDownEvent transformed()
+}
+
+class "gestures::velocity_tracker.dart::Velocity" {
+  {static} +Velocity zero
+  +Offset pixelsPerSecond
+  +int hashCode
+  +Velocity unary-()
+  +Velocity -()
+  +Velocity +()
+  +Velocity clampMagnitude()
+  +bool ==()
+  +String toString()
+}
+
+class "gestures::drag_details.dart::DragDownDetails" {
+  +Offset globalPosition
+  +Offset localPosition
+  +String toString()
+}
+
+class "gestures::drag_details.dart::DragStartDetails" {
+  +Duration? sourceTimeStamp
+  +Offset globalPosition
+  +Offset localPosition
+  +PointerDeviceKind? kind
+  +String toString()
+}
+
+class "gestures::drag_details.dart::DragUpdateDetails" {
+  +Duration? sourceTimeStamp
+  +Offset delta
+  +double? primaryDelta
+  +Offset globalPosition
+  +Offset localPosition
+  +String toString()
+}
+
+class "gestures::drag_details.dart::DragEndDetails" {
+  +Velocity velocity
+  +double? primaryVelocity
+  +String toString()
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+class "gestures::velocity_tracker.dart::Velocity" {
+  {static} +Velocity zero
+  +Offset pixelsPerSecond
+  +int hashCode
+  +Velocity unary-()
+  +Velocity -()
+  +Velocity +()
+  +Velocity clampMagnitude()
+  +bool ==()
+  +String toString()
+}
+
+class "gestures::scale.dart::_PointerPanZoomData" {
+  +ScaleGestureRecognizer parent
+  -Offset _position
+  -Offset _pan
+  -double _scale
+  -double _rotation
+  +Offset focalPoint
+  +double scale
+  +double rotation
+  +String toString()
+}
+
+class "gestures::scale.dart::ScaleStartDetails" {
+  +Offset focalPoint
+  +Offset localFocalPoint
+  +int pointerCount
+  +String toString()
+}
+
+class "gestures::scale.dart::ScaleUpdateDetails" {
+  +Offset focalPointDelta
+  +Offset focalPoint
+  +Offset localFocalPoint
+  +double scale
+  +double horizontalScale
+  +double verticalScale
+  +double rotation
+  +int pointerCount
+  +String toString()
+}
+
+class "gestures::scale.dart::ScaleEndDetails" {
+  +Velocity velocity
+  +double scaleVelocity
+  +int pointerCount
+  +String toString()
+}
+
+class "gestures::scale.dart::_LineBetweenPointers" {
+  +Offset pointerStartLocation
+  +int pointerStartId
+  +Offset pointerEndLocation
+  +int pointerEndId
+}
+
+class "gestures::scale.dart::ScaleGestureRecognizer" {
+  +DragStartBehavior dragStartBehavior
+  +void Function(ScaleStartDetails)? onStart
+  +void Function(ScaleUpdateDetails)? onUpdate
+  +void Function(ScaleEndDetails)? onEnd
+  -_ScaleState _state
+  -Matrix4? _lastTransform
+  +bool trackpadScrollCausesScale
+  +Offset trackpadScrollToScaleFactor
+  -Offset _initialFocalPoint
+  -Offset? _currentFocalPoint
+  -double _initialSpan
+  -double _currentSpan
+  -double _initialHorizontalSpan
+  -double _currentHorizontalSpan
+  -double _initialVerticalSpan
+  -double _currentVerticalSpan
+  -Offset _localFocalPoint
+  -_LineBetweenPointers? _initialLine
+  -_LineBetweenPointers? _currentLine
+  -Map<int, Offset> _pointerLocations
+  -List<int> _pointerQueue
+  -Map<int, VelocityTracker> _velocityTrackers
+  -VelocityTracker? _scaleVelocityTracker
+  -Offset _delta
+  -Map<int, _PointerPanZoomData> _pointerPanZooms
+  -double _initialPanZoomScaleFactor
+  -double _initialPanZoomRotationFactor
+  +int pointerCount
+  -double _pointerScaleFactor
+  -double _pointerHorizontalScaleFactor
+  -double _pointerVerticalScaleFactor
+  -double _scaleFactor
+  -double _horizontalScaleFactor
+  -double _verticalScaleFactor
+  +String debugDescription
+  -double _computeRotationFactor()
+  +void addAllowedPointer()
+  +bool isPointerPanZoomAllowed()
+  +void addAllowedPointerPanZoom()
+  +void handleEvent()
+  -void _update()
+  -void _updateLines()
+  -bool _reconfigure()
+  -void _advanceStateMachine()
+  -void _dispatchOnStartCallbackIfNeeded()
+  +void acceptGesture()
+  +void rejectGesture()
+  +void didStopTrackingLastPointer()
+  +void dispose()
+}
+
+class "gestures::scale.dart::_ScaleState" {
+  +int index
+  {static} +List<_ScaleState> values
+  {static} +_ScaleState ready
+  {static} +_ScaleState possible
+  {static} +_ScaleState accepted
+  {static} +_ScaleState started
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+abstract class "gestures::events.dart::PointerEvent" {
+  +int viewId
+  +int embedderId
+  +Duration timeStamp
+  +int pointer
+  +PointerDeviceKind kind
+  +int device
+  +Offset position
+  +Offset delta
+  +int buttons
+  +bool down
+  +bool obscured
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +bool synthesized
+  +Matrix4? transform
+  +PointerEvent? original
+  +Offset localPosition
+  +Offset localDelta
+  +double distanceMin
+  +PointerEvent transformed()
+  +PointerEvent copyWith()
+  {static} +Offset transformPosition()
+  {static} +Offset transformDeltaViaPositions()
+  {static} +Matrix4 removePerspectiveTransform()
+}
+
+class "gestures::events.dart::PointerDownEvent" {
+  +PointerDownEvent transformed()
+}
+
+class "gestures::events.dart::PointerPanZoomStartEvent" {
+  +PointerPanZoomStartEvent transformed()
+}
+
+class "gestures::recognizer.dart::DragStartBehavior" {
+  +int index
+  {static} +List<DragStartBehavior> values
+  {static} +DragStartBehavior down
+  {static} +DragStartBehavior start
+}
+
+class "gestures::velocity_tracker.dart::Velocity" {
+  {static} +Velocity zero
+  +Offset pixelsPerSecond
+  +int hashCode
+  +Velocity unary-()
+  +Velocity -()
+  +Velocity +()
+  +Velocity clampMagnitude()
+  +bool ==()
+  +String toString()
+}
+
+class "gestures::resampler.dart::PointerEventResampler" {
+  -Queue<PointerEvent> _queuedEvents
+  -PointerEvent? _last
+  -PointerEvent? _next
+  -Offset _position
+  -bool _isTracked
+  -bool _isDown
+  -int _pointerIdentifier
+  -int _hasButtons
+  +bool hasPendingEvents
+  +bool isTracked
+  +bool isDown
+  -PointerEvent _toHoverEvent()
+  -PointerEvent _toMoveEvent()
+  -PointerEvent _toMoveOrHoverEvent()
+  -Offset _positionAt()
+  -void _processPointerEvents()
+  -void _dequeueAndSampleNonHoverOrMovePointerEventsUntil()
+  -void _samplePointerPosition()
+  +void addEvent()
+  +void sample()
+  +void stop()
+}
+
+abstract class "gestures::events.dart::PointerEvent" {
+  +int viewId
+  +int embedderId
+  +Duration timeStamp
+  +int pointer
+  +PointerDeviceKind kind
+  +int device
+  +Offset position
+  +Offset delta
+  +int buttons
+  +bool down
+  +bool obscured
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +bool synthesized
+  +Matrix4? transform
+  +PointerEvent? original
+  +Offset localPosition
+  +Offset localDelta
+  +double distanceMin
+  +PointerEvent transformed()
+  +PointerEvent copyWith()
+  {static} +Offset transformPosition()
+  {static} +Offset transformDeltaViaPositions()
+  {static} +Matrix4 removePerspectiveTransform()
+}
+
+abstract class "gestures::events.dart::PointerEvent" {
+  +int viewId
+  +int embedderId
+  +Duration timeStamp
+  +int pointer
+  +PointerDeviceKind kind
+  +int device
+  +Offset position
+  +Offset delta
+  +int buttons
+  +bool down
+  +bool obscured
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +bool synthesized
+  +Matrix4? transform
+  +PointerEvent? original
+  +Offset localPosition
+  +Offset localDelta
+  +double distanceMin
+  +PointerEvent transformed()
+  +PointerEvent copyWith()
+  {static} +Offset transformPosition()
+  {static} +Offset transformDeltaViaPositions()
+  {static} +Matrix4 removePerspectiveTransform()
+}
+
+abstract class "gestures::events.dart::_AbstractPointerEvent" {
+}
+
+abstract class "gestures::events.dart::_TransformedPointerEvent" {
+  +Offset localPosition
+  +Offset localDelta
+  +PointerEvent original
+  +Matrix4 transform
+  +int embedderId
+  +Duration timeStamp
+  +int pointer
+  +PointerDeviceKind kind
+  +int device
+  +Offset position
+  +Offset delta
+  +int buttons
+  +bool down
+  +bool obscured
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMin
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +bool synthesized
+  +int viewId
+}
+
+class "gestures::events.dart::PointerAddedEvent" {
+  +PointerAddedEvent transformed()
+}
+
+class "gestures::events.dart::_TransformedPointerAddedEvent" {
+  +PointerAddedEvent original
+  +Matrix4 transform
+  +PointerAddedEvent transformed()
+}
+
+class "gestures::events.dart::PointerRemovedEvent" {
+  +PointerRemovedEvent transformed()
+}
+
+class "gestures::events.dart::_TransformedPointerRemovedEvent" {
+  +PointerRemovedEvent original
+  +Matrix4 transform
+  +PointerRemovedEvent transformed()
+}
+
+class "gestures::events.dart::PointerHoverEvent" {
+  +PointerHoverEvent transformed()
+}
+
+class "gestures::events.dart::_TransformedPointerHoverEvent" {
+  +PointerHoverEvent original
+  +Matrix4 transform
+  +PointerHoverEvent transformed()
+}
+
+class "gestures::events.dart::PointerEnterEvent" {
+  +PointerEnterEvent transformed()
+}
+
+class "gestures::events.dart::_TransformedPointerEnterEvent" {
+  +PointerEnterEvent original
+  +Matrix4 transform
+  +PointerEnterEvent transformed()
+}
+
+class "gestures::events.dart::PointerExitEvent" {
+  +PointerExitEvent transformed()
+}
+
+class "gestures::events.dart::_TransformedPointerExitEvent" {
+  +PointerExitEvent original
+  +Matrix4 transform
+  +PointerExitEvent transformed()
+}
+
+class "gestures::events.dart::PointerDownEvent" {
+  +PointerDownEvent transformed()
+}
+
+class "gestures::events.dart::_TransformedPointerDownEvent" {
+  +PointerDownEvent original
+  +Matrix4 transform
+  +PointerDownEvent transformed()
+}
+
+class "gestures::events.dart::PointerMoveEvent" {
+  +PointerMoveEvent transformed()
+}
+
+class "gestures::events.dart::_TransformedPointerMoveEvent" {
+  +PointerMoveEvent original
+  +Matrix4 transform
+  +PointerMoveEvent transformed()
+}
+
+class "gestures::events.dart::PointerUpEvent" {
+  +PointerUpEvent transformed()
+}
+
+class "gestures::events.dart::_TransformedPointerUpEvent" {
+  +PointerUpEvent original
+  +Matrix4 transform
+  +PointerUpEvent transformed()
+}
+
+abstract class "gestures::events.dart::PointerSignalEvent" {
+}
+
+class "gestures::events.dart::PointerScrollEvent" {
+  +Offset scrollDelta
+  +PointerScrollEvent transformed()
+  +void debugFillProperties()
+}
+
+class "gestures::events.dart::_TransformedPointerScrollEvent" {
+  +PointerScrollEvent original
+  +Matrix4 transform
+  +Offset scrollDelta
+  +PointerScrollEvent transformed()
+  +void debugFillProperties()
+}
+
+class "gestures::events.dart::PointerScrollInertiaCancelEvent" {
+  +PointerScrollInertiaCancelEvent transformed()
+}
+
+class "gestures::events.dart::_TransformedPointerScrollInertiaCancelEvent" {
+  +PointerScrollInertiaCancelEvent original
+  +Matrix4 transform
+  +PointerScrollInertiaCancelEvent transformed()
+}
+
+class "gestures::events.dart::PointerScaleEvent" {
+  +double scale
+  +PointerScaleEvent transformed()
+}
+
+class "gestures::events.dart::_TransformedPointerScaleEvent" {
+  +PointerScaleEvent original
+  +Matrix4 transform
+  +double scale
+  +PointerScaleEvent transformed()
+}
+
+class "gestures::events.dart::PointerPanZoomStartEvent" {
+  +PointerPanZoomStartEvent transformed()
+}
+
+class "gestures::events.dart::_TransformedPointerPanZoomStartEvent" {
+  +PointerPanZoomStartEvent original
+  +Matrix4 transform
+  +PointerPanZoomStartEvent transformed()
+}
+
+class "gestures::events.dart::PointerPanZoomUpdateEvent" {
+  +Offset pan
+  +Offset panDelta
+  +double scale
+  +double rotation
+  +Offset localPan
+  +Offset localPanDelta
+  +PointerPanZoomUpdateEvent transformed()
+}
+
+class "gestures::events.dart::_TransformedPointerPanZoomUpdateEvent" {
+  +Offset localPan
+  +Offset localPanDelta
+  +PointerPanZoomUpdateEvent original
+  +Matrix4 transform
+  +Offset pan
+  +Offset panDelta
+  +double scale
+  +double rotation
+  +PointerPanZoomUpdateEvent transformed()
+}
+
+class "gestures::events.dart::PointerPanZoomEndEvent" {
+  +PointerPanZoomEndEvent transformed()
+}
+
+class "gestures::events.dart::_TransformedPointerPanZoomEndEvent" {
+  +PointerPanZoomEndEvent original
+  +Matrix4 transform
+  +PointerPanZoomEndEvent transformed()
+}
+
+class "gestures::events.dart::PointerCancelEvent" {
+  +PointerCancelEvent transformed()
+}
+
+class "gestures::events.dart::_TransformedPointerCancelEvent" {
+  +PointerCancelEvent original
+  +Matrix4 transform
+  +PointerCancelEvent transformed()
+}
+
+abstract class "gestures::events.dart::_PointerEventDescription" {
+  +void debugFillProperties()
+  +String toStringFull()
+}
+
+abstract class "gestures::events.dart::_CopyPointerAddedEvent" {
+  +PointerAddedEvent copyWith()
+}
+
+abstract class "gestures::events.dart::_CopyPointerRemovedEvent" {
+  +PointerRemovedEvent copyWith()
+}
+
+abstract class "gestures::events.dart::_CopyPointerHoverEvent" {
+  +PointerHoverEvent copyWith()
+}
+
+abstract class "gestures::events.dart::_CopyPointerEnterEvent" {
+  +PointerEnterEvent copyWith()
+}
+
+abstract class "gestures::events.dart::_CopyPointerExitEvent" {
+  +PointerExitEvent copyWith()
+}
+
+abstract class "gestures::events.dart::_CopyPointerDownEvent" {
+  +PointerDownEvent copyWith()
+}
+
+abstract class "gestures::events.dart::_CopyPointerMoveEvent" {
+  +PointerMoveEvent copyWith()
+}
+
+abstract class "gestures::events.dart::_CopyPointerUpEvent" {
+  +PointerUpEvent copyWith()
+}
+
+abstract class "gestures::events.dart::_CopyPointerScrollEvent" {
+  +Offset scrollDelta
+  +PointerScrollEvent copyWith()
+}
+
+abstract class "gestures::events.dart::_CopyPointerScrollInertiaCancelEvent" {
+  +PointerScrollInertiaCancelEvent copyWith()
+}
+
+abstract class "gestures::events.dart::_CopyPointerScaleEvent" {
+  +double scale
+  +PointerScaleEvent copyWith()
+}
+
+abstract class "gestures::events.dart::_CopyPointerPanZoomStartEvent" {
+  +PointerPanZoomStartEvent copyWith()
+}
+
+abstract class "gestures::events.dart::_CopyPointerPanZoomUpdateEvent" {
+  +Offset pan
+  +Offset localPan
+  +Offset panDelta
+  +Offset localPanDelta
+  +double scale
+  +double rotation
+  +PointerPanZoomUpdateEvent copyWith()
+}
+
+abstract class "gestures::events.dart::_CopyPointerPanZoomEndEvent" {
+  +PointerPanZoomEndEvent copyWith()
+}
+
+abstract class "gestures::events.dart::_CopyPointerCancelEvent" {
+  +PointerCancelEvent copyWith()
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+class "flutter::src::foundation::diagnostics.dart::DiagnosticPropertiesBuilder" {
+  +List<DiagnosticsNode> properties
+  +DiagnosticsTreeStyle defaultDiagnosticsTreeStyle
+  +String? emptyBodyDescription
+  +void add()
+}
+
+class "flutter::src::foundation::diagnostics.dart::DiagnosticPropertiesBuilder" {
+  +List<DiagnosticsNode> properties
+  +DiagnosticsTreeStyle defaultDiagnosticsTreeStyle
+  +String? emptyBodyDescription
+  +void add()
+}
+
+class "vector_math::vector_math_64.dart::Matrix4" {
+  -Float64List _m4storage
+  {static} -Vector3? _decomposeV
+  {static} -Matrix4? _decomposeM
+  {static} -Matrix3? _decomposeR
+  +Float64List storage
+  +int dimension
+  +int hashCode
+  +Vector4 row0
+  +Vector4 row1
+  +Vector4 row2
+  +Vector4 row3
+  +Vector3 right
+  +Vector3 up
+  +Vector3 forward
+  {static} +void solve2()
+  {static} +void solve3()
+  {static} +void solve()
+  {static} +Matrix4? tryInvert()
+  +int index()
+  +double entry()
+  +void setEntry()
+  +void splatDiagonal()
+  +void setValues()
+  +void setColumns()
+  +void setFrom()
+  +void setFromTranslationRotation()
+  +void setFromTranslationRotationScale()
+  +void setUpper2x2()
+  +void setDiagonal()
+  +void setOuter()
+  +String toString()
+  +double []()
+  +void []=()
+  +bool ==()
+  +void setRow()
+  +Vector4 getRow()
+  +void setColumn()
+  +Vector4 getColumn()
+  +Matrix4 clone()
+  +Matrix4 copyInto()
+  +Matrix4 unary-()
+  +dynamic *()
+  +Matrix4 +()
+  +Matrix4 -()
+  +void translate()
+  +void leftTranslate()
+  +void rotate()
+  +void rotateX()
+  +void rotateY()
+  +void rotateZ()
+  +void scale()
+  +Matrix4 scaled()
+  +void setZero()
+  +void setIdentity()
+  +Matrix4 transposed()
+  +void transpose()
+  +Matrix4 absolute()
+  +double determinant()
+  +double dotRow()
+  +double dotColumn()
+  +double trace()
+  +double infinityNorm()
+  +double relativeError()
+  +double absoluteError()
+  +Vector3 getTranslation()
+  +void setTranslation()
+  +void setTranslationRaw()
+  +Matrix3 getRotation()
+  +void copyRotation()
+  +void setRotation()
+  +Matrix3 getNormalMatrix()
+  +double getMaxScaleOnAxis()
+  +void transposeRotation()
+  +double invert()
+  +double copyInverse()
+  +double invertRotation()
+  +void setRotationX()
+  +void setRotationY()
+  +void setRotationZ()
+  +void scaleAdjoint()
+  +Vector3 absoluteRotate()
+  +void add()
+  +void sub()
+  +void negate()
+  +void multiply()
+  +Matrix4 multiplied()
+  +void transposeMultiply()
+  +void multiplyTranspose()
+  +void decompose()
+  +Vector3 rotate3()
+  +Vector3 rotated3()
+  +Vector3 transform3()
+  +Vector3 transformed3()
+  +Vector4 transform()
+  +Vector3 perspectiveTransform()
+  +Vector4 transformed()
+  +void copyIntoArray()
+  +void copyFromArray()
+  +List<double> applyToVector3Array()
+  +bool isIdentity()
+  +bool isZero()
+}
+
+class "gestures::gesture_settings.dart::DeviceGestureSettings" {
+  +double? touchSlop
+  +double? panSlop
+  +int hashCode
+  +bool ==()
+  +String toString()
+}
+
+class "gestures::gesture_settings.dart::DeviceGestureSettings" {
+  +double? touchSlop
+  +double? panSlop
+  +int hashCode
+  +bool ==()
+  +String toString()
+}
+
+abstract class "dart::ui::FlutterView" {
+  +PlatformDispatcher platformDispatcher
+  +ViewConfiguration viewConfiguration
+  +double devicePixelRatio
+  +Rect physicalGeometry
+  +Size physicalSize
+  +WindowPadding viewInsets
+  +WindowPadding viewPadding
+  +WindowPadding systemGestureInsets
+  +WindowPadding padding
+  +List<DisplayFeature> displayFeatures
+  +void render()
+  -void _render()
+}
+
+abstract class "gestures::monodrag.dart::DragGestureRecognizer" {
+  +DragStartBehavior dragStartBehavior
+  +void Function(DragDownDetails)? onDown
+  +void Function(DragStartDetails)? onStart
+  +void Function(DragUpdateDetails)? onUpdate
+  +void Function(DragEndDetails)? onEnd
+  +void Function()? onCancel
+  +double? minFlingDistance
+  +double? minFlingVelocity
+  +double? maxFlingVelocity
+  +bool onlyAcceptDragOnThreshold
+  +VelocityTracker Function(PointerEvent) velocityTrackerBuilder
+  -_DragState _state
+  -OffsetPair _initialPosition
+  -OffsetPair _pendingDragOffset
+  -Duration? _lastPendingEventTimestamp
+  -int? _initialButtons
+  -Matrix4? _lastTransform
+  -double _globalDistanceMoved
+  -bool _hasDragThresholdBeenMet
+  -Map<int, VelocityTracker> _velocityTrackers
+  -Set<int> _acceptedActivePointers
+  +Duration? debugLastPendingEventTimestamp
+  {static} -VelocityTracker _defaultBuilder()
+  {static} -bool _defaultButtonAcceptBehavior()
+  +bool isFlingGesture()
+  -DragEndDetails? _considerFling()
+  -Offset _getDeltaForDetails()
+  -double? _getPrimaryValueFromOffset()
+  -bool _hasSufficientGlobalDistanceToAccept()
+  +bool isPointerAllowed()
+  -void _addPointer()
+  +void addAllowedPointer()
+  +void addAllowedPointerPanZoom()
+  +void handleEvent()
+  +void acceptGesture()
+  +void rejectGesture()
+  +void didStopTrackingLastPointer()
+  -void _giveUpPointer()
+  -void _checkDown()
+  -void _checkDrag()
+  -void _checkStart()
+  -void _checkUpdate()
+  -void _checkEnd()
+  -void _checkCancel()
+  +void dispose()
+  +void debugFillProperties()
+}
+
+class "gestures::monodrag.dart::VerticalDragGestureRecognizer" {
+  +String debugDescription
+  +bool isFlingGesture()
+  -DragEndDetails? _considerFling()
+  -bool _hasSufficientGlobalDistanceToAccept()
+  -Offset _getDeltaForDetails()
+  -double _getPrimaryValueFromOffset()
+}
+
+class "gestures::monodrag.dart::HorizontalDragGestureRecognizer" {
+  +String debugDescription
+  +bool isFlingGesture()
+  -DragEndDetails? _considerFling()
+  -bool _hasSufficientGlobalDistanceToAccept()
+  -Offset _getDeltaForDetails()
+  -double _getPrimaryValueFromOffset()
+}
+
+class "gestures::monodrag.dart::PanGestureRecognizer" {
+  +String debugDescription
+  +bool isFlingGesture()
+  -DragEndDetails? _considerFling()
+  -bool _hasSufficientGlobalDistanceToAccept()
+  -Offset _getDeltaForDetails()
+  -double? _getPrimaryValueFromOffset()
+}
+
+class "gestures::monodrag.dart::_DragState" {
+  +int index
+  {static} +List<_DragState> values
+  {static} +_DragState ready
+  {static} +_DragState possible
+  {static} +_DragState accepted
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+class "flutter::src::foundation::diagnostics.dart::DiagnosticPropertiesBuilder" {
+  +List<DiagnosticsNode> properties
+  +DiagnosticsTreeStyle defaultDiagnosticsTreeStyle
+  +String? emptyBodyDescription
+  +void add()
+}
+
+class "flutter::src::foundation::diagnostics.dart::DiagnosticPropertiesBuilder" {
+  +List<DiagnosticsNode> properties
+  +DiagnosticsTreeStyle defaultDiagnosticsTreeStyle
+  +String? emptyBodyDescription
+  +void add()
+}
+
+class "gestures::drag_details.dart::DragUpdateDetails" {
+  +Duration? sourceTimeStamp
+  +Offset delta
+  +double? primaryDelta
+  +Offset globalPosition
+  +Offset localPosition
+  +String toString()
+}
+
+class "gestures::drag_details.dart::DragEndDetails" {
+  +Velocity velocity
+  +double? primaryVelocity
+  +String toString()
+}
+
+class "gestures::drag_details.dart::DragDownDetails" {
+  +Offset globalPosition
+  +Offset localPosition
+  +String toString()
+}
+
+class "gestures::drag_details.dart::DragStartDetails" {
+  +Duration? sourceTimeStamp
+  +Offset globalPosition
+  +Offset localPosition
+  +PointerDeviceKind? kind
+  +String toString()
+}
+
+class "gestures::drag_details.dart::DragUpdateDetails" {
+  +Duration? sourceTimeStamp
+  +Offset delta
+  +double? primaryDelta
+  +Offset globalPosition
+  +Offset localPosition
+  +String toString()
+}
+
+abstract class "gestures::events.dart::PointerEvent" {
+  +int viewId
+  +int embedderId
+  +Duration timeStamp
+  +int pointer
+  +PointerDeviceKind kind
+  +int device
+  +Offset position
+  +Offset delta
+  +int buttons
+  +bool down
+  +bool obscured
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +bool synthesized
+  +Matrix4? transform
+  +PointerEvent? original
+  +Offset localPosition
+  +Offset localDelta
+  +double distanceMin
+  +PointerEvent transformed()
+  +PointerEvent copyWith()
+  {static} +Offset transformPosition()
+  {static} +Offset transformDeltaViaPositions()
+  {static} +Matrix4 removePerspectiveTransform()
+}
+
+class "gestures::events.dart::PointerDownEvent" {
+  +PointerDownEvent transformed()
+}
+
+class "gestures::events.dart::PointerPanZoomStartEvent" {
+  +PointerPanZoomStartEvent transformed()
+}
+
+class "gestures::recognizer.dart::DragStartBehavior" {
+  +int index
+  {static} +List<DragStartBehavior> values
+  {static} +DragStartBehavior down
+  {static} +DragStartBehavior start
+}
+
+class "gestures::velocity_tracker.dart::VelocityEstimate" {
+  +Offset pixelsPerSecond
+  +double confidence
+  +Duration duration
+  +Offset offset
+  +String toString()
+}
+
+class "gestures::velocity_tracker.dart::VelocityTracker" {
+  {static} -int _assumePointerMoveStoppedMilliseconds
+  {static} -int _historySize
+  {static} -int _horizonMilliseconds
+  {static} -int _minSampleSize
+  +PointerDeviceKind kind
+  -Stopwatch _sinceLastSample
+  -List<_PointAtTime?> _samples
+  -int _index
+  +void addPosition()
+  +VelocityEstimate? getVelocityEstimate()
+  +Velocity getVelocity()
+}
+
+class "gestures::binding.dart::SamplingClock" {
+  +DateTime now()
+  +Stopwatch stopwatch()
+}
+
+class "gestures::binding.dart::_Resampler" {
+  -Map<int, PointerEventResampler> _resamplers
+  -bool _frameCallbackScheduled
+  -Duration _frameTime
+  -Stopwatch _frameTimeAge
+  -Duration _lastSampleTime
+  -Duration _lastEventTime
+  -void Function(PointerEvent) _handlePointerEvent
+  -void Function() _handleSampleTimeChanged
+  -Duration _samplingInterval
+  -Timer? _timer
+  +void addOrDispatch()
+  +void sample()
+  +void stop()
+  -void _onSampleTimeChanged()
+}
+
+class "gestures::binding.dart::FlutterErrorDetailsForPointerEventDispatcher" {
+  +PointerEvent? event
+  +HitTestEntry<HitTestTarget>? hitTestEntry
+}
+
+abstract class "gestures::binding.dart::GestureBinding" {
+  {static} -GestureBinding? _instance
+  -Queue<PointerEvent> _pendingPointerEvents
+  +PointerRouter pointerRouter
+  +GestureArenaManager gestureArena
+  +PointerSignalResolver pointerSignalResolver
+  -Map<int, HitTestResult> _hitTests
+  -_Resampler _resampler
+  +bool resamplingEnabled
+  +Duration samplingOffset
+  {static} +GestureBinding instance
+  +SamplingClock? debugSamplingClock
+  -SamplingClock _samplingClock
+  +void initInstances()
+  +void unlocked()
+  -void _handlePointerDataPacket()
+  -double? _devicePixelRatioForView()
+  +void cancelPointer()
+  -void _flushPointerEventQueue()
+  +void handlePointerEvent()
+  -void _handlePointerEventImmediately()
+  +void hitTestInView()
+  +void hitTest()
+  +void dispatchEvent()
+  +void handleEvent()
+  #void resetGestureBinding()
+  -void _handleSampleTimeChanged()
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+abstract class "flutter::src::foundation::diagnostics.dart::DiagnosticsNode" {
+  +String? name
+  +bool showSeparator
+  +bool showName
+  +String? linePrefix
+  +DiagnosticsTreeStyle? style
+  +DiagnosticLevel level
+  +String? emptyBodyDescription
+  +Object? value
+  +bool allowWrap
+  +bool allowNameWrap
+  +bool allowTruncate
+  -String _separator
+  +TextTreeConfiguration? textTreeConfiguration
+  +String toDescription()
+  +bool isFiltered()
+  +List<DiagnosticsNode> getProperties()
+  +List<DiagnosticsNode> getChildren()
+  +Map<String, String>? toTimelineArguments()
+  +Map<String, Object?> toJsonMap()
+  {static} +List<Map<String, Object?>> toJsonList()
+  +String toString()
+  +String toStringDeep()
+}
+
+abstract class "flutter::src::foundation::diagnostics.dart::DiagnosticsNode" {
+  +String? name
+  +bool showSeparator
+  +bool showName
+  +String? linePrefix
+  +DiagnosticsTreeStyle? style
+  +DiagnosticLevel level
+  +String? emptyBodyDescription
+  +Object? value
+  +bool allowWrap
+  +bool allowNameWrap
+  +bool allowTruncate
+  -String _separator
+  +TextTreeConfiguration? textTreeConfiguration
+  +String toDescription()
+  +bool isFiltered()
+  +List<DiagnosticsNode> getProperties()
+  +List<DiagnosticsNode> getChildren()
+  +Map<String, String>? toTimelineArguments()
+  +Map<String, Object?> toJsonMap()
+  {static} +List<Map<String, Object?>> toJsonList()
+  +String toString()
+  +String toStringDeep()
+}
+
+class "gestures::arena.dart::GestureArenaManager" {
+  -Map<int, _GestureArena> _arenas
+  +GestureArenaEntry add()
+  +void close()
+  +void sweep()
+  +void hold()
+  +void release()
+  -void _resolve()
+  -void _tryToResolveArena()
+  -void _resolveByDefault()
+  -void _resolveInFavorOf()
+  -bool _debugLogDiagnostic()
+}
+
+abstract class "gestures::events.dart::PointerEvent" {
+  +int viewId
+  +int embedderId
+  +Duration timeStamp
+  +int pointer
+  +PointerDeviceKind kind
+  +int device
+  +Offset position
+  +Offset delta
+  +int buttons
+  +bool down
+  +bool obscured
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +bool synthesized
+  +Matrix4? transform
+  +PointerEvent? original
+  +Offset localPosition
+  +Offset localDelta
+  +double distanceMin
+  +PointerEvent transformed()
+  +PointerEvent copyWith()
+  {static} +Offset transformPosition()
+  {static} +Offset transformDeltaViaPositions()
+  {static} +Matrix4 removePerspectiveTransform()
+}
+
+class "gestures::hit_test.dart::HitTestTarget" {
+  +void handleEvent()
+}
+
+class "gestures::hit_test.dart::HitTestEntry" {
+  +T target
+  -Matrix4? _transform
+  +Matrix4? transform
+  +String toString()
+}
+
+class "gestures::hit_test.dart::HitTestResult" {
+  -List<HitTestEntry<HitTestTarget>> _path
+  -List<Matrix4> _transforms
+  -List<_TransformPart> _localTransforms
+  +Iterable<HitTestEntry<HitTestTarget>> path
+  -Matrix4 _lastTransform
+  -void _globalizeTransforms()
+  +void add()
+  #void pushTransform()
+  #void pushOffset()
+  #void popTransform()
+  -bool _debugVectorMoreOrLessEquals()
+  +String toString()
+}
+
+class "gestures::pointer_router.dart::PointerRouter" {
+  -Map<int, Map<void Function(PointerEvent), Matrix4?>> _routeMap
+  -Map<void Function(PointerEvent), Matrix4?> _globalRoutes
+  +int debugGlobalRouteCount
+  +void addRoute()
+  +void removeRoute()
+  +void addGlobalRoute()
+  +void removeGlobalRoute()
+  -void _dispatch()
+  +void route()
+  -void _dispatchEventToRoutes()
+}
+
+class "gestures::pointer_signal_resolver.dart::PointerSignalResolver" {
+  -void Function(PointerSignalEvent)? _firstRegisteredCallback
+  -PointerSignalEvent? _currentEvent
+  +void register()
+  +void resolve()
+}
+
+class "gestures::pointer_router.dart::PointerRouter" {
+  -Map<int, Map<void Function(PointerEvent), Matrix4?>> _routeMap
+  -Map<void Function(PointerEvent), Matrix4?> _globalRoutes
+  +int debugGlobalRouteCount
+  +void addRoute()
+  +void removeRoute()
+  +void addGlobalRoute()
+  +void removeGlobalRoute()
+  -void _dispatch()
+  +void route()
+  -void _dispatchEventToRoutes()
+}
+
+class "vector_math::vector_math_64.dart::Matrix4" {
+  -Float64List _m4storage
+  {static} -Vector3? _decomposeV
+  {static} -Matrix4? _decomposeM
+  {static} -Matrix3? _decomposeR
+  +Float64List storage
+  +int dimension
+  +int hashCode
+  +Vector4 row0
+  +Vector4 row1
+  +Vector4 row2
+  +Vector4 row3
+  +Vector3 right
+  +Vector3 up
+  +Vector3 forward
+  {static} +void solve2()
+  {static} +void solve3()
+  {static} +void solve()
+  {static} +Matrix4? tryInvert()
+  +int index()
+  +double entry()
+  +void setEntry()
+  +void splatDiagonal()
+  +void setValues()
+  +void setColumns()
+  +void setFrom()
+  +void setFromTranslationRotation()
+  +void setFromTranslationRotationScale()
+  +void setUpper2x2()
+  +void setDiagonal()
+  +void setOuter()
+  +String toString()
+  +double []()
+  +void []=()
+  +bool ==()
+  +void setRow()
+  +Vector4 getRow()
+  +void setColumn()
+  +Vector4 getColumn()
+  +Matrix4 clone()
+  +Matrix4 copyInto()
+  +Matrix4 unary-()
+  +dynamic *()
+  +Matrix4 +()
+  +Matrix4 -()
+  +void translate()
+  +void leftTranslate()
+  +void rotate()
+  +void rotateX()
+  +void rotateY()
+  +void rotateZ()
+  +void scale()
+  +Matrix4 scaled()
+  +void setZero()
+  +void setIdentity()
+  +Matrix4 transposed()
+  +void transpose()
+  +Matrix4 absolute()
+  +double determinant()
+  +double dotRow()
+  +double dotColumn()
+  +double trace()
+  +double infinityNorm()
+  +double relativeError()
+  +double absoluteError()
+  +Vector3 getTranslation()
+  +void setTranslation()
+  +void setTranslationRaw()
+  +Matrix3 getRotation()
+  +void copyRotation()
+  +void setRotation()
+  +Matrix3 getNormalMatrix()
+  +double getMaxScaleOnAxis()
+  +void transposeRotation()
+  +double invert()
+  +double copyInverse()
+  +double invertRotation()
+  +void setRotationX()
+  +void setRotationY()
+  +void setRotationZ()
+  +void scaleAdjoint()
+  +Vector3 absoluteRotate()
+  +void add()
+  +void sub()
+  +void negate()
+  +void multiply()
+  +Matrix4 multiplied()
+  +void transposeMultiply()
+  +void multiplyTranspose()
+  +void decompose()
+  +Vector3 rotate3()
+  +Vector3 rotated3()
+  +Vector3 transform3()
+  +Vector3 transformed3()
+  +Vector4 transform()
+  +Vector3 perspectiveTransform()
+  +Vector4 transformed()
+  +void copyIntoArray()
+  +void copyFromArray()
+  +List<double> applyToVector3Array()
+  +bool isIdentity()
+  +bool isZero()
+}
+
+abstract class "gestures::events.dart::PointerEvent" {
+  +int viewId
+  +int embedderId
+  +Duration timeStamp
+  +int pointer
+  +PointerDeviceKind kind
+  +int device
+  +Offset position
+  +Offset delta
+  +int buttons
+  +bool down
+  +bool obscured
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +bool synthesized
+  +Matrix4? transform
+  +PointerEvent? original
+  +Offset localPosition
+  +Offset localDelta
+  +double distanceMin
+  +PointerEvent transformed()
+  +PointerEvent copyWith()
+  {static} +Offset transformPosition()
+  {static} +Offset transformDeltaViaPositions()
+  {static} +Matrix4 removePerspectiveTransform()
+}
+
+
+@enduml

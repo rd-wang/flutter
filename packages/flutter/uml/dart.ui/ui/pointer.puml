@@ -1,0 +1,83 @@
+@startuml
+
+class "ui.dart::PointerData" {
+  +int viewId
+  +int embedderId
+  +Duration timeStamp
+  +PointerChange change
+  +PointerDeviceKind kind
+  +PointerSignalKind? signalKind
+  +int device
+  +int pointerIdentifier
+  +double physicalX
+  +double physicalY
+  +double physicalDeltaX
+  +double physicalDeltaY
+  +int buttons
+  +bool obscured
+  +bool synthesized
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +double scrollDeltaX
+  +double scrollDeltaY
+  +double panX
+  +double panY
+  +double panDeltaX
+  +double panDeltaY
+  +double scale
+  +double rotation
+  +String toString()
+  +String toStringFull()
+}
+
+class "ui.dart::PointerDataPacket" {
+  +List<PointerData> data
+}
+
+class "ui.dart::PointerChange" {
+  +int index
+  {static} +List<PointerChange> values
+  {static} +PointerChange cancel
+  {static} +PointerChange add
+  {static} +PointerChange remove
+  {static} +PointerChange hover
+  {static} +PointerChange down
+  {static} +PointerChange move
+  {static} +PointerChange up
+  {static} +PointerChange panZoomStart
+  {static} +PointerChange panZoomUpdate
+  {static} +PointerChange panZoomEnd
+}
+
+class "ui.dart::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+class "ui.dart::PointerSignalKind" {
+  +int index
+  {static} +List<PointerSignalKind> values
+  {static} +PointerSignalKind none
+  {static} +PointerSignalKind scroll
+  {static} +PointerSignalKind scrollInertiaCancel
+  {static} +PointerSignalKind scale
+  {static} +PointerSignalKind unknown
+}
+@enduml

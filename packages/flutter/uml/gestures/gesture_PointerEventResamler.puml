@@ -1,0 +1,25 @@
+@startuml
+class "gestures::resampler::PointerEventResampler" {
+  -Queue<PointerEvent> _queuedEvents
+  -PointerEvent? _last
+  -PointerEvent? _next
+  -Offset _position
+  -bool _isTracked
+  -bool _isDown
+  -int _pointerIdentifier
+  -int _hasButtons
+  +bool hasPendingEvents
+  +bool isTracked
+  +bool isDown
+  -PointerEvent _toHoverEvent()
+  -PointerEvent _toMoveEvent()
+  -PointerEvent _toMoveOrHoverEvent()
+  -Offset _positionAt()
+  -void _processPointerEvents()
+  -void _dequeueAndSampleNonHoverOrMovePointerEventsUntil()
+  -void _samplePointerPosition()
+  +void addEvent()
+  +void sample()
+  +void stop()
+}
+@enduml

@@ -1,0 +1,212 @@
+@startuml
+set namespaceSeparator ::
+
+class "gestures::tap.dart::TapDownDetails" {
+  +dynamic globalPosition
+  +dynamic kind
+  +dynamic localPosition
+}
+
+class "gestures::tap.dart::TapUpDetails" {
+  +dynamic globalPosition
+  +dynamic localPosition
+  +dynamic kind
+}
+
+abstract class "gestures::tap.dart::BaseTapGestureRecognizer" {
+  -bool _sentTapDown
+  -bool _wonArenaForPrimaryPointer
+  -dynamic _down
+  -dynamic _up
+  +String debugDescription
+  #void handleTapDown()
+  #void handleTapUp()
+  #void handleTapCancel()
+  +void addAllowedPointer()
+  #void startTrackingPointer()
+  +void handlePrimaryPointer()
+  +void resolve()
+  +void didExceedDeadline()
+  +void acceptGesture()
+  +void rejectGesture()
+  -void _checkDown()
+  -void _checkUp()
+  -void _checkCancel()
+  -void _reset()
+  +void debugFillProperties()
+}
+
+class "gestures::tap.dart::TapGestureRecognizer" {
+  +void Function(TapDownDetails)? onTapDown
+  +void Function(TapUpDetails)? onTapUp
+  +void Function()? onTap
+  +void Function()? onTapCancel
+  +void Function()? onSecondaryTap
+  +void Function(TapDownDetails)? onSecondaryTapDown
+  +void Function(TapUpDetails)? onSecondaryTapUp
+  +void Function()? onSecondaryTapCancel
+  +void Function(TapDownDetails)? onTertiaryTapDown
+  +void Function(TapUpDetails)? onTertiaryTapUp
+  +void Function()? onTertiaryTapCancel
+  +String debugDescription
+  +bool isPointerAllowed()
+  #void handleTapDown()
+  #void handleTapUp()
+  #void handleTapCancel()
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+class "flutter::src::foundation::diagnostics.dart::DiagnosticPropertiesBuilder" {
+  +List<DiagnosticsNode> properties
+  +DiagnosticsTreeStyle defaultDiagnosticsTreeStyle
+  +String? emptyBodyDescription
+  +void add()
+}
+
+class "flutter::src::foundation::diagnostics.dart::DiagnosticPropertiesBuilder" {
+  +List<DiagnosticsNode> properties
+  +DiagnosticsTreeStyle defaultDiagnosticsTreeStyle
+  +String? emptyBodyDescription
+  +void add()
+}
+
+class "vector_math::vector_math_64.dart::Matrix4" {
+  -Float64List _m4storage
+  {static} -Vector3? _decomposeV
+  {static} -Matrix4? _decomposeM
+  {static} -Matrix3? _decomposeR
+  +Float64List storage
+  +int dimension
+  +int hashCode
+  +Vector4 row0
+  +Vector4 row1
+  +Vector4 row2
+  +Vector4 row3
+  +Vector3 right
+  +Vector3 up
+  +Vector3 forward
+  {static} +void solve2()
+  {static} +void solve3()
+  {static} +void solve()
+  {static} +Matrix4? tryInvert()
+  +int index()
+  +double entry()
+  +void setEntry()
+  +void splatDiagonal()
+  +void setValues()
+  +void setColumns()
+  +void setFrom()
+  +void setFromTranslationRotation()
+  +void setFromTranslationRotationScale()
+  +void setUpper2x2()
+  +void setDiagonal()
+  +void setOuter()
+  +String toString()
+  +double []()
+  +void []=()
+  +bool ==()
+  +void setRow()
+  +Vector4 getRow()
+  +void setColumn()
+  +Vector4 getColumn()
+  +Matrix4 clone()
+  +Matrix4 copyInto()
+  +Matrix4 unary-()
+  +dynamic *()
+  +Matrix4 +()
+  +Matrix4 -()
+  +void translate()
+  +void leftTranslate()
+  +void rotate()
+  +void rotateX()
+  +void rotateY()
+  +void rotateZ()
+  +void scale()
+  +Matrix4 scaled()
+  +void setZero()
+  +void setIdentity()
+  +Matrix4 transposed()
+  +void transpose()
+  +Matrix4 absolute()
+  +double determinant()
+  +double dotRow()
+  +double dotColumn()
+  +double trace()
+  +double infinityNorm()
+  +double relativeError()
+  +double absoluteError()
+  +Vector3 getTranslation()
+  +void setTranslation()
+  +void setTranslationRaw()
+  +Matrix3 getRotation()
+  +void copyRotation()
+  +void setRotation()
+  +Matrix3 getNormalMatrix()
+  +double getMaxScaleOnAxis()
+  +void transposeRotation()
+  +double invert()
+  +double copyInverse()
+  +double invertRotation()
+  +void setRotationX()
+  +void setRotationY()
+  +void setRotationZ()
+  +void scaleAdjoint()
+  +Vector3 absoluteRotate()
+  +void add()
+  +void sub()
+  +void negate()
+  +void multiply()
+  +Matrix4 multiplied()
+  +void transposeMultiply()
+  +void multiplyTranspose()
+  +void decompose()
+  +Vector3 rotate3()
+  +Vector3 rotated3()
+  +Vector3 transform3()
+  +Vector3 transformed3()
+  +Vector4 transform()
+  +Vector3 perspectiveTransform()
+  +Vector4 transformed()
+  +void copyIntoArray()
+  +void copyFromArray()
+  +List<double> applyToVector3Array()
+  +bool isIdentity()
+  +bool isZero()
+}
+
+
+@enduml

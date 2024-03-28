@@ -1,0 +1,31 @@
+@startuml
+set namespaceSeparator ::
+
+class "gestures::team.dart::_CombiningGestureArenaEntry" {
+  -_CombiningGestureArenaMember _combiner
+  -dynamic _member
+  +void resolve()
+}
+
+class "gestures::team.dart::_CombiningGestureArenaMember" {
+  -GestureArenaTeam _owner
+  -List<dynamic> _members
+  -int _pointer
+  -bool _resolved
+  -dynamic _winner
+  -dynamic _entry
+  +void acceptGesture()
+  +void rejectGesture()
+  -void _close()
+  -dynamic _add()
+  -void _resolve()
+}
+
+class "gestures::team.dart::GestureArenaTeam" {
+  -Map<int, _CombiningGestureArenaMember> _combiners
+  +dynamic captain
+  +dynamic add()
+}
+
+
+@enduml

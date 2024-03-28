@@ -1,0 +1,50 @@
+@startuml
+set namespaceSeparator ::
+
+abstract class "gestures::converter.dart::PointerEventConverter" {
+  {static} +Iterable<dynamic> expand()
+  {static} -double _toLogicalPixels()
+}
+
+class "dart::ui::PointerData" {
+  +int embedderId
+  +Duration timeStamp
+  +PointerChange change
+  +PointerDeviceKind kind
+  +PointerSignalKind? signalKind
+  +int device
+  +int pointerIdentifier
+  +double physicalX
+  +double physicalY
+  +double physicalDeltaX
+  +double physicalDeltaY
+  +int buttons
+  +bool obscured
+  +bool synthesized
+  +double pressure
+  +double pressureMin
+  +double pressureMax
+  +double distance
+  +double distanceMax
+  +double size
+  +double radiusMajor
+  +double radiusMinor
+  +double radiusMin
+  +double radiusMax
+  +double orientation
+  +double tilt
+  +int platformData
+  +double scrollDeltaX
+  +double scrollDeltaY
+  +double panX
+  +double panY
+  +double panDeltaX
+  +double panDeltaY
+  +double scale
+  +double rotation
+  +String toString()
+  +String toStringFull()
+}
+
+
+@enduml

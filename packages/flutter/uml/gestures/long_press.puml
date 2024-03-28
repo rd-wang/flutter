@@ -1,0 +1,105 @@
+@startuml
+set namespaceSeparator ::
+
+class "gestures::long_press.dart::LongPressDownDetails" {
+  +dynamic globalPosition
+  +dynamic kind
+  +dynamic localPosition
+}
+
+class "gestures::long_press.dart::LongPressStartDetails" {
+  +dynamic globalPosition
+  +dynamic localPosition
+}
+
+class "gestures::long_press.dart::LongPressMoveUpdateDetails" {
+  +dynamic globalPosition
+  +dynamic localPosition
+  +dynamic offsetFromOrigin
+  +dynamic localOffsetFromOrigin
+}
+
+class "gestures::long_press.dart::LongPressEndDetails" {
+  +dynamic globalPosition
+  +dynamic localPosition
+  +dynamic velocity
+}
+
+class "gestures::long_press.dart::LongPressGestureRecognizer" {
+  -bool _longPressAccepted
+  -dynamic _longPressOrigin
+  -int? _initialButtons
+  +void Function(LongPressDownDetails)? onLongPressDown
+  +void Function()? onLongPressCancel
+  +void Function()? onLongPress
+  +void Function(LongPressStartDetails)? onLongPressStart
+  +void Function(LongPressMoveUpdateDetails)? onLongPressMoveUpdate
+  +void Function()? onLongPressUp
+  +void Function(LongPressEndDetails)? onLongPressEnd
+  +void Function(LongPressDownDetails)? onSecondaryLongPressDown
+  +void Function()? onSecondaryLongPressCancel
+  +void Function()? onSecondaryLongPress
+  +void Function(LongPressStartDetails)? onSecondaryLongPressStart
+  +void Function(LongPressMoveUpdateDetails)? onSecondaryLongPressMoveUpdate
+  +void Function()? onSecondaryLongPressUp
+  +void Function(LongPressEndDetails)? onSecondaryLongPressEnd
+  +void Function(LongPressDownDetails)? onTertiaryLongPressDown
+  +void Function()? onTertiaryLongPressCancel
+  +void Function()? onTertiaryLongPress
+  +void Function(LongPressStartDetails)? onTertiaryLongPressStart
+  +void Function(LongPressMoveUpdateDetails)? onTertiaryLongPressMoveUpdate
+  +void Function()? onTertiaryLongPressUp
+  +void Function(LongPressEndDetails)? onTertiaryLongPressEnd
+  -dynamic _velocityTracker
+  +String debugDescription
+  {static} -bool _defaultButtonAcceptBehavior()
+  +bool isPointerAllowed()
+  +void didExceedDeadline()
+  +void handlePrimaryPointer()
+  -void _checkLongPressDown()
+  -void _checkLongPressCancel()
+  -void _checkLongPressStart()
+  -void _checkLongPressMoveUpdate()
+  -void _checkLongPressEnd()
+  -void _reset()
+  +void resolve()
+  +void acceptGesture()
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+
+@enduml

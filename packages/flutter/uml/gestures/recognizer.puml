@@ -1,0 +1,251 @@
+@startuml
+set namespaceSeparator ::
+
+abstract class "gestures::recognizer.dart::GestureRecognizer" {
+  +Object? debugOwner
+  +dynamic gestureSettings
+  +Set<dynamic>? supportedDevices
+  -bool Function(int) _allowedButtonsFilter
+  -Map<int, dynamic> _pointerToKind
+  +String debugDescription
+  {static} -bool _defaultButtonAcceptBehavior()
+  +void addPointerPanZoom()
+  #void addAllowedPointerPanZoom()
+  +void addPointer()
+  #void addAllowedPointer()
+  #void handleNonAllowedPointer()
+  #bool isPointerAllowed()
+  #void handleNonAllowedPointerPanZoom()
+  #bool isPointerPanZoomAllowed()
+  #dynamic getKindForPointer()
+  +void dispose()
+  #T? invokeCallback()
+  +void debugFillProperties()
+}
+
+abstract class "gestures::recognizer.dart::OneSequenceGestureRecognizer" {
+  -Map<int, dynamic> _entries
+  -Set<int> _trackedPointers
+  -dynamic _team
+  +dynamic team
+  #void addAllowedPointer()
+  #void handleNonAllowedPointer()
+  #void handleEvent()
+  +void acceptGesture()
+  +void rejectGesture()
+  #void didStopTrackingLastPointer()
+  #void resolve()
+  #void resolvePointer()
+  +void dispose()
+  -dynamic _addPointerToArena()
+  #void startTrackingPointer()
+  #void stopTrackingPointer()
+  #void stopTrackingIfPointerNoLongerDown()
+}
+
+abstract class "gestures::recognizer.dart::PrimaryPointerGestureRecognizer" {
+  +Duration? deadline
+  +double? preAcceptSlopTolerance
+  +double? postAcceptSlopTolerance
+  -GestureRecognizerState _state
+  -int? _primaryPointer
+  -OffsetPair? _initialPosition
+  -bool _gestureAccepted
+  -Timer? _timer
+  +GestureRecognizerState state
+  +int? primaryPointer
+  +OffsetPair? initialPosition
+  +void addAllowedPointer()
+  +void handleNonAllowedPointer()
+  +void handleEvent()
+  #void handlePrimaryPointer()
+  #void didExceedDeadline()
+  #void didExceedDeadlineWithEvent()
+  +void acceptGesture()
+  +void rejectGesture()
+  +void didStopTrackingLastPointer()
+  +void dispose()
+  -void _stopTimer()
+  -double _getGlobalDistance()
+  +void debugFillProperties()
+}
+
+class "gestures::recognizer.dart::OffsetPair" {
+  {static} +OffsetPair zero
+  +dynamic local
+  +dynamic global
+  +OffsetPair +()
+  +OffsetPair -()
+  +String toString()
+}
+
+class "gestures::recognizer.dart::DragStartBehavior" {
+  +int index
+  {static} +List<DragStartBehavior> values
+  {static} +DragStartBehavior down
+  {static} +DragStartBehavior start
+}
+
+class "gestures::recognizer.dart::GestureRecognizerState" {
+  +int index
+  {static} +List<GestureRecognizerState> values
+  {static} +GestureRecognizerState ready
+  {static} +GestureRecognizerState possible
+  {static} +GestureRecognizerState defunct
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+class "flutter::src::foundation::diagnostics.dart::DiagnosticPropertiesBuilder" {
+  +List<DiagnosticsNode> properties
+  +DiagnosticsTreeStyle defaultDiagnosticsTreeStyle
+  +String? emptyBodyDescription
+  +void add()
+}
+
+class "flutter::src::foundation::diagnostics.dart::DiagnosticPropertiesBuilder" {
+  +List<DiagnosticsNode> properties
+  +DiagnosticsTreeStyle defaultDiagnosticsTreeStyle
+  +String? emptyBodyDescription
+  +void add()
+}
+
+class "vector_math::vector_math_64.dart::Matrix4" {
+  -Float64List _m4storage
+  {static} -Vector3? _decomposeV
+  {static} -Matrix4? _decomposeM
+  {static} -Matrix3? _decomposeR
+  +Float64List storage
+  +int dimension
+  +int hashCode
+  +Vector4 row0
+  +Vector4 row1
+  +Vector4 row2
+  +Vector4 row3
+  +Vector3 right
+  +Vector3 up
+  +Vector3 forward
+  {static} +void solve2()
+  {static} +void solve3()
+  {static} +void solve()
+  {static} +Matrix4? tryInvert()
+  +int index()
+  +double entry()
+  +void setEntry()
+  +void splatDiagonal()
+  +void setValues()
+  +void setColumns()
+  +void setFrom()
+  +void setFromTranslationRotation()
+  +void setFromTranslationRotationScale()
+  +void setUpper2x2()
+  +void setDiagonal()
+  +void setOuter()
+  +String toString()
+  +double []()
+  +void []=()
+  +bool ==()
+  +void setRow()
+  +Vector4 getRow()
+  +void setColumn()
+  +Vector4 getColumn()
+  +Matrix4 clone()
+  +Matrix4 copyInto()
+  +Matrix4 unary-()
+  +dynamic *()
+  +Matrix4 +()
+  +Matrix4 -()
+  +void translate()
+  +void leftTranslate()
+  +void rotate()
+  +void rotateX()
+  +void rotateY()
+  +void rotateZ()
+  +void scale()
+  +Matrix4 scaled()
+  +void setZero()
+  +void setIdentity()
+  +Matrix4 transposed()
+  +void transpose()
+  +Matrix4 absolute()
+  +double determinant()
+  +double dotRow()
+  +double dotColumn()
+  +double trace()
+  +double infinityNorm()
+  +double relativeError()
+  +double absoluteError()
+  +Vector3 getTranslation()
+  +void setTranslation()
+  +void setTranslationRaw()
+  +Matrix3 getRotation()
+  +void copyRotation()
+  +void setRotation()
+  +Matrix3 getNormalMatrix()
+  +double getMaxScaleOnAxis()
+  +void transposeRotation()
+  +double invert()
+  +double copyInverse()
+  +double invertRotation()
+  +void setRotationX()
+  +void setRotationY()
+  +void setRotationZ()
+  +void scaleAdjoint()
+  +Vector3 absoluteRotate()
+  +void add()
+  +void sub()
+  +void negate()
+  +void multiply()
+  +Matrix4 multiplied()
+  +void transposeMultiply()
+  +void multiplyTranspose()
+  +void decompose()
+  +Vector3 rotate3()
+  +Vector3 rotated3()
+  +Vector3 transform3()
+  +Vector3 transformed3()
+  +Vector4 transform()
+  +Vector3 perspectiveTransform()
+  +Vector4 transformed()
+  +void copyIntoArray()
+  +void copyFromArray()
+  +List<double> applyToVector3Array()
+  +bool isIdentity()
+  +bool isZero()
+}
+
+
+@enduml

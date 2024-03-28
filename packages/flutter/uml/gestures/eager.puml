@@ -1,0 +1,23 @@
+@startuml
+set namespaceSeparator ::
+
+class "gestures::eager.dart::EagerGestureRecognizer" {
+  +String debugDescription
+  +void addAllowedPointer()
+  +void didStopTrackingLastPointer()
+  +void handleEvent()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+
+@enduml

@@ -1,0 +1,114 @@
+@startuml
+set namespaceSeparator ::
+
+abstract class "gestures::monodrag.dart::DragGestureRecognizer" {
+  +dynamic dragStartBehavior
+  +dynamic onDown
+  +dynamic onStart
+  +dynamic onUpdate
+  +void Function(dynamic)? onEnd
+  +void Function()? onCancel
+  +double? minFlingDistance
+  +double? minFlingVelocity
+  +double? maxFlingVelocity
+  +bool onlyAcceptDragOnThreshold
+  +dynamic Function(dynamic) velocityTrackerBuilder
+  -_DragState _state
+  -dynamic _initialPosition
+  -dynamic _pendingDragOffset
+  -Duration? _lastPendingEventTimestamp
+  -int? _initialButtons
+  -dynamic _lastTransform
+  -double _globalDistanceMoved
+  -bool _hasDragThresholdBeenMet
+  -Map<int, dynamic> _velocityTrackers
+  -Set<int> _acceptedActivePointers
+  +Duration? debugLastPendingEventTimestamp
+  {static} -dynamic _defaultBuilder()
+  {static} -bool _defaultButtonAcceptBehavior()
+  +bool isFlingGesture()
+  -dynamic _considerFling()
+  -dynamic _getDeltaForDetails()
+  -double? _getPrimaryValueFromOffset()
+  -bool _hasSufficientGlobalDistanceToAccept()
+  +bool isPointerAllowed()
+  -void _addPointer()
+  +void addAllowedPointer()
+  +void addAllowedPointerPanZoom()
+  +void handleEvent()
+  +void acceptGesture()
+  +void rejectGesture()
+  +void didStopTrackingLastPointer()
+  -void _giveUpPointer()
+  -void _checkDown()
+  -void _checkDrag()
+  -void _checkStart()
+  -void _checkUpdate()
+  -void _checkEnd()
+  -void _checkCancel()
+  +void dispose()
+  +void debugFillProperties()
+}
+
+class "gestures::monodrag.dart::VerticalDragGestureRecognizer" {
+  +String debugDescription
+  +bool isFlingGesture()
+  -dynamic _considerFling()
+  -bool _hasSufficientGlobalDistanceToAccept()
+  -dynamic _getDeltaForDetails()
+  -double _getPrimaryValueFromOffset()
+}
+
+class "gestures::monodrag.dart::HorizontalDragGestureRecognizer" {
+  +String debugDescription
+  +bool isFlingGesture()
+  -dynamic _considerFling()
+  -bool _hasSufficientGlobalDistanceToAccept()
+  -dynamic _getDeltaForDetails()
+  -double _getPrimaryValueFromOffset()
+}
+
+class "gestures::monodrag.dart::PanGestureRecognizer" {
+  +String debugDescription
+  +bool isFlingGesture()
+  -dynamic _considerFling()
+  -bool _hasSufficientGlobalDistanceToAccept()
+  -dynamic _getDeltaForDetails()
+  -double? _getPrimaryValueFromOffset()
+}
+
+class "gestures::monodrag.dart::_DragState" {
+  +int index
+  {static} +List<_DragState> values
+  {static} +_DragState ready
+  {static} +_DragState possible
+  {static} +_DragState accepted
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+class "flutter::src::foundation::diagnostics.dart::DiagnosticPropertiesBuilder" {
+  +List<DiagnosticsNode> properties
+  +DiagnosticsTreeStyle defaultDiagnosticsTreeStyle
+  +String? emptyBodyDescription
+  +void add()
+}
+
+class "flutter::src::foundation::diagnostics.dart::DiagnosticPropertiesBuilder" {
+  +List<DiagnosticsNode> properties
+  +DiagnosticsTreeStyle defaultDiagnosticsTreeStyle
+  +String? emptyBodyDescription
+  +void add()
+}
+
+
+@enduml

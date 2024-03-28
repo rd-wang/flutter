@@ -1,0 +1,65 @@
+import 'package:exact/base/config/translations/localization_service.dart';
+import 'package:exact/base/extensions/string_extension.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class RrSharedPref {
+  // prevent making instance
+  RrSharedPref._();
+
+  // get storage
+  static late SharedPreferences _sharedPreferences;
+
+  // STORING KEYS
+  static const String _fcmTokenKey = 'fcm_token';
+  static const String _currentLocalKey = 'current_local';
+  static const String _lightThemeKey = 'is_theme_light';
+  static const String _loginToken = 'login_token';
+
+  /// init get storage services
+  static Future<void> init() async {
+    _sharedPreferences = await SharedPreferences.getInstance();
+  }
+
+  static setStorage(SharedPreferences sharedPreferences) {
+    _sharedPreferences = sharedPreferences;
+  }
+
+  /// set theme current type as light theme
+  static Future<void> setThemeIsLight(bool lightTheme) => _sharedPreferences.setBool(_lightThemeKey, lightTheme);
+
+  /// get if the current theme type is light
+  static bool getThemeIsLight() =>
+      _sharedPreferences.getBool(_lightThemeKey) ?? true; // todo set the default theme (true for light, false for dark)
+
+  /// save current locale
+  static Future<void> setCurrentLanguage(String languageCode) =>
+      _sharedPreferences.setString(_currentLocalKey, languageCode);
+
+  /// get current locale
+  static Locale getCurrentLocal() {
+    String? langCode = _sharedPreferences.getString(_currentLocalKey);
+    // default language is english
+    if (langCode == null) {
+      return RrLocalizationService.defaultLanguage;
+    }
+    return RrLocalizationService.supportedLanguages[langCode]!;
+  }
+
+  /// save generated fcm token
+  static Future<void> setFcmToken(String token) => _sharedPreferences.setString(_fcmTokenKey, token);
+
+  /// get authorization token
+  static String? getFcmToken() => _sharedPreferences.getString(_fcmTokenKey);
+
+  /// clear all data from shared pref
+  static Future<void> clear() async => await _sharedPreferences.clear();
+
+  static bool isLogin() => !_sharedPreferences.getString(_loginToken).isNullOrEmpty();
+
+  static String? getLoginToken() => _sharedPreferences.getString(_loginToken);
+
+  static Future<void> setLoginToken(String token) => _sharedPreferences.setString(_loginToken, token);
+
+  static Future<void> clearLoginToken() => _sharedPreferences.remove(_loginToken);
+}

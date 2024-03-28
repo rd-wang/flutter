@@ -1,0 +1,146 @@
+@startuml
+set namespaceSeparator ::
+
+class "gestures::scale.dart::_PointerPanZoomData" {
+  +ScaleGestureRecognizer parent
+  -dynamic _position
+  -dynamic _pan
+  -double _scale
+  -double _rotation
+  +dynamic focalPoint
+  +double scale
+  +double rotation
+  +String toString()
+}
+
+class "gestures::scale.dart::ScaleStartDetails" {
+  +dynamic focalPoint
+  +dynamic localFocalPoint
+  +int pointerCount
+  +String toString()
+}
+
+class "gestures::scale.dart::ScaleUpdateDetails" {
+  +dynamic focalPointDelta
+  +dynamic focalPoint
+  +dynamic localFocalPoint
+  +double scale
+  +double horizontalScale
+  +double verticalScale
+  +double rotation
+  +int pointerCount
+  +String toString()
+}
+
+class "gestures::scale.dart::ScaleEndDetails" {
+  +dynamic velocity
+  +double scaleVelocity
+  +int pointerCount
+  +String toString()
+}
+
+class "gestures::scale.dart::_LineBetweenPointers" {
+  +dynamic pointerStartLocation
+  +int pointerStartId
+  +dynamic pointerEndLocation
+  +int pointerEndId
+}
+
+class "gestures::scale.dart::ScaleGestureRecognizer" {
+  +dynamic dragStartBehavior
+  +void Function(ScaleStartDetails)? onStart
+  +void Function(ScaleUpdateDetails)? onUpdate
+  +void Function(ScaleEndDetails)? onEnd
+  -_ScaleState _state
+  -dynamic _lastTransform
+  +bool trackpadScrollCausesScale
+  +dynamic trackpadScrollToScaleFactor
+  -dynamic _initialFocalPoint
+  -dynamic _currentFocalPoint
+  -double _initialSpan
+  -double _currentSpan
+  -double _initialHorizontalSpan
+  -double _currentHorizontalSpan
+  -double _initialVerticalSpan
+  -double _currentVerticalSpan
+  -dynamic _localFocalPoint
+  -_LineBetweenPointers? _initialLine
+  -_LineBetweenPointers? _currentLine
+  -Map<int, dynamic> _pointerLocations
+  -List<int> _pointerQueue
+  -Map<int, dynamic> _velocityTrackers
+  -dynamic _scaleVelocityTracker
+  -dynamic _delta
+  -Map<int, _PointerPanZoomData> _pointerPanZooms
+  -double _initialPanZoomScaleFactor
+  -double _initialPanZoomRotationFactor
+  +int pointerCount
+  -double _pointerScaleFactor
+  -double _pointerHorizontalScaleFactor
+  -double _pointerVerticalScaleFactor
+  -double _scaleFactor
+  -double _horizontalScaleFactor
+  -double _verticalScaleFactor
+  +String debugDescription
+  -double _computeRotationFactor()
+  +void addAllowedPointer()
+  +bool isPointerPanZoomAllowed()
+  +void addAllowedPointerPanZoom()
+  +void handleEvent()
+  -void _update()
+  -void _updateLines()
+  -bool _reconfigure()
+  -void _advanceStateMachine()
+  -void _dispatchOnStartCallbackIfNeeded()
+  +void acceptGesture()
+  +void rejectGesture()
+  +void didStopTrackingLastPointer()
+  +void dispose()
+}
+
+class "gestures::scale.dart::_ScaleState" {
+  +int index
+  {static} +List<_ScaleState> values
+  {static} +_ScaleState ready
+  {static} +_ScaleState possible
+  {static} +_ScaleState accepted
+  {static} +_ScaleState started
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+
+@enduml

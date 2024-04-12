@@ -26,4 +26,8 @@ class Strings {
   static const String login = 'login';
   static const String logout = 'logout';
   static const String notification = 'notification';
+  static const String notificationDetail = 'notification detail';
+  static const String phoneCall = 'phone call';
+  static const String mediaPlayer = 'media player';
+  static const String welcome = "welcome";
 }

@@ -25,4 +25,8 @@ const Map<String, String> enUs = {
   Strings.login: 'login',
   Strings.logout: 'logout',
   Strings.notification: 'notification',
+  Strings.notificationDetail: 'notification detail',
+  Strings.phoneCall: "phone call",
+  Strings.mediaPlayer: "media player",
+  Strings.welcome: "welcome",
 };

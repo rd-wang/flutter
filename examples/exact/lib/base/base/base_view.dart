@@ -33,6 +33,13 @@ abstract class RrView<T extends RrController> extends GetView<T> {
       return Scaffold(
           appBar: AppBar(
             title: Text(setTitle()),
+            leading: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(
+                Icons.arrow_back_ios_rounded,
+                color: Colors.white,
+              ),
+            ),
           ),
           body: _buildView(context));
     }

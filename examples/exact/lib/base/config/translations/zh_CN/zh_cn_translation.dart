@@ -25,4 +25,8 @@ const Map<String, String> zhCN = {
   Strings.login: '登录',
   Strings.logout: '登出',
   Strings.notification: '通知',
+  Strings.notificationDetail: '通知详情',
+  Strings.phoneCall: '打电话',
+  Strings.mediaPlayer: '媒体播放器',
+  Strings.welcome: "欢迎",
 };

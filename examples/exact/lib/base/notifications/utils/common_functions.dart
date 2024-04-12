@@ -66,6 +66,10 @@ String printDuration(Duration? duration) {
 void loadSingletonPage({required String targetPage, required ReceivedAction receivedAction}) {
   // Avoid to open the notification details page over another details page already opened
   // Navigate into pages, avoiding to open the notification details page over another details page already opened
+  // if (targetPage == Routes.notificationDetail) {
+  //   Get.toNamed(Routes.NOTIFICATION_DETAILS(receivedAction));
+  //   return;
+  // }
   Get.toNamed(targetPage, arguments: receivedAction);
 }
 

@@ -1,4 +1,3 @@
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:exact/base/base/base_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,18 +7,16 @@ import 'package:palette_generator/palette_generator.dart';
 import '../../base/config/translations/strings_enum.dart';
 import 'controller_notification_detail.dart';
 
-class NotificationView extends RrView<NotificationDetailPageController> {
-  NotificationView({super.key});
+class NotificationDetailView extends RrView<NotificationDetailPageController> {
+  NotificationDetailView({super.key});
 
-  ReceivedAction receivedAction = Get.arguments["notification_action"];
+  bool get hasTitle => controller.receivedAction.title?.isNotEmpty ?? false;
 
-  bool get hasTitle => receivedAction.title?.isNotEmpty ?? false;
+  bool get hasBody => controller.receivedAction.body?.isNotEmpty ?? false;
 
-  bool get hasBody => receivedAction.body?.isNotEmpty ?? false;
+  bool get hasLargeIcon => controller.receivedAction.largeIconImage != null;
 
-  bool get hasLargeIcon => receivedAction.largeIconImage != null;
-
-  bool get hasBigPicture => receivedAction.bigPictureImage != null;
+  bool get hasBigPicture => controller.receivedAction.bigPictureImage != null;
 
   double bigPictureSize = 0.0;
   double largeIconSize = 0.0;
@@ -36,7 +33,12 @@ class NotificationView extends RrView<NotificationDetailPageController> {
 
   @override
   String setTitle() {
-    return Strings.notification.tr;
+    return Strings.notificationDetail.tr;
+  }
+
+  @override
+  bool isShowDefaultAppBar() {
+    return false;
   }
 
   @override
@@ -44,7 +46,7 @@ class NotificationView extends RrView<NotificationDetailPageController> {
     scrollController.addListener(_scrollListener);
 
     if (hasBigPicture) {
-      isImagePredominantlyWhite(receivedAction.bigPictureImage!)
+      isImagePredominantlyWhite(controller.receivedAction.bigPictureImage!)
           .then((isPredominantlyWhite) => bigPictureIsPredominantlyWhite.value = isPredominantlyWhite);
     }
     bigPictureSize = MediaQuery.of(context).size.height * .4;
@@ -102,7 +104,7 @@ class NotificationView extends RrView<NotificationDetailPageController> {
                                 child: FadeInImage(
                                   placeholder: const NetworkImage(
                                       'https://cdn.syncfusion.com/content/images/common/placeholder.gif'),
-                                  image: receivedAction.largeIconImage!,
+                                  image: controller.receivedAction.largeIconImage!,
                                   fit: BoxFit.cover,
                                 ),
                               ),
@@ -119,7 +121,7 @@ class NotificationView extends RrView<NotificationDetailPageController> {
                             const NetworkImage('https://cdn.syncfusion.com/content/images/common/placeholder.gif'),
                         height: bigPictureSize,
                         width: MediaQuery.of(context).size.width,
-                        image: receivedAction.bigPictureImage!,
+                        image: controller.receivedAction.bigPictureImage!,
                         fit: BoxFit.cover,
                       ),
                     )
@@ -139,7 +141,7 @@ class NotificationView extends RrView<NotificationDetailPageController> {
                         text: TextSpan(children: [
                           if (hasTitle)
                             TextSpan(
-                              text: receivedAction.title!,
+                              text: controller.receivedAction.title!,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                           if (hasBody)
@@ -150,7 +152,7 @@ class NotificationView extends RrView<NotificationDetailPageController> {
                                 ),
                                 child: SizedBox(
                                     width: MediaQuery.of(context).size.width,
-                                    child: Text(receivedAction.bodyWithoutHtml ?? '',
+                                    child: Text(controller.receivedAction.bodyWithoutHtml ?? '',
                                         style: Theme.of(context).textTheme.bodyText2)),
                               ),
                             ),
@@ -163,7 +165,7 @@ class NotificationView extends RrView<NotificationDetailPageController> {
                   color: Colors.black12,
                   padding: const EdgeInsets.all(20),
                   width: MediaQuery.of(context).size.width,
-                  child: Text(receivedAction.toString()),
+                  child: Text(controller.receivedAction.toString()),
                 ),
               ],
             ),

@@ -25,4 +25,8 @@ final Map<String, String> arAR = {
   Strings.login: 'تسجيل الدخول',
   Strings.logout: 'تسجيل الخروج',
   Strings.notification: 'الإشعارات',
+  Strings.notificationDetail: 'تفاصيل الإشعار',
+  Strings.phoneCall: 'مكالمة هاتفية',
+  Strings.mediaPlayer: 'مشغل الوسائط',
+  Strings.welcome: "مرحباً",
 };

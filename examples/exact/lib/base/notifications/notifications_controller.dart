@@ -23,6 +23,7 @@ class NotificationsController {
   // ***************************************************************
   static Future<void> initializeLocalNotifications() async {
     await initializeIsolateReceivePort();
+    await initializeNotificationsEventListeners();
     await AwesomeNotifications().initialize(
         'resource://drawable/res_app_icon',
         [
@@ -123,6 +124,7 @@ class NotificationsController {
               channelDescription: "Notifications with custom sound",
               playSound: true,
               soundSource: 'resource://raw/res_morph_power_rangers',
+              // soundSource: 'assets/sounds/res_morph_power_rangers.m4a',
               defaultColor: Colors.red,
               ledColor: Colors.red,
               vibrationPattern: lowVibrationPattern),
@@ -257,7 +259,7 @@ class NotificationsController {
   static Future<void> onNotificationCreatedMethod(ReceivedNotification receivedNotification) async {
     var message = 'Notification created on ${receivedNotification.createdLifeCycle?.name}';
     print(message);
-    RrToast.showShort(message);
+    // RrToast.showShort(message);
   }
 
   /// Use this method to detect every time that a new notification is displayed
@@ -268,14 +270,14 @@ class NotificationsController {
 
     print(message1);
     print(message2);
-    RrToast.showShort(message1);
+    // RrToast.showShort(message1);
   }
 
   /// Use this method to detect if the user dismissed a notification
   @pragma("vm:entry-point")
   static Future<void> onDismissActionReceivedMethod(ReceivedAction receivedAction) async {
     var message = 'Notification dismissed on ${receivedAction.dismissedLifeCycle?.name}';
-    RrToast.showShort(message);
+    // RrToast.showShort(message);
   }
 
   /// Use this method to detect when the user taps on a notification or action button
@@ -309,8 +311,8 @@ class NotificationsController {
     // SilentBackgroundAction runs on background thread and cannot show
     // UI/visual elements
     if (receivedAction.actionType != ActionType.SilentBackgroundAction) {
-      RrToast.showShort('${isSilentAction ? 'Silent action' : 'Action'}'
-          ' received on ${receivedAction.actionLifeCycle?.name}');
+      // RrToast.showShort('${isSilentAction ? 'Silent action' : 'Action'}'
+      //     ' received on ${receivedAction.actionLifeCycle?.name}');
     }
 
     switch (receivedAction.channelKey) {
@@ -358,11 +360,11 @@ class NotificationsController {
 
   static Future<void> receiveButtonInputText(ReceivedAction receivedAction) async {
     debugPrint('Input Button Message: "${receivedAction.buttonKeyInput}"');
-    RrToast.showShort('Msg: ${receivedAction.buttonKeyInput}');
+    // RrToast.showShort('Msg: ${receivedAction.buttonKeyInput}');
   }
 
   static Future<void> receiveStandardNotificationAction(ReceivedAction receivedAction) async {
-    loadSingletonPage(targetPage: Routes.PAGE_NOTIFICATION_DETAILS, receivedAction: receivedAction);
+    loadSingletonPage(targetPage: Routes.notificationDetail, receivedAction: receivedAction);
   }
 
   static Future<void> receiveMediaNotificationAction(ReceivedAction receivedAction) async {
@@ -385,7 +387,7 @@ class NotificationsController {
         break;
 
       default:
-        loadSingletonPage(targetPage: Routes.PAGE_MEDIA_DETAILS, receivedAction: receivedAction);
+        loadSingletonPage(targetPage: Routes.mediaDetail, receivedAction: receivedAction);
         break;
     }
   }
@@ -401,7 +403,7 @@ class NotificationsController {
         message: receivedAction.buttonKeyInput,
       );
     } else {
-      loadSingletonPage(targetPage: Routes.PAGE_NOTIFICATION_DETAILS, receivedAction: receivedAction);
+      loadSingletonPage(targetPage: Routes.notificationDetail, receivedAction: receivedAction);
     }
   }
 
@@ -421,11 +423,11 @@ class NotificationsController {
         break;
 
       case 'ACCEPT':
-        loadSingletonPage(targetPage: Routes.PAGE_PHONE_CALL, receivedAction: receivedAction);
+        loadSingletonPage(targetPage: Routes.phoneCall, receivedAction: receivedAction);
         break;
 
       default:
-        loadSingletonPage(targetPage: Routes.PAGE_PHONE_CALL, receivedAction: receivedAction);
+        loadSingletonPage(targetPage: Routes.phoneCall, receivedAction: receivedAction);
         break;
     }
   }

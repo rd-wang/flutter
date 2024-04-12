@@ -19,11 +19,10 @@ class FeatureRepo extends RrRepository {
 
   List<FeatureEntity> getFeatureList() {
     return [
-      FeatureEntity(
-          title: Strings.goSetting.tr, description: "", imageUrl: "", onTap: () => Get.toNamed(Routes.settings)),
-      FeatureEntity(title: Strings.login.tr, description: "", imageUrl: "", onTap: () => Get.toNamed(Routes.login)),
-      FeatureEntity(
-          title: Strings.notification.tr, description: "", imageUrl: "", onTap: () => Get.toNamed(Routes.notification)),
+      FeatureEntity(title: Strings.goSetting.tr, onTap: () => Get.toNamed(Routes.settings)),
+      FeatureEntity(title: Strings.login.tr, onTap: () => Get.toNamed(Routes.login)),
+      FeatureEntity(title: Strings.notification.tr, onTap: () => Get.toNamed(Routes.notification)),
+      FeatureEntity(title: Strings.mediaPlayer.tr, onTap: () => Get.toNamed(Routes.mediaDetail)),
     ];
   }
 

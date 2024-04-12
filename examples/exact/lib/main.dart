@@ -27,7 +27,6 @@ Future<void> main() async {
   // initialize local notifications service
   // Always initialize Awesome Notifications
   await NotificationsController.initializeLocalNotifications();
-  await NotificationsController.initializeIsolateReceivePort();
 
   runApp(MyApp());
 }

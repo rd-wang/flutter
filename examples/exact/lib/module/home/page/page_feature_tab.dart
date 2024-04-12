@@ -6,6 +6,7 @@ import 'package:exact/module/home/data_repo/repo_feature.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../controller/controller_home.dart';
 
@@ -32,10 +33,11 @@ class FeatureTab extends StatelessWidget {
               Container(
                 child: ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(12.r)),
-                  child: Image.network(
+                  child: Image.asset(
                     width: double.infinity,
                     height: double.infinity,
-                    "https://picsum.photos/350/400?image=${index + 10}",
+                    // "https://picsum.photos/350/400?image=${index + 10}",
+                    "assets/images/feature_${NumberFormat("00").format(index)}.webp",
                     fit: BoxFit.cover,
                   ),
                 ),

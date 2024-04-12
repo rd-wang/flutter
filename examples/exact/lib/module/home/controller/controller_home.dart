@@ -7,6 +7,7 @@ class FeaturePageController extends RrController<FeatureRepo> {
   var count = 0.obs;
   var crossAxisCount = 3.obs;
   List<TabEntity> items = [];
+  var expendHeight = 200.0;
 
   // FeaturePageController() : super(FeatureRepo());
 

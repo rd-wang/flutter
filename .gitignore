@@ -28,6 +28,7 @@
 # Flutter repo-specific
 /bin/cache/artifacts/
 /bin/cache/dart-sdk/bin/snapshots/
+/bin/cache/dart-sdk/bin/resources/devtools/
 /bin/internal/bootstrap.bat
 /bin/internal/bootstrap.sh
 /bin/mingit/

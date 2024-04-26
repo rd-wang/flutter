@@ -1,0 +1,16 @@
+@startuml
+class "lib::ui::ui.dart::ChannelBuffers" {
+  {static} +int kDefaultBufferSize
+  {static} +String kControlChannelName
+  -Map<String, _Channel> _channels
+  +void push()
+  +void setListener()
+  +void clearListener()
+  {static} -void _sendChannelUpdate()
+  +void sendChannelUpdate()
+  +dynamic drain()
+  +void handleMessage()
+  +void resize()
+  +void allowOverflow()
+}
+@enduml

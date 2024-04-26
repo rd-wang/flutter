@@ -66,7 +66,7 @@ typedef ErrorCallback = bool Function(Object exception, StackTrace stackTrace);
 // A gesture setting value that indicates it has not been set by the engine.
 const double _kUnsetGestureSetting = -1.0;
 
-// A message channel to receive KeyData from the platform.
+// 从平台接收KeyData的消息通道。
 //
 // See embedder.cc::kFlutterKeyDataChannel for more information.
 const String _kFlutterKeyDataChannel = 'flutter/keydata';
@@ -93,59 +93,50 @@ class RootIsolateToken {
   external static int __getRootIsolateToken();
 }
 
-/// Platform event dispatcher singleton.
+/// 平台事件调度程序单例。
 ///
-/// The most basic interface to the host operating system's interface.
+/// 与主机操作系统进行交互的基本接口
+/// 充当平台消息和配置事件的中央入口点
+/// 为开发者提供核心调度器 API、输入事件回调、图形绘制 API 等核心服务。
 ///
-/// This is the central entry point for platform messages and configuration
-/// events from the platform.
+/// 还负责管理应用程序的[views]列表以及各种平台[configuration]的配置。
 ///
-/// It exposes the core scheduler API, the input event callback, the graphics
-/// drawing API, and other such core services.
+/// 建议避免通过 [PlatformDispatcher.instance] 进行静态引用，
+/// 而是更倾向于使用绑定来进行依赖解析，比如 WidgetsBinding.instance.platformDispatcher。
 ///
-/// It manages the list of the application's [views] as well as the
-/// [configuration] of various platform attributes.
-///
-/// Consider avoiding static references to this singleton through
-/// [PlatformDispatcher.instance] and instead prefer using a binding for
-/// dependency resolution such as `WidgetsBinding.instance.platformDispatcher`.
-/// See [PlatformDispatcher.instance] for more information about why this is
-/// preferred.
+/// 有关为什么首选此方法的更多信息，请参阅 [PlatformDispatcher.instance]。
+static PlatformDispatcher get instance => _instance;
+static final PlatformDispatcher _instance = PlatformDispatcher._();
 class PlatformDispatcher {
-  /// Private constructor, since only dart:ui is supposed to create one of
-  /// these. Use [instance] to access the singleton.
+
+  /// 构造函数是私有的，因为只有 dart:ui 库才应该创建它的实例。通过 [instance] 方法进行访问
   PlatformDispatcher._() {
     _setNeedsReportTimings = _nativeSetNeedsReportTimings;
   }
 
-  /// The [PlatformDispatcher] singleton.
+
+  /// [PlatformDispatcher] 单例
   ///
-  /// Consider avoiding static references to this singleton through
-  /// [PlatformDispatcher.instance] and instead prefer using a binding for
-  /// dependency resolution such as `WidgetsBinding.instance.platformDispatcher`.
+  /// 考虑避免通过 [PlatformDispatcher.instance] 静态引用此单例，
+  /// 而更推荐使用绑定binding的方式来解析依赖项，
+  /// 例如“WidgetsBinding.instance.platformDispatcher”。
   ///
-  /// Static access of this object means that Flutter has few, if any options to
-  /// fake or mock the given object in tests. Even in cases where Dart offers
-  /// special language constructs to forcefully shadow such properties, those
-  /// mechanisms would only be reasonable for tests and they would not be
-  /// reasonable for a future of Flutter where we legitimately want to select an
-  /// appropriate implementation at runtime.
+  /// 该对象的静态访问意味着 Flutter 在测试中几乎没有选项来伪造或模拟给定对象。
+  /// 甚至在某些情况下 Dart 提供特殊的语言结构来强制隐藏这些属性，这些机制也只对测试来说是合理的，
+  /// 而对于 Flutter 的未来来说它们是不合理的，因为我们在运行时合法地希望选择适当的实现。
   ///
-  /// The only place that `WidgetsBinding.instance.platformDispatcher` is
-  /// inappropriate is if access to these APIs is required before the binding is
-  /// initialized by invoking `runApp()` or
-  /// `WidgetsFlutterBinding.instance.ensureInitialized()`. In that case, it is
-  /// necessary (though unfortunate) to use the [PlatformDispatcher.instance]
-  /// object statically.
+  /// `WidgetsBinding.instance.platformDispatcher` 唯一不合适的地方是，
+  /// 在通过调用 `runApp()` 或 `WidgetsFlutterBinding.instance.ensureInitialized()`
+  /// 初始化绑定之前需要访问这些 API。
+  /// 在这种情况下，有必要（尽管不幸）静态使用 [PlatformDispatcher.instance] 对象。
   static PlatformDispatcher get instance => _instance;
   static final PlatformDispatcher _instance = PlatformDispatcher._();
 
   _PlatformConfiguration _configuration = const _PlatformConfiguration();
 
-  /// Called when the platform configuration changes.
+  /// 当平台配置更改时调用。
   ///
-  /// The engine invokes this callback in the same zone in which the callback
-  /// was set.
+  /// 引擎在设置回调的同一区域中调用此回调。
   VoidCallback? get onPlatformConfigurationChanged => _onPlatformConfigurationChanged;
   VoidCallback? _onPlatformConfigurationChanged;
   Zone _onPlatformConfigurationChangedZone = Zone.root;
@@ -154,70 +145,55 @@ class PlatformDispatcher {
     _onPlatformConfigurationChangedZone = Zone.current;
   }
 
-  /// The current list of displays.
+  /// 当前的显示列表。
   ///
-  /// If any of their configurations change, [onMetricsChanged] will be called.
+  /// 如果它们的任何配置发生更改，[onMetricsChanged] 将被调用。
   ///
-  /// To get the display for a [FlutterView], use [FlutterView.display].
+  /// 要获取 [FlutterView] 的显示，请使用 [FlutterView.display]。
   ///
-  /// Platforms may limit what information is available to the application with
-  /// regard to secondary displays and/or displays that do not have an active
-  /// application window.
+  /// 平台可能会限制关于辅助显示器 和/或 不具有活动应用程序窗口的显示器的应用程序可用的信息。
   ///
-  /// Presently, on Android and Web this collection will only contain the
-  /// display that the current window is on. On iOS, it will only contains the
-  /// main display on the phone or tablet. On Desktop, it will contain only
-  /// a main display with a valid refresh rate but invalid size and device
-  /// pixel ratio values.
-  // TODO(dnfield): Update these docs when https://github.com/flutter/flutter/issues/125939
-  // and https://github.com/flutter/flutter/issues/125938 are resolved.
+  /// 目前, 在 Android 和 Web 上，此集合将仅包含当前窗口所在的显示器。
+  /// 在 iOS 上，它仅包含手机或平板电脑上的主显示屏。
+  /// 在桌面上，它将仅包含具有有效刷新率但尺寸和设备像素比值无效的主显示器。
+  /// TODO(dnfield): Update these docs when https://github.com/flutter/flutter/issues/125939
+  /// and https://github.com/flutter/flutter/issues/125938 are resolved.
   Iterable<Display> get displays => _displays.values;
   final Map<int, Display> _displays = <int, Display>{};
 
-  /// The current list of views, including top level platform windows used by
-  /// the application.
-  ///
-  /// If any of their configurations change, [onMetricsChanged] will be called.
+  /// 当前的视图列表，包括应用程序使用的顶级平台窗口。
+  /// 如果它们的任何配置发生更改，则会调用 [onMetricsChanged]。
   Iterable<FlutterView> get views => _views.values;
   final Map<int, FlutterView> _views = <int, FlutterView>{};
 
-  /// Returns the [FlutterView] with the provided ID if one exists, or null
-  /// otherwise.
+  /// 如果 [FlutterView] 存在，则返回具有提供的 ID 的FlutterView ，否则返回 null。
   FlutterView? view({required int id}) => _views[id];
 
-  /// The [FlutterView] provided by the engine if the platform is unable to
-  /// create windows, or, for backwards compatibility.
+  /// 在引擎无法创建窗口或者为了向后兼容的情况下，引擎提供的[FlutterView]。
   ///
-  /// If the platform provides an implicit view, it can be used to bootstrap
-  /// the framework. This is common for platforms designed for single-view
-  /// applications like mobile devices with a single display.
+  /// 如果平台提供了隐式视图，它可以用于引导框架。
+  /// 这在设计为单视图应用程序的平台上很常见，比如只有一个显示器的移动设备。
   ///
-  /// Applications and libraries must not rely on this property being set
-  /// as it may be null depending on the engine's configuration. Instead,
-  /// consider using [View.of] to lookup the [FlutterView] the current
-  /// [BuildContext] is drawing into.
+  /// 应用程序和库不得依赖于设置的此属性，因为根据引擎的配置，它可能为空。
+  /// 相反，请考虑使用[View.of]查找当前[BuildContext]正在绘制的[FlutterView]。
   ///
-  /// While the properties on the referenced [FlutterView] may change,
-  /// the reference itself is guaranteed to never change over the lifetime
-  /// of the application: if this property is null at startup, it will remain
-  /// so throughout the entire lifetime of the application. If it points to a
-  /// specific [FlutterView], it will continue to point to the same view until
-  /// the application is shut down (although the engine may replace or remove
-  /// the underlying backing surface of the view at its discretion).
-  ///
+  /// 虽然引用的 [FlutterView] 上的属性可能会发生变化，
+  /// 但引用本身保证在应用程序的整个生命周期内永远不会改变：
+  /// 如果此属性在启动时为null，则它将在整个应用程序的生命周期内保持为null。
+  /// 如果它指向特定的[FlutterView]，它将继续指向相同的视图，直到应用程序关闭
+  /// (尽管引擎可能会自行替换或删除视图的底层支撑面)
   /// See also:
   ///
-  /// * [View.of], for accessing the current view.
-  /// * [PlatformDispatcher.views] for a list of all [FlutterView]s provided
-  ///   by the platform.
+  /// * [View.of], 用于访问当前视图。
+  /// * [PlatformDispatcher.views] 查看平台提供的所有 [FlutterView] 的列表。
   FlutterView? get implicitView {
     final FlutterView? result = _views[_implicitViewId];
-    // Make sure [implicitView] agrees with `_implicitViewId`.
+    // 确保 [implicitView] 与 `_implicitViewId` 一致
     assert((result != null) == (_implicitViewId != null),
       (_implicitViewId != null) ?
         'The implicit view ID is $_implicitViewId, but the implicit view does not exist.' :
         'The implicit view ID is null, but the implicit view exists.');
-    // Make sure [implicitView] never chages.
+    // 确保[implicitView]永远不会改变。
     assert(() {
       if (_debugRecordedLastImplicitView) {
         assert(identical(_debugLastImplicitView, result),
@@ -234,24 +210,18 @@ class PlatformDispatcher {
   FlutterView? _debugLastImplicitView;
   bool _debugRecordedLastImplicitView = false;
 
-  /// A callback that is invoked whenever the [ViewConfiguration] of any of the
-  /// [views] changes.
+  /// 每当任何 [views] 的 [ViewConfiguration] 发生更改时都会调用的回调。
   ///
-  /// For example when the device is rotated or when the application is resized
-  /// (e.g. when showing applications side-by-side on Android),
-  /// `onMetricsChanged` is called.
+  /// 例如，当设备旋转或调整应用程序大小时
+  /// （例如，在 Android 上并排显示应用程序时），会调用“onMetricsChanged”。
   ///
-  /// The engine invokes this callback in the same zone in which the callback
-  /// was set.
+  /// 引擎在设置回调的同一区域中调用此回调。
   ///
-  /// The framework registers with this callback and updates the layout
-  /// appropriately.
-  ///
+  /// 框架注册此回调并适当更新布局。
   /// See also:
   ///
-  /// * [WidgetsBindingObserver], for a mechanism at the widgets layer to
-  ///   register for notifications when this is called.
-  /// * [MediaQuery.of], a simpler mechanism for the same.
+  /// * [WidgetsBindingObserver], 在widgets层注册调用时通知的机制。
+  /// * [MediaQuery.of],  提供了一个更简单的机制，用于获取与[MediaQueryData]相关的信息
   VoidCallback? get onMetricsChanged => _onMetricsChanged;
   VoidCallback? _onMetricsChanged;
   Zone _onMetricsChangedZone = Zone.root;
@@ -260,24 +230,16 @@ class PlatformDispatcher {
     _onMetricsChangedZone = Zone.current;
   }
 
-  // Called from the engine, via hooks.dart
-  //
-  // Adds a new view with the specific view configuration.
-  //
-  // The implicit view must be added before [implicitView] is first called,
-  // which is typically the main function.
+  // 添加具有特定视图配置的新视图。 通过 hooks.dart 从引擎调用
+  // 必须在首次调用 [implicitView] 之前添加隐式视图，这通常是 main 函数。
   void _addView(int id, _ViewConfiguration viewConfiguration) {
     assert(!_views.containsKey(id), 'View ID $id already exists.');
     _views[id] = FlutterView._(id, this, viewConfiguration);
     _invoke(onMetricsChanged, _onMetricsChangedZone);
   }
 
-  // Called from the engine, via hooks.dart
-  //
-  // Removes the specific view.
-  //
-  // The target view must must exist. The implicit view must not be removed,
-  // or an assertion will be triggered.
+  // 删除特定视图。 通过 hooks.dart 从引擎调用
+  // 目标视图必须存在。不得删除隐式视图，否则将触发断言。
   void _removeView(int id) {
     assert(id != _implicitViewId, 'The implicit view #$id can not be removed.');
     if (id == _implicitViewId) {
@@ -288,9 +250,7 @@ class PlatformDispatcher {
     _invoke(onMetricsChanged, _onMetricsChangedZone);
   }
 
-  // Called from the engine, via hooks.dart.
-  //
-  // Updates the available displays.
+  // 更新可用的显示。 通过 hooks.dart 从引擎调用
   void _updateDisplays(List<Display> displays) {
     _displays.clear();
     for (final Display display in displays) {
@@ -299,48 +259,40 @@ class PlatformDispatcher {
     _invoke(onMetricsChanged, _onMetricsChangedZone);
   }
 
-  // Called from the engine, via hooks.dart
-  //
-  // Updates the metrics of the window with the given id.
+  // 使用给定 id 更新window的指标。 通过 hooks.dart 从引擎调用
   void _updateWindowMetrics(int viewId, _ViewConfiguration viewConfiguration) {
     assert(_views.containsKey(viewId), 'View $viewId does not exist.');
     _views[viewId]!._viewConfiguration = viewConfiguration;
     _invoke(onMetricsChanged, _onMetricsChangedZone);
   }
 
-  // A debug-only variable that stores the [FlutterView]s for which
-  // [FlutterView.render] has already been called during the current
-  // [onBeginFrame]/[onDrawFrame] callback sequence.
-  //
-  // It is null outside the scope of those callbacks indicating that calls to
-  // [FlutterView.render] must be ignored. Furthermore, if a given [FlutterView]
-  // is already present in this set when its [FlutterView.render] is called
-  // again, that call must be ignored as a duplicate.
-  //
-  // Between [onBeginFrame] and [onDrawFrame] the properties value is
-  // temporarily stored in `_renderedViewsBetweenCallbacks` so that it survives
-  // the gap between the two callbacks.
-  //
-  // In release build, this variable is null, and therefore the calling rule is
-  // not enforced. This is because the check might hurt cold startup delay;
-  // see https://github.com/flutter/engine/pull/46919.
+  /// 仅在调试模式下使用的变量_debugRenderedViews，其作用是跟踪在当前的
+  /// [onBeginFrame]/[onDrawFrame] 回调序列中已经调用过[FlutterView.render]的[FlutterView]实例。
+  ///
+  /// 当在 [onBeginFrame] 和 [onDrawFrame] 之外时， [_debugRenderedViews] 为 null，
+  /// 表示在这些回调之外的时候需要忽略对 [FlutterView.render] 的调用。
+  ///
+  /// 如果给定的 [FlutterView] 在其 [FlutterView.render]再次调用时已经存在于
+  /// [_debugRenderedViews] 集合中，那么必须忽略该调用，将其视为重复调用。
+  ///
+  /// 在[onBeginFrame] 和 [onDrawFrame] 之间，该属性的值会暂时存储在
+  /// [_renderedViewsBetweenCallbacks] 中，以便在这两个回调之间保留状态。
+  ///
+  /// 在发布版本中，该变量为空，因此不强制执行调用规则。这是因为检查可能会损害冷启动延迟；
+  /// see https://github.com/flutter/engine/pull/46919.
   Set<FlutterView>? _debugRenderedViews;
-  // A debug-only variable that temporarily stores the `_renderedViews` value
-  // between `_beginFrame` and `_drawFrame`.
-  //
-  // In release build, this variable is null.
+  /// 一个仅供调试的变量，临时存储[onBeginFrame] 和 [onDrawFrame]之间的“_renderedViews”值。
+  /// 在发布版本中，该变量为空。
   Set<FlutterView>? _debugRenderedViewsBetweenCallbacks;
 
-  /// A callback invoked when any view begins a frame.
+  /// 当任何视图BeginFrame时调用的回调。
+  /// 调用回调来通知应用程序，现在是一个合适的时间使用 [SceneBuilder] API
+  /// 和 [FlutterView.render] 方法提供一个scene。
   ///
-  /// A callback that is invoked to notify the application that it is an
-  /// appropriate time to provide a scene using the [SceneBuilder] API and the
-  /// [FlutterView.render] method.
-  ///
-  /// When possible, this is driven by the hardware VSync signal of the attached
-  /// screen with the highest VSync rate. This is only called if
-  /// [PlatformDispatcher.scheduleFrame] has been called since the last time
-  /// this callback was invoked.
+  /// 由连接的屏幕中具有最高 VSync 速率的硬件 VSync 信号驱动
+  /// VSync（垂直同步）是一种同步技术，确保图形帧的渲染与屏幕的刷新同步。
+  /// 只有在自上次调用此回调以来调用了 [PlatformDispatcher.scheduleFrame] 方法时才会被触发。
+  /// 这表明渲染仅在必要时更新，在这个回调之间需要有新的帧被安排。
   FrameCallback? get onBeginFrame => _onBeginFrame;
   FrameCallback? _onBeginFrame;
   Zone _onBeginFrameZone = Zone.root;
@@ -349,7 +301,7 @@ class PlatformDispatcher {
     _onBeginFrameZone = Zone.current;
   }
 
-  // Called from the engine, via hooks.dart
+  // 通过 hooks.dart 从引擎调用
   void _beginFrame(int microseconds) {
     assert(_debugRenderedViews == null);
     assert(_debugRenderedViewsBetweenCallbacks == null);
@@ -373,11 +325,9 @@ class PlatformDispatcher {
     }());
   }
 
-  /// A callback that is invoked for each frame after [onBeginFrame] has
-  /// completed and after the microtask queue has been drained.
+  /// 它在每一帧的 [onBeginFrame] 完成并且微任务队列被清空后被调用。
   ///
-  /// This can be used to implement a second phase of frame rendering that
-  /// happens after any deferred work queued by the [onBeginFrame] phase.
+  /// VoidCallback? 表示这是一个没有参数且没有返回值的回调函数。
   VoidCallback? get onDrawFrame => _onDrawFrame;
   VoidCallback? _onDrawFrame;
   Zone _onDrawFrameZone = Zone.root;
@@ -386,7 +336,7 @@ class PlatformDispatcher {
     _onDrawFrameZone = Zone.current;
   }
 
-  // Called from the engine, via hooks.dart
+  // 通过 hooks.dart 从引擎调用
   void _drawFrame() {
     assert(_debugRenderedViews == null);
     assert(_debugRenderedViewsBetweenCallbacks != null);
@@ -406,15 +356,11 @@ class PlatformDispatcher {
     }());
   }
 
-  /// A callback that is invoked when pointer data is available.
+  /// 当指针数据可用时调用的回调。
   ///
-  /// The framework invokes this callback in the same zone in which the callback
-  /// was set.
-  ///
+  /// 框架在设置回调的同一区域中调用此回调。
   /// See also:
-  ///
-  ///  * [GestureBinding], the Flutter framework class which manages pointer
-  ///    events.
+  ///  * [GestureBinding], 管理指针事件的 Flutter 框架类。
   PointerDataPacketCallback? get onPointerDataPacket => _onPointerDataPacket;
   PointerDataPacketCallback? _onPointerDataPacket;
   Zone _onPointerDataPacketZone = Zone.root;
@@ -423,7 +369,7 @@ class PlatformDispatcher {
     _onPointerDataPacketZone = Zone.current;
   }
 
-  // Called from the engine, via hooks.dart
+  // 通过 hooks.dart 从引擎调用
   void _dispatchPointerDataPacket(ByteData packet) {
     if (onPointerDataPacket != null) {
       _invoke1<PointerDataPacket>(
@@ -434,10 +380,11 @@ class PlatformDispatcher {
     }
   }
 
-  // This value must match kPointerDataFieldCount in pointer_data.cc. (The
-  // pointer_data.cc also lists other locations that must be kept consistent.)
+  // 该值必须与pointer_data.cc 中的kPointerDataFieldCount 匹配。
+  // （pointer_data.cc 还列出了必须保持一致的其他位置。）
   static const int _kPointerDataFieldCount = 36;
 
+  ///将ByteData格式的平台数据解析为flutter可识别的PointerData
   static PointerDataPacket _unpackPointerDataPacket(ByteData packet) {
     const int kStride = Int64List.bytesPerElement;
     const int kBytesPerPointerData = _kPointerDataFieldCount * kStride;
@@ -447,7 +394,7 @@ class PlatformDispatcher {
     for (int i = 0; i < length; ++i) {
       int offset = i * _kPointerDataFieldCount;
       data.add(PointerData(
-        // The unpacking code must match the struct in pointer_data.h.
+        // 解包代码必须与pointer_data.h中的结构匹配。
         embedderId: packet.getInt64(kStride * offset++, _kFakeHostEndian),
         timeStamp: Duration(microseconds: packet.getInt64(kStride * offset++, _kFakeHostEndian)),
         change: PointerChange.values[packet.getInt64(kStride * offset++, _kFakeHostEndian)],
@@ -504,13 +451,9 @@ class PlatformDispatcher {
       );
     };
 
-  /// A callback that is invoked when key data is available.
+  /// 当key数据可用时调用的回调。框架在设置回调的同一区域中调用此回调。
   ///
-  /// The framework invokes this callback in the same zone in which the callback
-  /// was set.
-  ///
-  /// The callback should return true if the key event has been handled by the
-  /// framework and should not be propagated further.
+  /// 如果框架已处理key事件并且不应进一步传播，则回调应返回 true。
   KeyDataCallback? get onKeyData => _onKeyData;
   KeyDataCallback? _onKeyData;
   set onKeyData(KeyDataCallback? callback) {
@@ -1036,9 +979,8 @@ class PlatformDispatcher {
   bool get brieflyShowPassword => _brieflyShowPassword;
   bool _brieflyShowPassword = true;
 
-  /// The setting indicating the current brightness mode of the host platform.
-  /// If the platform has no preference, [platformBrightness] defaults to
-  /// [Brightness.light].
+  /// 该设置指示主机平台当前的亮度模式。如果平台没有首选项，
+  /// [platformBrightness] 默认为 [Brightness.light]。
   Brightness get platformBrightness => _configuration.platformBrightness;
 
   /// A callback that is invoked whenever [platformBrightness] changes value.

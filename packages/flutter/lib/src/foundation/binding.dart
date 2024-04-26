@@ -102,12 +102,10 @@ typedef ServiceExtensionCallback = Future<Map<String, dynamic>> Function(Map<Str
 /// }
 /// ```
 abstract class BindingBase {
-  /// Default abstract constructor for bindings.
+  /// 绑定的默认抽象构造函数。
   ///
-  /// First calls [initInstances] to have bindings initialize their
-  /// instance pointers and other state, then calls
-  /// [initServiceExtensions] to have bindings initialize their
-  /// VM service extensions, if any.
+  /// 首先调用 [initInstances] 让绑定初始化其实例指针和其他状态，
+  /// 然后调用 [initServiceExtensions] 让绑定初始化其 VM 服务扩展（如果有）。
   BindingBase() {
     if (!kReleaseMode) {
       FlutterTimeline.startSync('Framework initialization');

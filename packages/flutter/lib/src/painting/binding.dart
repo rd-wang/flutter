@@ -9,17 +9,19 @@ import 'package:flutter/services.dart' show ServicesBinding;
 import 'image_cache.dart';
 import 'shader_warm_up.dart';
 
-/// Binding for the painting library.
+/// 绘画库的绑定。
 ///
-/// Hooks into the cache eviction logic to clear the image cache.
+/// Hooks缓存驱逐逻辑以清除图像缓存。
 ///
-/// Requires the [ServicesBinding] to be mixed in earlier.
+/// 需要提前混合[ServicesBinding]。
 mixin PaintingBinding on BindingBase, ServicesBinding {
   @override
   void initInstances() {
     super.initInstances();
     _instance = this;
+    // 初始化图片缓存
     _imageCache = createImageCache();
+    //第一帧绘制前的预热工作
     shaderWarmUp?.execute();
   }
 
@@ -72,9 +74,8 @@ mixin PaintingBinding on BindingBase, ServicesBinding {
   ImageCache get imageCache => _imageCache;
   late ImageCache _imageCache;
 
-  /// Creates the [ImageCache] singleton (accessible via [imageCache]).
-  ///
-  /// This method can be overridden to provide a custom image cache.
+  /// 创建ImageCache单例（可通过imageCache访问）。
+  /// 可以重写此方法以提供自定义图像缓存
   @protected
   ImageCache createImageCache() => ImageCache();
 

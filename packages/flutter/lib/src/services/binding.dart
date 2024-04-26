@@ -28,27 +28,35 @@ export 'binary_messenger.dart' show BinaryMessenger;
 export 'hardware_keyboard.dart' show HardwareKeyboard, KeyEventManager;
 export 'restoration.dart' show RestorationManager;
 
-/// Listens for platform messages and directs them to the [defaultBinaryMessenger].
-///
-/// The [ServicesBinding] also registers a [LicenseEntryCollector] that exposes
-/// the licenses found in the `LICENSE` file stored at the root of the asset
-/// bundle, and implements the `ext.flutter.evict` service extension (see
-/// [evict]).
+/// 侦听平台消息并将其定向到 [defaultBinaryMessenger]。
+/// [ServicesBinding] 还注册了一个 [LicenseEntryCollector]，它公开了存储在资源包根目录下的“LICENSE”文件中找到的许可证，
+/// 并实现 ext.flutter.evict 服务扩展（参见 [evict]）
 mixin ServicesBinding on BindingBase, SchedulerBinding {
   @override
   void initInstances() {
     super.initInstances();
     _instance = this;
+    //构建一个_DefaultBinaryMessenger实例用于platform与flutter层通信,消息信使
     _defaultBinaryMessenger = createBinaryMessenger();
+    //管理框架中的恢复数据并与引擎同步。
     _restorationManager = createRestorationManager();
     _initKeyboard();
+    // 将相关许可证添加到 [LicenseRegistry]。
     initLicenses();
+    //设置用于系统事件通道上的平台插件接收消息的回调。消息可能为空。
     SystemChannels.system.setMessageHandler((dynamic message) => handleSystemMessage(message as Object));
+    //辅助功能事件
     SystemChannels.accessibility.setMessageHandler((dynamic message) => _handleAccessibilityMessage(message as Object));
+    //生命周期事件
     SystemChannels.lifecycle.setMessageHandler(_handleLifecycleMessage);
+    //平台事件
     SystemChannels.platform.setMethodCallHandler(_handlePlatformMessage);
+    //确保已创建[TextInput]实例，以便平台可以处理文本输入法通道上的消息。
     TextInput.ensureInitialized();
+    //根据生命周期变化设置window处理回调
+    //resumed || inactive状态时才允许响应Vsync信号进行绘制
     readInitialLifecycleStateFromNativeWindow();
+    //提醒引擎绑定已注册。这指示引擎在 Windows 上注册其顶级窗口处理程序。
     initializationComplete();
   }
 
@@ -167,7 +175,7 @@ mixin ServicesBinding on BindingBase, SchedulerBinding {
     return;
   }
 
-  /// Adds relevant licenses to the [LicenseRegistry].
+  /// 将相关许可证添加到 [LicenseRegistry]。
   ///
   /// By default, the [ServicesBinding]'s implementation of [initLicenses] adds
   /// all the licenses collected by the `flutter` tool during compilation.
@@ -191,10 +199,13 @@ mixin ServicesBinding on BindingBase, SchedulerBinding {
           // The compressed version doesn't have a more common .gz extension
           // because gradle for Android non-transparently manipulates .gz files.
           final ByteData licenseBytes = await rootBundle.load('NOTICES.Z');
-          final List<int> unzippedBytes = await compute<List<int>, List<int>>(gzip.decode, licenseBytes.buffer.asUint8List(), debugLabel: 'decompressLicenses');
+          final List<int> unzippedBytes = await compute<List<int>, List<int>>(
+              gzip.decode, licenseBytes.buffer.asUint8List(),
+              debugLabel: 'decompressLicenses');
           rawLicenses = await compute<List<int>, String>(utf8.decode, unzippedBytes, debugLabel: 'utf8DecodeLicenses');
         }
-        final List<LicenseEntry> licenses = await compute<String, List<LicenseEntry>>(_parseLicenses, rawLicenses, debugLabel: 'parseLicenses');
+        final List<LicenseEntry> licenses =
+            await compute<String, List<LicenseEntry>>(_parseLicenses, rawLicenses, debugLabel: 'parseLicenses');
         licenses.forEach(controller.add);
         await controller.close();
       },
@@ -314,7 +325,7 @@ mixin ServicesBinding on BindingBase, SchedulerBinding {
         }
       }
     }
-    assert((){
+    assert(() {
       AppLifecycleState? starting = previousState;
       for (final AppLifecycleState ending in stateChanges) {
         if (!_debugVerifyLifecycleChange(starting, ending)) {
@@ -362,17 +373,15 @@ mixin ServicesBinding on BindingBase, SchedulerBinding {
     return false;
   }
 
-
   /// Listenable that notifies when the accessibility focus on the system have changed.
   final ValueNotifier<int?> accessibilityFocus = ValueNotifier<int?>(null);
 
   Future<void> _handleAccessibilityMessage(Object accessibilityMessage) async {
-    final Map<String, dynamic> message =
-        (accessibilityMessage as Map<Object?, Object?>).cast<String, dynamic>();
+    final Map<String, dynamic> message = (accessibilityMessage as Map<Object?, Object?>).cast<String, dynamic>();
     final String type = message['type'] as String;
     switch (type) {
       case 'didGainFocus':
-       accessibilityFocus.value = message['nodeId'] as int;
+        accessibilityFocus.value = message['nodeId'] as int;
     }
     return;
   }
@@ -476,7 +485,7 @@ mixin ServicesBinding on BindingBase, SchedulerBinding {
       'System.exitApplication',
       <String, Object?>{'type': exitType.name, 'exitCode': exitCode},
     );
-    if (result == null ) {
+    if (result == null) {
       return ui.AppExitResponse.cancel;
     }
     switch (result['response']) {
@@ -530,9 +539,8 @@ mixin ServicesBinding on BindingBase, SchedulerBinding {
     _systemUiChangeCallback = callback;
   }
 
-  /// Alert the engine that the binding is registered. This instructs the engine to
-  /// register its top level window handler on Windows. This signals that the app
-  /// is able to process "System.requestAppExit" signals from the engine.
+  /// 提醒引擎绑定已注册。这指示引擎在 Windows 上注册其顶级窗口处理程序。
+  /// 这表明应用程序能够处理来自引擎的“System.requestAppExit”信号。
   @protected
   Future<void> initializationComplete() async {
     await SystemChannels.platform.invokeMethod('System.initializationComplete');

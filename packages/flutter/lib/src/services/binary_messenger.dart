@@ -11,9 +11,8 @@ export 'dart:ui' show PlatformMessageResponseCallback;
 /// A function which takes a platform message and asynchronously returns an encoded response.
 typedef MessageHandler = Future<ByteData?>? Function(ByteData? message);
 
-/// A messenger which sends binary data across the Flutter platform barrier.
-///
-/// This class also registers handlers for incoming messages.
+/// 跨 Flutter 平台屏障发送二进制数据的信使。
+/// 该类还注册传入消息的处理程序
 abstract class BinaryMessenger {
   /// Abstract const constructor. This constructor enables subclasses to provide
   /// const constructors so that they can be used in const expressions.
@@ -45,12 +44,10 @@ abstract class BinaryMessenger {
   /// To register a handler for a given message channel, see [setMessageHandler].
   ///
   /// To send a message _to_ a plugin on the platform thread, see [send].
-  @Deprecated(
-    'Instead of calling this method, use ServicesBinding.instance.channelBuffers.push. '
-    'In tests, consider using tester.binding.defaultBinaryMessenger.handlePlatformMessage '
-    'or TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.handlePlatformMessage. '
-    'This feature was deprecated after v3.9.0-19.0.pre.'
-  )
+  @Deprecated('Instead of calling this method, use ServicesBinding.instance.channelBuffers.push. '
+      'In tests, consider using tester.binding.defaultBinaryMessenger.handlePlatformMessage '
+      'or TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.handlePlatformMessage. '
+      'This feature was deprecated after v3.9.0-19.0.pre.')
   Future<void> handlePlatformMessage(String channel, ByteData? data, ui.PlatformMessageResponseCallback? callback);
 
   /// Send a binary message to the platform plugins on the given channel.

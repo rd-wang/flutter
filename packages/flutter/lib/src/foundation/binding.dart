@@ -6,7 +6,8 @@ import 'dart:async';
 import 'dart:convert' show json;
 import 'dart:developer' as developer;
 import 'dart:io' show exit;
-import 'dart:ui' as ui show Brightness, PlatformDispatcher, SingletonFlutterWindow, window; // ignore: deprecated_member_use
+import 'dart:ui' as ui
+    show Brightness, PlatformDispatcher, SingletonFlutterWindow, window; // ignore: deprecated_member_use
 
 // Before adding any more dart:ui imports, please read the README.
 
@@ -38,53 +39,46 @@ export 'basic_types.dart' show AsyncCallback, AsyncValueGetter, AsyncValueSetter
 /// "method" key will be set to the full name of the method.
 typedef ServiceExtensionCallback = Future<Map<String, dynamic>> Function(Map<String, String> parameters);
 
-/// Base class for mixins that provide singleton services.
+/// 提供单例服务的 mixin 的基类。
 ///
-/// The Flutter engine ([dart:ui]) exposes some low-level services,
-/// but these are typically not suitable for direct use, for example
-/// because they only provide a single callback which an application
-/// may wish to multiplex to allow multiple listeners.
+/// Flutter 引擎 ([dart:ui]) 公开了一些底层服务，但这些服务通常不适合直接使用，
+/// 例如，因为它们仅提供单个回调，应用程序可能希望复用该回调以允许多个侦听器。
+/// 绑定在这些底层 API 和高级框架 API 之间提供了粘合剂。他们将两者结合在一起，因此得名。
 ///
-/// Bindings provide the glue between these low-level APIs and the
-/// higher-level framework APIs. They _bind_ the two together, whence
-/// the name.
+/// 库通常会创建一个新的BindingMixin来公开dart:ui中的某个功能。
+/// 一般来说，这种情况很少见，但这是替代框架可以做到的事情，
+/// 例如如果框架要用替代 API 替换 [widgets] 库，但仍希望利用 [services] 和 [foundation] 库。
 ///
-/// ## Implementing a binding mixin
+/// ## 实现BindingMixin:
+/// 通过on关键字在[BindingBase]类上声明一个mixin，
+/// 并实现initInstances方法和instance静态getter，可以创建BindingMixin。
+/// [initInstances]方法必须调用super.initInstances 保证在应用程序的生命周期内仅构造一次；
+/// 并设置一个_instance静态字段为this，
+/// instance静态getter必须使用[checkInstance]返回该字段。
+/// ### 设计建议
+/// 尽量减少绑定中的内容:
+///   这建议在设计 API 时，最好将较少的功能直接放在绑定（bindings）中。绑定通常指的是代码中不同部分之间的接口或连接。
+///   更倾向于设计那些接受对象作为参数的 API，而不是直接引用全局的单例对象。这样的设计更有模块性，使代码更易于维护和测试。
+/// 限制绑定只暴露独特的特性:
+///   "绑定"在这里通常指的是不同编程语言或库之间的接口。
+///   该建议表明应该尽量保持代码接口的简洁性，只公开那些真正只存在一次的、不容易在其他地方复制的功能。
+///   举例来说，可以在 [dart:ui] 中找到的 API 可能是唯一存在的、不易在其他地方复制的功能。
+/// 鼓励采用模块化、面向对象的 API 设计。重点是将功能封装在对象中，
+/// 并通过绑定仅公开那些真正独特和必要的全局特性。这样设计可以使代码更易于维护和测试。
 ///
-/// A library would typically create a new binding mixin to expose a
-/// feature in [dart:ui]. This is rare in general, but it is something
-/// that an alternative framework would do, e.g. if a framework were
-/// to replace the [widgets] library with an alternative API but still
-/// wished to leverage the [services] and [foundation] libraries.
+/// ## 实现Binding Class:
 ///
-/// To create a binding mixin, declare a mixin `on` the [BindingBase] class
-/// and whatever other bindings the concrete binding must implement for
-/// this binding mixin to be useful.
+/// 最顶层用于编写应用程序 (e.g. [widgets] library)
+/// 将有一个继承自 [BindingBase] 的具体类，
+/// 并使用所有各种 [BindingBase] mixin（例如 [ServicesBinding]）.
+/// Flutter 中的 [widgets] 库引入了一个名为 [WidgetsFlutterBinding] 的绑定
 ///
-/// The mixin is guaranteed to only be constructed once in the
-/// lifetime of the app; this is handled by [initInstances].
-///
-/// A binding mixin must at a minimum implement the following features:
-///
-/// * The [initInstances] method, which must call `super.initInstances` and
-///   set an `_instance` static field to `this`.
-/// * An `instance` static getter, which must return that field using [checkInstance].
-///
-/// In addition, it should implement whatever singleton features the library needs.
-///
-/// As a general rule, the less can be placed in the binding, the
-/// better. Prefer having APIs that takes objects rather than having
-/// them refer to global singletons. Bindings are best limited to
-/// exposing features that literally only exist once, for example, the
-/// APIs in [dart:ui].
-///
-/// {@tool snippet}
-///
-/// Here is a basic example of a binding that implements these features. It relies on
-/// another fictional binding called `BarBinding`.
+/// Binding class应该从每个层次结构中mixin它希望公开绑定，
+/// 并应该有一个 ensureInitialized 方法，如果该层次结构中混入的 _instance 字段为null，则构造该类。
+/// 这允许具有更具体需求的开发人员覆盖绑定，同时仍然允许其他代码在需要绑定时调用“ensureInitialized”。
 ///
 /// ```dart
-/// mixin FooBinding on BindingBase, BarBinding {
+///mixin FooBinding on BindingBase, BarBinding {
 ///   @override
 ///   void initInstances() {
 ///     super.initInstances();
@@ -97,33 +91,7 @@ typedef ServiceExtensionCallback = Future<Map<String, dynamic>> Function(Map<Str
 ///
 ///   // ...binding features...
 /// }
-/// ```
-/// {@end-tool}
 ///
-/// ## Implementing a binding class
-///
-/// The top-most layer used to write the application (e.g. the Flutter
-/// [widgets] library) will have a concrete class that inherits from
-/// [BindingBase] and uses all the various [BindingBase] mixins (such
-/// as [ServicesBinding]). The [widgets] library in Flutter introduces
-/// a binding called [WidgetsFlutterBinding].
-///
-/// A binding _class_ should mix in the relevant bindings from each
-/// layer that it wishes to expose, and should have an
-/// `ensureInitialized` method that constructs the class if that
-/// layer's mixin's `_instance` field is null. This allows the binding
-/// to be overridden by developers who have more specific needs, while
-/// still allowing other code to call `ensureInitialized` when a binding
-/// is needed.
-///
-/// {@tool snippet}
-///
-/// A typical binding class is shown below. The `ensureInitialized` method's
-/// return type is the library's binding mixin, rather than the concrete
-/// class.
-///
-/// ```dart
-/// // continuing from previous example...
 /// class FooLibraryBinding extends BindingBase with BarBinding, FooBinding {
 ///   static FooBinding ensureInitialized() {
 ///     if (FooBinding._instance == null) {
@@ -133,14 +101,11 @@ typedef ServiceExtensionCallback = Future<Map<String, dynamic>> Function(Map<Str
 ///   }
 /// }
 /// ```
-/// {@end-tool}
 abstract class BindingBase {
-  /// Default abstract constructor for bindings.
+  /// 绑定的默认抽象构造函数。
   ///
-  /// First calls [initInstances] to have bindings initialize their
-  /// instance pointers and other state, then calls
-  /// [initServiceExtensions] to have bindings initialize their
-  /// VM service extensions, if any.
+  /// 首先调用 [initInstances] 让绑定初始化其实例指针和其他状态，
+  /// 然后调用 [initServiceExtensions] 让绑定初始化其 VM 服务扩展（如果有）。
   BindingBase() {
     if (!kReleaseMode) {
       FlutterTimeline.startSync('Framework initialization');
@@ -168,70 +133,47 @@ abstract class BindingBase {
   static Type? _debugInitializedType;
   static bool _debugServiceExtensionsRegistered = false;
 
-  /// Deprecated. Will be removed in a future version of Flutter.
+  /// 该属性已被标记为废弃，以便为 Flutter 未来版本中的多视图和多窗口支持做准备。
   ///
-  /// This property has been deprecated to prepare for Flutter's upcoming
-  /// support for multiple views and multiple windows.
+  /// 属性说明： window 属性表示应用程序的主视图，
+  /// 在只有一个视图的应用程序中有用，比如为单显示移动设备设计的应用程序。
+  /// 如果嵌入程序支持多视图，它指向创建的第一个视图，假设它是主视图。
+  /// 如果尚未创建任何视图或第一个视图已被删除，则会引发异常。
   ///
-  /// It represents the main view for applications where there is only one
-  /// view, such as applications designed for single-display mobile devices.
-  /// If the embedder supports multiple views, it points to the first view
-  /// created which is assumed to be the main view. It throws if no view has
-  /// been created yet or if the first view has been removed again.
+  /// 迁移选项：
+  /// 如果有 [BuildContext] 可用，
+  /// 可以通过 [View.of] 查找与该上下文关联的当前 [FlutterView]。
+  /// 这提供了与[window]相同的功能。然而，平台特定的功能已移至 [platformDispatcher]，
+  /// 可以通过 [View.of] 返回的视图的 [FlutterView.platformDispatcher] 来访问。
+  /// 使用带有 [BuildContext]  的  [View.of] 是迁移离开这个已弃用的 window 属性的首选选项。
   ///
-  /// The following options exists to migrate code that relies on accessing
-  /// this deprecated property:
+  /// 如果没有[context]可用来查找 [FlutterView]，
+  /// 则可以直接使用此绑定公开的 [platformDispatcher] 进行平台特定的功能。
+  /// 它还在 [PlatformDispatcher.views] 中维护了所有可用 [FlutterView] 的列表，
+  /// 以便在没有上下文的情况下访问特定于视图的功能。
   ///
-  /// If a [BuildContext] is available, consider looking up the current
-  /// [FlutterView] associated with that context via [View.of]. It gives access
-  /// to the same functionality as this deprecated property. However, the
-  /// platform-specific functionality has moved to the [PlatformDispatcher],
-  /// which may be accessed from the view returned by [View.of] via
-  /// [FlutterView.platformDispatcher]. Using [View.of] with a [BuildContext] is
-  /// the preferred option to migrate away from this deprecated [window]
-  /// property.
-  ///
-  /// If no context is available to look up a [FlutterView], the
-  /// [platformDispatcher] exposed by this binding can be used directly for
-  /// platform-specific functionality. It also maintains a list of all available
-  /// [FlutterView]s in [PlatformDispatcher.views] to access view-specific
-  /// functionality without a context.
-  ///
-  /// See also:
-  ///
-  /// * [View.of] to access view-specific functionality on the [FlutterView]
-  ///   associated with the provided [BuildContext].
-  /// * [FlutterView.platformDispatcher] to access platform-specific
-  ///   functionality from a given [FlutterView].
-  /// * [platformDispatcher] on this binding to access the [PlatformDispatcher],
-  ///   which provides platform-specific functionality.
+  /// 相关链接：
+  /// * [View.of] 通过提供的 [BuildContext] 访问与 [FlutterView] 关联的视图特定功能。
+  /// * [FlutterView.platformDispatcher] 从给定的 [FlutterView]  访问平台特定功能。
+  /// * [platformDispatcher] 访问[PlatformDispatcher]，提供平台特定功能。
   @Deprecated(
-    'Look up the current FlutterView from the context via View.of(context) or consult the PlatformDispatcher directly instead. '
-    'Deprecated to prepare for the upcoming multi-window support. '
-    'This feature was deprecated after v3.7.0-32.0.pre.'
-  )
+      'Look up the current FlutterView from the context via View.of(context) or consult the PlatformDispatcher directly instead. '
+      'Deprecated to prepare for the upcoming multi-window support. '
+      'This feature was deprecated after v3.7.0-32.0.pre.')
   ui.SingletonFlutterWindow get window => ui.window;
 
-  /// The [ui.PlatformDispatcher] to which this binding is bound.
+  /// 此绑定绑定到的[ui.PlatformDispatcher] 。是一个与Flutter绑定关联的平台调度
+  /// 扩展自[BindingBase]的其他绑定，例如[ServicesBinding]、[RendererBinding]和[WidgetsBinding]。
+  /// 每个绑定都定义了与[ui.PlatformDispatcher]进行交互的行为，
+  /// 例如，[ServicesBinding]使用[ChannelBuffers]注册侦听器，
+  /// [RendererBinding]注册[ui.PlatformDispatcher.onMetricsChanged]、[ui.PlatformDispatcher.onTextScaleFactorChanged]
+  /// [SemanticsBinding]注册[ui.PlatformDispatcher.onSemanticsEnabledChanged]、
+  /// [ui.PlatformDispatcher.onSemanticsActionEvent]和
+  /// [ui.PlatformDispatcher.onAccessibilityFeaturesChanged]处理程序。
   ///
-  /// A number of additional bindings are defined as extensions of
-  /// [BindingBase], e.g., [ServicesBinding], [RendererBinding], and
-  /// [WidgetsBinding]. Each of these bindings define behaviors that interact
-  /// with a [ui.PlatformDispatcher], e.g., [ServicesBinding] registers
-  /// listeners with the [ChannelBuffers], [RendererBinding]
-  /// registers [ui.PlatformDispatcher.onMetricsChanged],
-  /// [ui.PlatformDispatcher.onTextScaleFactorChanged], and [SemanticsBinding]
-  /// registers [ui.PlatformDispatcher.onSemanticsEnabledChanged],
-  /// [ui.PlatformDispatcher.onSemanticsActionEvent], and
-  /// [ui.PlatformDispatcher.onAccessibilityFeaturesChanged] handlers.
-  ///
-  /// Each of these other bindings could individually access a
-  /// [ui.PlatformDispatcher] statically, but that would preclude the ability to
-  /// test these behaviors with a fake platform dispatcher for verification
-  /// purposes. Therefore, [BindingBase] exposes this [ui.PlatformDispatcher]
-  /// for use by other bindings. A subclass of [BindingBase], such as
-  /// [TestWidgetsFlutterBinding], can override this accessor to return a
-  /// different [ui.PlatformDispatcher] implementation.
+  /// 这些绑定中的每一个都可以静态地单独访问[ui.PlatformDispatcher]，
+  /// 但这将排除使用虚假平台调度程序测试这些行为以进行验证的能力。因此，[BindingBase] 公开此 [ui.PlatformDispatcher] 供其他绑定使用。
+  /// [BindingBase] 的子类（例如 [TestWidgetsFlutterBinding]）可以重写此访问器以返回不同的 [ui.PlatformDispatcher] 实现。
   ui.PlatformDispatcher get platformDispatcher => ui.PlatformDispatcher.instance;
 
   /// The initialization method. Subclasses override this method to hook into
@@ -299,7 +241,8 @@ abstract class BindingBase {
       if (_debugInitializedType == null && instance == null) {
         throw FlutterError.fromParts(<DiagnosticsNode>[
           ErrorSummary('Binding has not yet been initialized.'),
-          ErrorDescription('The "instance" getter on the $T binding mixin is only available once that binding has been initialized.'),
+          ErrorDescription(
+              'The "instance" getter on the $T binding mixin is only available once that binding has been initialized.'),
           ErrorHint(
             'Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the '
             'latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method '
@@ -334,9 +277,7 @@ abstract class BindingBase {
             'It is also possible that $T does not implement "initInstances()" to assign a value to "instance". See the '
             'documentation of the BindingBase class for more details.',
           ),
-          ErrorHint(
-            'The binding that was initialized was of the type "$_debugInitializedType". '
-          ),
+          ErrorHint('The binding that was initialized was of the type "$_debugInitializedType". '),
         ]);
       }
       try {
@@ -359,7 +300,8 @@ abstract class BindingBase {
           // The state of _debugInitializedType doesn't matter in this failure mode.
           throw FlutterError.fromParts(<DiagnosticsNode>[
             ErrorSummary('Binding did not complete initialization.'),
-            ErrorDescription('An instance of $T is non-null, but the BindingBase() constructor has not yet been called.'),
+            ErrorDescription(
+                'An instance of $T is non-null, but the BindingBase() constructor has not yet been called.'),
             ErrorHint(
               'This could also happen if some code was invoked that used the binding while the binding was initializing, '
               "for example if the binding's constructor itself invokes a callback. Bindings should not invoke callbacks "
@@ -483,7 +425,7 @@ abstract class BindingBase {
           'a particular callback was set.\n'
           'It is important to use the same zone when calling `ensureInitialized` on the binding '
           'as when calling `$entryPoint` later.\n'
-          'To make this ${ debugZoneErrorsAreFatal ? 'error non-fatal' : 'warning fatal' }, '
+          'To make this ${debugZoneErrorsAreFatal ? 'error non-fatal' : 'warning fatal'}, '
           'set BindingBase.debugZoneErrorsAreFatal to ${!debugZoneErrorsAreFatal} before the '
           'bindings are initialized (i.e. as the first statement in `void main() { }`).',
         );
@@ -612,30 +554,21 @@ abstract class BindingBase {
     }());
   }
 
-  /// Whether [lockEvents] is currently locking events.
-  ///
-  /// Binding subclasses that fire events should check this first, and if it is
-  /// set, queue events instead of firing them.
-  ///
-  /// Events should be flushed when [unlocked] is called.
+  /// [lockEvents]当前是否正在锁定事件。
+  /// 绑定触发事件的子类应该首先检查它，如果设置了，则对事件进行排队而不是触发它们。
+  /// 调用 [unlocked] 时应刷新事件。
   @protected
   bool get locked => _lockCount > 0;
   int _lockCount = 0;
 
-  /// Locks the dispatching of asynchronous events and callbacks until the
-  /// callback's future completes.
+  /// ### 锁定异步事件和回调的调度，直到回调的 future 完成。
+  /// 这会导致输入滞后，因此应尽可能避免。它主要用于非用户交互时间，
+  /// 例如允许 [reassembleApplication] 在遍历树时阻止输入（部分是异步执行的）。
+  /// ###`callback` 参数返回的 [Future] 由 [lockEvents] 返回。
   ///
-  /// This causes input lag and should therefore be avoided when possible. It is
-  /// primarily intended for use during non-user-interactive time such as to
-  /// allow [reassembleApplication] to block input while it walks the tree
-  /// (which it partially does asynchronously).
-  ///
-  /// The [Future] returned by the `callback` argument is returned by [lockEvents].
-  ///
-  /// The [gestures] binding wraps [PlatformDispatcher.onPointerDataPacket] in
-  /// logic that honors this event locking mechanism. Similarly, tasks queued
-  /// using [SchedulerBinding.scheduleTask] will only start when events are not
-  /// [locked].
+  /// [gestures] 绑定将 [PlatformDispatcher.onPointerDataPacket]
+  /// 包装在遵循此事件锁定机制的逻辑中。
+  /// 同样，使用 [SchedulerBinding.scheduleTask] 排队的任务仅在事件未[locked]时启动。
   @protected
   Future<void> lockEvents(Future<void> Function() callback) {
     developer.TimelineTask? debugTimelineTask;
@@ -666,9 +599,8 @@ abstract class BindingBase {
     return future;
   }
 
-  /// Called by [lockEvents] when events get unlocked.
-  ///
-  /// This should flush any events that were queued while [locked] was true.
+  /// 当事件解锁时由[lockEvents]调用。
+  /// 这应该刷新 [locked] 为 true 时排队的所有事件。
   @protected
   @mustCallSuper
   void unlocked() {

@@ -7,8 +7,7 @@ import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
 
-import '_timeline_io.dart'
-  if (dart.library.js_util) '_timeline_web.dart' as impl;
+import '_timeline_io.dart' if (dart.library.js_util) '_timeline_web.dart' as impl;
 import 'constants.dart';
 
 /// Measures how long blocks of code take to run.
@@ -64,7 +63,7 @@ abstract final class FlutterTimeline {
   /// [finishSync] before returning to the event queue.
   ///
   /// This is a drop-in replacement for [Timeline.startSync].
-  static void startSync(String name, { Map<String, Object?>? arguments, Flow? flow }) {
+  static void startSync(String name, {Map<String, Object?>? arguments, Flow? flow}) {
     Timeline.startSync(name, arguments: arguments, flow: flow);
     if (!kReleaseMode && _collectionEnabled) {
       _buffer.startSync(name, arguments: arguments, flow: flow);
@@ -84,7 +83,7 @@ abstract final class FlutterTimeline {
   /// Emit an instant event.
   ///
   /// This is a drop-in replacement for [Timeline.instantSync].
-  static void instantSync(String name, { Map<String, Object?>? arguments }) {
+  static void instantSync(String name, {Map<String, Object?>? arguments}) {
     Timeline.instantSync(name, arguments: arguments);
   }
 
@@ -92,8 +91,7 @@ abstract final class FlutterTimeline {
   /// `function` bracketed by calls to [startSync] and [finishSync].
   ///
   /// This is a drop-in replacement for [Timeline.timeSync].
-  static T timeSync<T>(String name, TimelineSyncFunction<T> function,
-      { Map<String, Object?>? arguments, Flow? flow }) {
+  static T timeSync<T>(String name, TimelineSyncFunction<T> function, {Map<String, Object?>? arguments, Flow? flow}) {
     startSync(name, arguments: arguments, flow: flow);
     try {
       return function();
@@ -207,11 +205,9 @@ final class AggregatedTimings {
       final (double, int) previousValue = aggregate.putIfAbsent(block.name, () => (0, 0));
       aggregate[block.name] = (previousValue.$1 + block.duration, previousValue.$2 + 1);
     }
-    return aggregate.entries.map<AggregatedTimedBlock>(
-      (MapEntry<String, (double, int)> entry) {
-        return AggregatedTimedBlock(name: entry.key, duration: entry.value.$1, count: entry.value.$2);
-      }
-    ).toList();
+    return aggregate.entries.map<AggregatedTimedBlock>((MapEntry<String, (double, int)> entry) {
+      return AggregatedTimedBlock(name: entry.key, duration: entry.value.$1, count: entry.value.$2);
+    }).toList();
   }
 
   /// Returns aggregated numbers for a named block of code.
@@ -266,23 +262,16 @@ final class AggregatedTimedBlock {
 
 const int _kSliceSize = 500;
 
-/// A growable list of float64 values with predictable [add] performance.
-///
-/// The list is organized into a "chain" of [Float64List]s. The object starts
-/// with a `Float64List` "slice". When [add] is called, the value is added to
-/// the slice. Once the slice is full, it is moved into the chain, and a new
-/// slice is allocated. Slice size is static and therefore its allocation has
-/// predictable cost. This is unlike the default [List] implementation, which,
-/// when full, doubles its buffer size and copies all old elements into the new
-/// buffer, leading to unpredictable performance. This makes it a poor choice
-/// for recording performance because buffer reallocation would affect the
-/// runtime.
-///
-/// The trade-off is that reading values back from the chain is more expensive
-/// compared to [List] because it requires iterating over multiple slices. This
-/// is a reasonable trade-off for performance metrics, because it is more
-/// important to minimize the overhead while recording metrics, than it is when
-/// reading them.
+/// 具有可预测add性能的可增长的 float64 值列表。
+/// 该列表被组织成[Float64List]的“链”。
+/// 该对象以[Float64List] “切片”开始。
+/// 调用[add]时，该值将添加到切片中。一旦切片满了，它就会被移动到链中，并分配一个新的切片。
+/// 切片大小是静态的，因此其分配具有可预测的成本。
+/// 这与默认的[List]实现不同，后者在满时将其缓冲区大小加倍，并将所有旧元素复制到新缓冲区中，
+/// 从而导致性能不可预测。这使得它成为记录性能的糟糕选择，因为缓冲区重新分配会影响运行时间。
+/// 权衡是，与[List]相比，从链读回值的成本更高，因为它需要迭代多个切片。
+/// 对于性能指标来说，这是一个合理的权衡，
+/// 因为在记录指标时最大限度地减少开销比读取指标时更重要。
 final class _Float64ListChain {
   _Float64ListChain();
 
@@ -306,10 +295,9 @@ final class _Float64ListChain {
   }
 
   /// Returns all elements added to this chain.
-  ///
-  /// This getter is not optimized to be fast. It is assumed that when metrics
-  /// are read back, they do not affect the timings of the work being
-  /// benchmarked.
+  /// 返回添加到此链的所有元素。
+  /// 此 getter 并未针对快速进行优化。
+  /// 假设读回指标时，它们不会影响正在进行基准测试的工作的时间安排。
   List<double> extractElements() {
     final List<double> result = <double>[];
     _chain.forEach(result.addAll);
@@ -320,7 +308,7 @@ final class _Float64ListChain {
   }
 }
 
-/// Same as [_Float64ListChain] but for recording string values.
+/// 与 [_Float64ListChain] 相同，但用于记录字符串值。
 final class _StringListChain {
   _StringListChain();
 
@@ -362,11 +350,11 @@ final class _StringListChain {
   }
 }
 
-/// A buffer that records starts and ends of code blocks, and their names.
+/// 记录代码块的开始和结束及其名称的缓冲区
 final class _BlockBuffer {
-  // Start-finish blocks can be nested. Track this nestedness by stacking the
-  // start timestamps. Finish timestamps will pop timings from the stack and
-  // add the (start, finish) tuple to the _block.
+  // 开始-结束块可以嵌套。通过堆叠来跟踪这种嵌套
+  // 开始时间戳。完成时间戳将从堆栈中弹出计时并
+  // 将 (start, finish) 元组添加到 _block 中
   static const int _stackDepth = 1000;
   static final Float64List _startStack = Float64List(_stackDepth);
   static final List<String?> _nameStack = List<String?>.filled(_stackDepth, null);
@@ -378,12 +366,10 @@ final class _BlockBuffer {
 
   List<TimedBlock> computeTimings() {
     assert(
-      _stackPointer == 0,
-      'Invalid sequence of `startSync` and `finishSync`.\n'
-      'The operation stack was not empty. The following operations are still '
-      'waiting to be finished via the `finishSync` method:\n'
-      '${List<String>.generate(_stackPointer, (int i) => _nameStack[i]!).join(', ')}'
-    );
+        _stackPointer == 0,
+        '`startSync` 和 `finishSync` 的序列无效。\n'
+        '操作栈不为空。以下操作仍等待通过“finishSync”方法完成:\n'
+        '${List<String>.generate(_stackPointer, (int i) => _nameStack[i]!).join(', ')}');
 
     final List<TimedBlock> result = <TimedBlock>[];
     final int length = _finishes.length;
@@ -406,7 +392,7 @@ final class _BlockBuffer {
     return result;
   }
 
-  void startSync(String name, { Map<String, Object?>? arguments, Flow? flow }) {
+  void startSync(String name, {Map<String, Object?>? arguments, Flow? flow}) {
     _startStack[_stackPointer] = impl.performanceTimestamp;
     _nameStack[_stackPointer] = name;
     _stackPointer += 1;
@@ -414,11 +400,9 @@ final class _BlockBuffer {
 
   void finishSync() {
     assert(
-      _stackPointer > 0,
-      'Invalid sequence of `startSync` and `finishSync`.\n'
-      'Attempted to finish timing a block of code, but there are no pending '
-      '`startSync` calls.'
-    );
+        _stackPointer > 0,
+        '`startSync` 和 `finishSync` 的序列无效。\n'
+        '尝试完成代码块的计时，但没有挂起的“startSync”调用');
 
     final double finishTime = impl.performanceTimestamp;
     final double startTime = _startStack[_stackPointer - 1];

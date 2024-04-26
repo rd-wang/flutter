@@ -1,0 +1,32 @@
+@startuml
+
+abstract class "gestures::binding.dart::GestureBinding" {
+  {static} -GestureBinding? _instance
+  -Queue<PointerEvent> _pendingPointerEvents
+  +PointerRouter pointerRouter
+  +GestureArenaManager gestureArena
+  +PointerSignalResolver pointerSignalResolver
+  -Map<int, HitTestResult> _hitTests
+  -_Resampler _resampler
+  +bool resamplingEnabled
+  +Duration samplingOffset
+  {static} +GestureBinding instance
+  +SamplingClock? debugSamplingClock
+  -SamplingClock _samplingClock
+  +void initInstances()
+  +void unlocked()
+  -void _handlePointerDataPacket()
+  -double? _devicePixelRatioForView()
+  +void cancelPointer()
+  -void _flushPointerEventQueue()
+  +void handlePointerEvent()
+  -void _handlePointerEventImmediately()
+  +void hitTestInView()
+  +void hitTest()
+  +void dispatchEvent()
+  +void handleEvent()
+  #void resetGestureBinding()
+  -void _handleSampleTimeChanged()
+}
+
+@enduml

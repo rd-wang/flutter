@@ -1,0 +1,76 @@
+@startuml
+set namespaceSeparator ::
+
+class "gestures::force_press.dart::ForcePressDetails" {
+  +dynamic globalPosition
+  +dynamic localPosition
+  +double pressure
+}
+
+class "gestures::force_press.dart::ForcePressGestureRecognizer" {
+  +void Function(ForcePressDetails)? onStart
+  +void Function(ForcePressDetails)? onUpdate
+  +void Function(ForcePressDetails)? onPeak
+  +void Function(ForcePressDetails)? onEnd
+  +double startPressure
+  +double peakPressure
+  +double Function(double, double, double) interpolation
+  -dynamic _lastPosition
+  -double _lastPressure
+  -_ForceState _state
+  +String debugDescription
+  +void addAllowedPointer()
+  +void handleEvent()
+  +void acceptGesture()
+  +void didStopTrackingLastPointer()
+  +void rejectGesture()
+  {static} -double _inverseLerp()
+}
+
+class "gestures::force_press.dart::_ForceState" {
+  +int index
+  {static} +List<_ForceState> values
+  {static} +_ForceState ready
+  {static} +_ForceState possible
+  {static} +_ForceState accepted
+  {static} +_ForceState started
+  {static} +_ForceState peaked
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+
+@enduml

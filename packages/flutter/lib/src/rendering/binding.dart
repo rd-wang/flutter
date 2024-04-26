@@ -38,16 +38,21 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
   void initInstances() {
     super.initInstances();
     _instance = this;
+    // 创建pipeline owner tree 的根[PipelineOwner] ([rootPipelineOwner])。
     _rootPipelineOwner = createRootPipelineOwner();
+    // 设置系统指标变化，text缩放，平台亮度变化的处理函数
     platformDispatcher
       ..onMetricsChanged = handleMetricsChanged
       ..onTextScaleFactorChanged = handleTextScaleFactorChanged
       ..onPlatformBrightnessChanged = handlePlatformBrightnessChanged;
+    //添加持久帧回调
     addPersistentFrameCallback(_handlePersistentFrameCallback);
+    // 创建一个[MouseTracker] ，它管理当前连接的鼠标的状态，用于悬停通知。
     initMouseTracker();
     if (kIsWeb) {
       addPostFrameCallback(_handleWebFirstFrame, debugLabel: 'RendererBinding.webFirstFrame');
     }
+    //将root [PipelineOwner] 链接到给定的 [PipelineManifold]。
     rootPipelineOwner.attach(_manifold);
   }
 
@@ -232,22 +237,16 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
   /// instead of accessing the [SemanticsOwner] of any [PipelineOwner] consider
   /// interacting with the [SemanticsBinding] (exposed via
   /// [SemanticsBinding.instance]) directly.
-  @Deprecated(
-    'Interact with the pipelineOwner tree rooted at RendererBinding.rootPipelineOwner instead. '
-    'Or instead of accessing the SemanticsOwner of any PipelineOwner interact with the SemanticsBinding directly. '
-    'This feature was deprecated after v3.10.0-12.0.pre.'
-  )
-  late final PipelineOwner pipelineOwner = PipelineOwner(
-    onSemanticsOwnerCreated: () {
-      (pipelineOwner.rootNode as RenderView?)?.scheduleInitialSemantics();
-    },
-    onSemanticsUpdate: (ui.SemanticsUpdate update) {
-      (pipelineOwner.rootNode as RenderView?)?.updateSemantics(update);
-    },
-    onSemanticsOwnerDisposed: () {
-      (pipelineOwner.rootNode as RenderView?)?.clearSemantics();
-    }
-  );
+  @Deprecated('Interact with the pipelineOwner tree rooted at RendererBinding.rootPipelineOwner instead. '
+      'Or instead of accessing the SemanticsOwner of any PipelineOwner interact with the SemanticsBinding directly. '
+      'This feature was deprecated after v3.10.0-12.0.pre.')
+  late final PipelineOwner pipelineOwner = PipelineOwner(onSemanticsOwnerCreated: () {
+    (pipelineOwner.rootNode as RenderView?)?.scheduleInitialSemantics();
+  }, onSemanticsUpdate: (ui.SemanticsUpdate update) {
+    (pipelineOwner.rootNode as RenderView?)?.updateSemantics(update);
+  }, onSemanticsOwnerDisposed: () {
+    (pipelineOwner.rootNode as RenderView?)?.clearSemantics();
+  });
 
   /// Deprecated. Will be removed in a future version of Flutter.
   ///
@@ -270,29 +269,24 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
   /// Instead of interacting with this deprecated property, consider using
   /// [renderViews] instead, which contains all [RenderView]s managed by the
   /// binding.
-  @Deprecated(
-    'Consider using RendererBinding.renderViews instead as the binding may manage multiple RenderViews. '
-    'This feature was deprecated after v3.10.0-12.0.pre.'
-  )
+  @Deprecated('Consider using RendererBinding.renderViews instead as the binding may manage multiple RenderViews. '
+      'This feature was deprecated after v3.10.0-12.0.pre.')
   // TODO(goderbauer): When this deprecated property is removed also delete the _ReusableRenderView class.
   late final RenderView renderView = _ReusableRenderView(
     view: platformDispatcher.implicitView!,
   );
 
-  /// Creates the [PipelineOwner] that serves as the root of the pipeline owner
-  /// tree ([rootPipelineOwner]).
+  /// 创建 [PipelineOwner] 用作 pipeline owner tree 的根 ([rootPipelineOwner])。
   ///
-  /// {@template flutter.rendering.createRootPipelineOwner}
-  /// By default, the root pipeline owner is not setup to manage a render tree
-  /// and its [PipelineOwner.rootNode] must not be assigned. If necessary,
-  /// [createRootPipelineOwner] may be overridden to create a root pipeline
-  /// owner configured to manage its own render tree.
+  /// 默认情况下，root pipeline owner 不会设置为管理render tree，
+  /// 因此它的[PipelineOwner.rootNode]不应该被赋值。
+  /// 如果需要，可以通过重写[createRootPipelineOwner]
+  /// 创建一个已配置为管理自己的render tree 的 root PipelineOwner。
   ///
-  /// In typical use, child pipeline owners are added to the root pipeline owner
-  /// (via [PipelineOwner.adoptChild]). Those children typically do each manage
-  /// their own [RenderView] and produce distinct render trees which render
-  /// their content into the [FlutterView] associated with that [RenderView].
-  /// {@endtemplate}
+  /// 在典型的使用中，child pipeline owners会被添加到root pipeline owner中
+  /// （通过[PipelineOwner.adoptChild]方法）。
+  /// 这些子管道通常会各自管理自己的[RenderView] ，
+  /// 并生成不同的渲染树，将其内容渲染到与该RenderView相关联的FlutterView中。
   PipelineOwner createRootPipelineOwner() {
     return _DefaultRootPipelineOwner();
   }
@@ -355,7 +349,7 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
     );
   }
 
-  /// Called when the system metrics change.
+  /// 当系统指标发生变化时调用。
   ///
   /// See [dart:ui.PlatformDispatcher.onMetricsChanged].
   @protected
@@ -375,7 +369,7 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
   ///
   /// See [dart:ui.PlatformDispatcher.onTextScaleFactorChanged].
   @protected
-  void handleTextScaleFactorChanged() { }
+  void handleTextScaleFactorChanged() {}
 
   /// Called when the platform brightness changes.
   ///
@@ -402,20 +396,19 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
   ///
   /// See [dart:ui.PlatformDispatcher.onPlatformBrightnessChanged].
   @protected
-  void handlePlatformBrightnessChanged() { }
+  void handlePlatformBrightnessChanged() {}
 
-  /// Creates a [MouseTracker] which manages state about currently connected
-  /// mice, for hover notification.
-  ///
-  /// Used by testing framework to reinitialize the mouse tracker between tests.
+  /// 创建一个[MouseTracker] ，它管理当前连接的鼠标的状态，用于悬停通知。
+  /// 由测试框架用于在测试之间重新初始化 mouse tracker。
   @visibleForTesting
   void initMouseTracker([MouseTracker? tracker]) {
     _mouseTracker?.dispose();
-    _mouseTracker = tracker ?? MouseTracker((Offset position, int viewId) {
-      final HitTestResult result = HitTestResult();
-      hitTestInView(result, position, viewId);
-      return result;
-    });
+    _mouseTracker = tracker ??
+        MouseTracker((Offset position, int viewId) {
+          final HitTestResult result = HitTestResult();
+          hitTestInView(result, position, viewId);
+          return result;
+        });
   }
 
   @override // from GestureBinding
@@ -435,7 +428,10 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
     // Due to the asynchronicity in some screen readers (they may not have
     // processed the latest semantics update yet) this code is more forgiving
     // and actions for views/nodes that no longer exist are gracefully ignored.
-    _viewIdToRenderView[action.viewId]?.owner?.semanticsOwner?.performAction(action.nodeId, action.type, action.arguments);
+    _viewIdToRenderView[action.viewId]
+        ?.owner
+        ?.semanticsOwner
+        ?.performAction(action.nodeId, action.type, action.arguments);
   }
 
   void _handleWebFirstFrame(Duration _) {
@@ -450,6 +446,7 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
   }
 
   bool _debugMouseTrackerUpdateScheduled = false;
+
   void _scheduleMouseTrackerUpdate() {
     assert(!_debugMouseTrackerUpdateScheduled);
     assert(() {
@@ -634,8 +631,7 @@ String _debugCollectRenderTrees() {
     return 'No render tree root was added to the binding.';
   }
   return <String>[
-    for (final RenderView renderView in RendererBinding.instance.renderViews)
-      renderView.toStringDeep(),
+    for (final RenderView renderView in RendererBinding.instance.renderViews) renderView.toStringDeep(),
   ].join('\n\n');
 }
 
@@ -670,7 +666,8 @@ String _debugCollectSemanticsTrees(DebugSemanticsDumpOrder childOrder) {
   if (RendererBinding.instance.renderViews.isEmpty) {
     return 'No render tree root was added to the binding.';
   }
-  const String explanation = 'For performance reasons, the framework only generates semantics when asked to do so by the platform.\n'
+  const String explanation =
+      'For performance reasons, the framework only generates semantics when asked to do so by the platform.\n'
       'Usually, platforms only ask for semantics when assistive technologies (like screen readers) are running.\n'
       'To generate semantics, try turning on an assistive technology (like VoiceOver or TalkBack) on your device.';
   final List<String> trees = <String>[];
@@ -739,7 +736,8 @@ void debugDumpPipelineOwnerTree() {
 /// Adding [PipelineOwner]s and [RenderView]s to this binding in the way
 /// described above is left as a responsibility for a higher level abstraction.
 /// The binding does not own any [RenderView]s directly.
-class RenderingFlutterBinding extends BindingBase with GestureBinding, SchedulerBinding, ServicesBinding, SemanticsBinding, PaintingBinding, RendererBinding {
+class RenderingFlutterBinding extends BindingBase
+    with GestureBinding, SchedulerBinding, ServicesBinding, SemanticsBinding, PaintingBinding, RendererBinding {
   /// Returns an instance of the binding that implements
   /// [RendererBinding]. If no binding has yet been initialized, the
   /// [RenderingFlutterBinding] class is used to create and initialize
@@ -756,7 +754,7 @@ class RenderingFlutterBinding extends BindingBase with GestureBinding, Scheduler
   }
 }
 
-/// A [PipelineManifold] implementation that is backed by the [RendererBinding].
+/// 由 [RendererBinding] 支持的 [PipelineManifold] 实现。
 class _BindingPipelineManifold extends ChangeNotifier implements PipelineManifold {
   _BindingPipelineManifold(this._binding) {
     _binding.addSemanticsEnabledListener(notifyListeners);
@@ -779,7 +777,7 @@ class _BindingPipelineManifold extends ChangeNotifier implements PipelineManifol
   }
 }
 
-// A [PipelineOwner] that cannot have a root node.
+// 不能有根节点的 [PipelineOwner]。
 class _DefaultRootPipelineOwner extends PipelineOwner {
   _DefaultRootPipelineOwner() : super(onSemanticsUpdate: _onSemanticsUpdate);
 
@@ -788,28 +786,20 @@ class _DefaultRootPipelineOwner extends PipelineOwner {
     assert(() {
       throw FlutterError.fromParts(<DiagnosticsNode>[
         ErrorSummary(
-          'Cannot set a rootNode on the default root pipeline owner.',
+          '无法在root pipeline owner 上设置 rootNode。',
         ),
-        ErrorDescription(
-          'By default, the RendererBinding.rootPipelineOwner is not configured '
-          'to manage a root node because this pipeline owner does not define a '
-          'proper onSemanticsUpdate callback to handle semantics for that node.',
-        ),
-        ErrorHint(
-          'Typically, the root pipeline owner does not manage a root node. '
-          'Instead, properly configured child pipeline owners (which do manage '
-          'root nodes) are added to it. Alternatively, if you do want to set a '
-          'root node for the root pipeline owner, override '
-          'RendererBinding.createRootPipelineOwner to create a '
-          'pipeline owner that is configured to properly handle semantics for '
-          'the provided root node.'
-        ),
+        ErrorDescription('默认情况下, 未配置 RendererBinding.rootPipelineOwner 来管理根节点 '
+            '因为 pipeline owner 未定义 正确的 onSemanticsUpdate 回调来处理该节点的语义。'),
+        ErrorHint('通常, root pipeline owner 不管理 root node. '
+            '相反, 正确配置的pipeline owners（管理“根节点”）被添加到 root pipeline owner '
+            '但是，如果需要为root pipeline owner设置根节点，root node '
+            '重写 RendererBinding.createRootPipelineOwner 创建一个处理 root node 提供的语意的 pipeline owner '),
       ]);
     }());
   }
 
   static void _onSemanticsUpdate(ui.SemanticsUpdate _) {
-    // Neve called because we don't have a root node.
+    // 从未调用过，因为我们没有根节点。
     assert(false);
   }
 }
@@ -853,7 +843,8 @@ class _ReusableRenderView extends RenderView {
   }
 
   @override
-  void dispose() { // ignore: must_call_super
+  void dispose() {
+    // ignore: must_call_super
     child = null;
   }
 }

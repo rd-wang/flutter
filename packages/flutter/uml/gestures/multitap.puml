@@ -1,0 +1,168 @@
+@startuml
+set namespaceSeparator ::
+
+class "gestures::multitap.dart::_CountdownZoned" {
+  -bool _timeout
+  +bool timeout
+  -void _onTimeout()
+}
+
+class "gestures::multitap.dart::_TapTracker" {
+  +dynamic gestureSettings
+  +int pointer
+  +dynamic entry
+  -dynamic _initialGlobalPosition
+  +int initialButtons
+  -_CountdownZoned _doubleTapMinTimeCountdown
+  -bool _isTrackingPointer
+  +void startTrackingPointer()
+  +void stopTrackingPointer()
+  +bool isWithinGlobalTolerance()
+  +bool hasElapsedMinTime()
+  +bool hasSameButton()
+}
+
+class "gestures::multitap.dart::DoubleTapGestureRecognizer" {
+  +dynamic onDoubleTapDown
+  +void Function()? onDoubleTap
+  +dynamic onDoubleTapCancel
+  -Timer? _doubleTapTimer
+  -_TapTracker? _firstTap
+  -Map<int, _TapTracker> _trackers
+  +String debugDescription
+  {static} -bool _defaultButtonAcceptBehavior()
+  +bool isPointerAllowed()
+  +void addAllowedPointer()
+  -void _trackTap()
+  -void _handleEvent()
+  +void acceptGesture()
+  +void rejectGesture()
+  -void _reject()
+  +void dispose()
+  -void _reset()
+  -void _registerFirstTap()
+  -void _registerSecondTap()
+  -void _clearTrackers()
+  -void _freezeTracker()
+  -void _startDoubleTapTimer()
+  -void _stopDoubleTapTimer()
+  -void _checkUp()
+  -void _checkCancel()
+}
+
+class "gestures::multitap.dart::_TapGesture" {
+  +MultiTapGestureRecognizer gestureRecognizer
+  -bool _wonArena
+  -Timer? _timer
+  -dynamic _lastPosition
+  -dynamic _finalPosition
+  +void handleEvent()
+  +void stopTrackingPointer()
+  +void accept()
+  +void reject()
+  +void cancel()
+  -void _check()
+}
+
+class "gestures::multitap.dart::MultiTapGestureRecognizer" {
+  +void Function(int, dynamic)? onTapDown
+  +void Function(int, dynamic)? onTapUp
+  +void Function(int)? onTap
+  +void Function(int)? onTapCancel
+  +Duration longTapDelay
+  +void Function(int, dynamic)? onLongTapDown
+  -Map<int, _TapGesture> _gestureMap
+  +String debugDescription
+  +void addAllowedPointer()
+  +void acceptGesture()
+  +void rejectGesture()
+  -void _dispatchCancel()
+  -void _dispatchTap()
+  -void _dispatchLongTap()
+  +void dispose()
+}
+
+class "gestures::multitap.dart::SerialTapDownDetails" {
+  +dynamic globalPosition
+  +dynamic localPosition
+  +dynamic kind
+  +int buttons
+  +int count
+}
+
+class "gestures::multitap.dart::SerialTapCancelDetails" {
+  +int count
+}
+
+class "gestures::multitap.dart::SerialTapUpDetails" {
+  +dynamic globalPosition
+  +dynamic localPosition
+  +dynamic kind
+  +int count
+}
+
+class "gestures::multitap.dart::SerialTapGestureRecognizer" {
+  +void Function(SerialTapDownDetails)? onSerialTapDown
+  +void Function(SerialTapCancelDetails)? onSerialTapCancel
+  +void Function(SerialTapUpDetails)? onSerialTapUp
+  -Timer? _serialTapTimer
+  -List<_TapTracker> _completedTaps
+  -Map<int, dynamic> _gestureResolutions
+  -_TapTracker? _pendingTap
+  +bool isTrackingPointer
+  +String debugDescription
+  +bool isPointerAllowed()
+  +void addAllowedPointer()
+  -bool _representsSameSeries()
+  -void _trackTap()
+  -void _handleEvent()
+  +void acceptGesture()
+  +void rejectGesture()
+  -void _rejectPendingTap()
+  +void dispose()
+  -void _reset()
+  -void _registerTap()
+  -void _stopTrackingPointer()
+  -void _startSerialTapTimer()
+  -void _stopSerialTapTimer()
+  -void _checkUp()
+  -void _checkCancel()
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+abstract class "foundation::binding::BindingBase" {
+  -bool _debugConstructed
+  {static} -Type? _debugInitializedType
+  {static} -bool _debugServiceExtensionsRegistered
+  -Zone? _debugBindingZone
+  {static} +bool debugZoneErrorsAreFatal
+  -int _lockCount
+  +SingletonFlutterWindow window
+  +PlatformDispatcher platformDispatcher
+  +bool locked
+  #void initInstances()
+  {static} #T checkInstance()
+  {static} +Type? debugBindingType()
+  +bool debugCheckZone()
+  #void initServiceExtensions()
+  #Future<void> lockEvents()
+  #void unlocked()
+  +Future<void> reassembleApplication()
+  #Future<void> performReassemble()
+  #void registerSignalServiceExtension()
+  #void registerBoolServiceExtension()
+  #void registerNumericServiceExtension()
+  -void _postExtensionStateChangedEvent()
+  #void postEvent()
+  #void registerStringServiceExtension()
+  #void registerServiceExtension()
+  +String toString()
+}
+@enduml

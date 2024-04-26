@@ -1,0 +1,69 @@
+@startuml
+set namespaceSeparator ::
+
+class "gestures::drag_details.dart::DragDownDetails" {
+  +dynamic globalPosition
+  +dynamic localPosition
+  +String toString()
+}
+
+class "gestures::drag_details.dart::DragStartDetails" {
+  +Duration? sourceTimeStamp
+  +dynamic globalPosition
+  +dynamic localPosition
+  +dynamic kind
+  +String toString()
+}
+
+class "gestures::drag_details.dart::DragUpdateDetails" {
+  +Duration? sourceTimeStamp
+  +dynamic delta
+  +double? primaryDelta
+  +dynamic globalPosition
+  +dynamic localPosition
+  +String toString()
+}
+
+class "gestures::drag_details.dart::DragEndDetails" {
+  +dynamic velocity
+  +double? primaryVelocity
+  +String toString()
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+
+@enduml

@@ -1,0 +1,135 @@
+@startuml
+set namespaceSeparator ::
+
+class "binding.dart::SamplingClock" {
+  +DateTime now()
+  +Stopwatch stopwatch()
+}
+
+class "binding.dart::_Resampler" {
+  -Map<int, dynamic> _resamplers
+  -bool _frameCallbackScheduled
+  -Duration _frameTime
+  -Stopwatch _frameTimeAge
+  -Duration _lastSampleTime
+  -Duration _lastEventTime
+  -dynamic _handlePointerEvent
+  -void Function() _handleSampleTimeChanged
+  -Duration _samplingInterval
+  -Timer? _timer
+  +void addOrDispatch()
+  +void sample()
+  +void stop()
+  -void _onSampleTimeChanged()
+}
+
+class "binding.dart::FlutterErrorDetailsForPointerEventDispatcher" {
+  +dynamic event
+  +dynamic hitTestEntry
+}
+
+abstract class "binding.dart::GestureBinding" {
+  {static} -GestureBinding? _instance
+  -Queue<dynamic> _pendingPointerEvents
+  +dynamic pointerRouter
+  +dynamic gestureArena
+  +dynamic pointerSignalResolver
+  -Map<int, dynamic> _hitTests
+  -_Resampler _resampler
+  +bool resamplingEnabled
+  +Duration samplingOffset
+  {static} +GestureBinding instance
+  +SamplingClock? debugSamplingClock
+  -SamplingClock _samplingClock
+  +void initInstances()
+  +void unlocked()
+  -void _handlePointerDataPacket()
+  -double? _devicePixelRatioForView()
+  +void cancelPointer()
+  -void _flushPointerEventQueue()
+  +void handlePointerEvent()
+  -void _handlePointerEventImmediately()
+  +void hitTestInView()
+  +void hitTest()
+  +void dispatchEvent()
+  +void handleEvent()
+  #void resetGestureBinding()
+  -void _handleSampleTimeChanged()
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+abstract class "flutter::src::foundation::diagnostics.dart::DiagnosticsNode" {
+  +String? name
+  +bool showSeparator
+  +bool showName
+  +String? linePrefix
+  +DiagnosticsTreeStyle? style
+  +DiagnosticLevel level
+  +String? emptyBodyDescription
+  +Object? value
+  +bool allowWrap
+  +bool allowNameWrap
+  +bool allowTruncate
+  -String _separator
+  +TextTreeConfiguration? textTreeConfiguration
+  +String toDescription()
+  +bool isFiltered()
+  +List<DiagnosticsNode> getProperties()
+  +List<DiagnosticsNode> getChildren()
+  +Map<String, String>? toTimelineArguments()
+  +Map<String, Object?> toJsonMap()
+  {static} +List<Map<String, Object?>> toJsonList()
+  +String toString()
+  +String toStringDeep()
+}
+
+abstract class "flutter::src::foundation::diagnostics.dart::DiagnosticsNode" {
+  +String? name
+  +bool showSeparator
+  +bool showName
+  +String? linePrefix
+  +DiagnosticsTreeStyle? style
+  +DiagnosticLevel level
+  +String? emptyBodyDescription
+  +Object? value
+  +bool allowWrap
+  +bool allowNameWrap
+  +bool allowTruncate
+  -String _separator
+  +TextTreeConfiguration? textTreeConfiguration
+  +String toDescription()
+  +bool isFiltered()
+  +List<DiagnosticsNode> getProperties()
+  +List<DiagnosticsNode> getChildren()
+  +Map<String, String>? toTimelineArguments()
+  +Map<String, Object?> toJsonMap()
+  {static} +List<Map<String, Object?>> toJsonList()
+  +String toString()
+  +String toStringDeep()
+}
+
+
+@enduml

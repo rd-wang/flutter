@@ -1,0 +1,122 @@
+@startuml
+set namespaceSeparator ::
+
+abstract class "gestures::multidrag.dart::MultiDragPointerState" {
+  +dynamic gestureSettings
+  +dynamic initialPosition
+  -dynamic _velocityTracker
+  +dynamic kind
+  -dynamic _client
+  -dynamic _pendingDelta
+  -Duration? _lastPendingEventTimestamp
+  -dynamic _arenaEntry
+  +dynamic pendingDelta
+  -void _setArenaEntry()
+  #void resolve()
+  -void _move()
+  #void checkForResolutionAfterMove()
+  #void accepted()
+  #void rejected()
+  -void _startDrag()
+  -void _up()
+  -void _cancel()
+  #void dispose()
+}
+
+abstract class "gestures::multidrag.dart::MultiDragGestureRecognizer" {
+  +dynamic Function(dynamic)? onStart
+  -Map<int, MultiDragPointerState>? _pointers
+  {static} -bool _defaultButtonAcceptBehavior()
+  +void addAllowedPointer()
+  #MultiDragPointerState createNewPointerState()
+  -void _handleEvent()
+  +void acceptGesture()
+  -dynamic _startDrag()
+  +void rejectGesture()
+  -void _removeState()
+  +void dispose()
+}
+
+class "gestures::multidrag.dart::_ImmediatePointerState" {
+  +void checkForResolutionAfterMove()
+  +void accepted()
+}
+
+class "gestures::multidrag.dart::ImmediateMultiDragGestureRecognizer" {
+  +String debugDescription
+  +MultiDragPointerState createNewPointerState()
+}
+
+class "gestures::multidrag.dart::_HorizontalPointerState" {
+  +void checkForResolutionAfterMove()
+  +void accepted()
+}
+
+class "gestures::multidrag.dart::HorizontalMultiDragGestureRecognizer" {
+  +String debugDescription
+  +MultiDragPointerState createNewPointerState()
+}
+
+class "gestures::multidrag.dart::_VerticalPointerState" {
+  +void checkForResolutionAfterMove()
+  +void accepted()
+}
+
+class "gestures::multidrag.dart::VerticalMultiDragGestureRecognizer" {
+  +String debugDescription
+  +MultiDragPointerState createNewPointerState()
+}
+
+class "gestures::multidrag.dart::_DelayedPointerState" {
+  -Timer? _timer
+  -dynamic Function(dynamic)? _starter
+  -void _delayPassed()
+  -void _ensureTimerStopped()
+  +void accepted()
+  +void checkForResolutionAfterMove()
+  +void dispose()
+}
+
+class "gestures::multidrag.dart::DelayedMultiDragGestureRecognizer" {
+  +Duration delay
+  +String debugDescription
+  +MultiDragPointerState createNewPointerState()
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+
+@enduml

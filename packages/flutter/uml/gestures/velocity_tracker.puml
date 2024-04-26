@@ -1,0 +1,92 @@
+@startuml
+set namespaceSeparator ::
+
+class "gestures::velocity_tracker.dart::Velocity" {
+  {static} +Velocity zero
+  +dynamic pixelsPerSecond
+  +int hashCode
+  +Velocity unary-()
+  +Velocity -()
+  +Velocity +()
+  +Velocity clampMagnitude()
+  +bool ==()
+  +String toString()
+}
+
+class "gestures::velocity_tracker.dart::VelocityEstimate" {
+  +dynamic pixelsPerSecond
+  +double confidence
+  +Duration duration
+  +dynamic offset
+  +String toString()
+}
+
+class "gestures::velocity_tracker.dart::_PointAtTime" {
+  +Duration time
+  +dynamic point
+  +String toString()
+}
+
+class "gestures::velocity_tracker.dart::VelocityTracker" {
+  {static} -int _assumePointerMoveStoppedMilliseconds
+  {static} -int _historySize
+  {static} -int _horizonMilliseconds
+  {static} -int _minSampleSize
+  +dynamic kind
+  -Stopwatch _sinceLastSample
+  -List<_PointAtTime?> _samples
+  -int _index
+  +void addPosition()
+  +VelocityEstimate? getVelocityEstimate()
+  +Velocity getVelocity()
+}
+
+class "gestures::velocity_tracker.dart::IOSScrollViewFlingVelocityTracker" {
+  {static} -int _sampleSize
+  -List<_PointAtTime?> _touchSamples
+  +void addPosition()
+  -dynamic _previousVelocityAt()
+  +VelocityEstimate getVelocityEstimate()
+}
+
+class "gestures::velocity_tracker.dart::MacOSScrollViewFlingVelocityTracker" {
+  +VelocityEstimate getVelocityEstimate()
+}
+
+class "dart::ui::Offset" {
+  {static} +Offset zero
+  {static} +Offset infinite
+  +double dx
+  +double dy
+  +double distance
+  +double distanceSquared
+  +double direction
+  +int hashCode
+  +Offset scale()
+  +Offset translate()
+  +Offset unary-()
+  +Offset -()
+  +Offset +()
+  +Offset *()
+  +Offset /()
+  +Offset ~/()
+  +Offset %()
+  +Rect &()
+  {static} +Offset? lerp()
+  +bool ==()
+  +String toString()
+}
+
+class "dart::ui::PointerDeviceKind" {
+  +int index
+  {static} +List<PointerDeviceKind> values
+  {static} +PointerDeviceKind touch
+  {static} +PointerDeviceKind mouse
+  {static} +PointerDeviceKind stylus
+  {static} +PointerDeviceKind invertedStylus
+  {static} +PointerDeviceKind trackpad
+  {static} +PointerDeviceKind unknown
+}
+
+
+@enduml

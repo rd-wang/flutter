@@ -224,48 +224,41 @@ const Duration _defaultSamplingOffset = Duration(milliseconds: -38);
 // is appropriate. 16667 us for 60hz sampling interval.
 const Duration _samplingInterval = Duration(microseconds: 16667);
 
-/// A binding for the gesture subsystem.
-///
-/// ## Lifecycle of pointer events and the gesture arena
-///
+/// 手势子系统的绑定。
+/// ## 指针事件和手势领域的生命周期
 /// ### [PointerDownEvent]
 ///
-/// When a [PointerDownEvent] is received by the [GestureBinding] (from
-/// [dart:ui.PlatformDispatcher.onPointerDataPacket], as interpreted by the
-/// [PointerEventConverter]), a [hitTest] is performed to determine which
-/// [HitTestTarget] nodes are affected. (Other bindings are expected to
-/// implement [hitTest] to defer to [HitTestable] objects. For example, the
-/// rendering layer defers to the [RenderView] and the rest of the render object
-/// hierarchy.)
+/// 当 [GestureBinding] 接收到 [PointerDownEvent]
+/// （通过dart:ui.PlatformDispatcher.onPointerDataPacket传递，由PointerEventConverter解释）时，
+/// 将执行 [hitTest] 以确定哪些 [HitTestTarget] 节点受到影响。
+/// （其他绑定预计会实现 [hitTest] 以遵循 [HitTestable] 对象。成为（可进行命中测试的对象）
+/// 例如，渲染层(rendering layer)遵循 [RenderView]和 hierarchy 的其余部分。）
 ///
-/// The affected nodes then are given the event to handle ([dispatchEvent] calls
-/// [HitTestTarget.handleEvent] for each affected node). If any have relevant
-/// [GestureRecognizer]s, they provide the event to them using
-/// [GestureRecognizer.addPointer]. This typically causes the recognizer to
-/// register with the [PointerRouter] to receive notifications regarding the
-/// pointer in question.
+/// 一旦确定了受影响的节点，就会将事件传递给这些节点来处理
+/// （通过[dispatchEvent]调用每个受影响节点的[HitTestTarget.handleEvent]方法）。
+/// 如果其中有任何节点具有相关的[GestureRecognizer]（手势识别器），
+/// 它们会使用[GestureRecognizer.addPointer]将事件提供给它们。
+/// 通常，这会导致手势识别器向[PointerRouter]注册，以便接收有关该指针的通知。
 ///
-/// Once the hit test and dispatching logic is complete, the event is then
-/// passed to the aforementioned [PointerRouter], which passes it to any objects
-/// that have registered interest in that event.
+/// 一旦命中测试和分派逻辑完成，事件就会被传递到 [PointerRouter]，
+/// [PointerRouter]将其传递给已注册对该事件感兴趣的任何对象。
 ///
-/// Finally, the [gestureArena] is closed for the given pointer
-/// ([GestureArenaManager.close]), which begins the process of selecting a
-/// gesture to win that pointer.
+/// 手势处理的最后阶段[gestureArena]被关闭 ，通过([GestureArenaManager.close])方法 ，
+/// [gestureArena]（手势竞技场）针对特定的pointer被关闭，通过调用GestureArenaManager.close方法。
+/// 这一步骤标志着开始选择一个手势来获胜特定的指针。
+/// 简而言之，当手势竞技场关闭时，系统开始决定哪个手势将被视为在给定的指针上获胜的手势。
+/// 这可能涉及到多个手势竞争，而最终只有一个手势会被选定为获胜者。
 ///
-/// ### Other events
+/// ### 其他事件
 ///
-/// A pointer that is [PointerEvent.down] may send further events, such as
-/// [PointerMoveEvent], [PointerUpEvent], or [PointerCancelEvent]. These are
-/// sent to the same [HitTestTarget] nodes as were found when the
-/// [PointerDownEvent] was received (even if they have since been disposed; it is
-/// the responsibility of those objects to be aware of that possibility).
+/// 当一个指针是按下状态[PointerEvent.down] 时，可能会触发进一步的事件，比如
+/// [PointerMoveEvent]、[PointerUpEvent] 或 [PointerCancelEvent]。
+/// 这些被发送到与收到 [PointerDownEvent] 时找到的相同的 [HitTestTarget] 节点（即使它们已被处置；这些对象有责任意识到这种可能性）。
 ///
-/// Then, the events are routed to any still-registered entrants in the
-/// [PointerRouter]'s table for that pointer.
+/// 事件被路由到仍然在[PointerRouter] 表中注册的任何入口点。这可能涉及在[PointerRouter] 中注册感兴趣该事件的对象，以便它们可以接收到有关指针的通知。
 ///
-/// When a [PointerUpEvent] is received, the [GestureArenaManager.sweep] method
-/// is invoked to force the gesture arena logic to terminate if necessary.
+/// 当接收到 [PointerUpEvent]（指针抬起事件）时，会调用[GestureArenaManager.sweep]方法，
+/// 以强制终止手势竞技场逻辑（如果需要的话）。这可能是为了确保在指针抬起时，手势逻辑得到适当的清理和处理。
 mixin GestureBinding on BindingBase implements HitTestable, HitTestDispatcher, HitTestTarget {
   @override
   void initInstances() {
@@ -274,11 +267,9 @@ mixin GestureBinding on BindingBase implements HitTestable, HitTestDispatcher, H
     platformDispatcher.onPointerDataPacket = _handlePointerDataPacket;
   }
 
-  /// The singleton instance of this object.
-  ///
-  /// Provides access to the features exposed by this mixin. The binding must
-  /// be initialized before using this getter; this is typically done by calling
-  /// [runApp] or [WidgetsFlutterBinding.ensureInitialized].
+  /// 该对象的单例实例。提供对此 mixin 公开的功能的访问。
+  /// 使用此 getter 之前必须初始化绑定；
+  /// 这通常是通过调用 [runApp] 或 [WidgetsFlutterBinding.ensureInitialized] 来完成。
   static GestureBinding get instance => BindingBase.checkInstance(_instance);
   static GestureBinding? _instance;
 
@@ -291,8 +282,8 @@ mixin GestureBinding on BindingBase implements HitTestable, HitTestDispatcher, H
   final Queue<PointerEvent> _pendingPointerEvents = Queue<PointerEvent>();
 
   void _handlePointerDataPacket(ui.PointerDataPacket packet) {
-    // We convert pointer data to logical pixels so that e.g. the touch slop can be
-    // defined in a device-independent manner.
+    // 将指针数据转换为逻辑像素的原因是为了在设备独立的方式中定义触摸阈。
+    // 这有助于确保在不同设备上具有一致的用户体验，而不受物理屏幕分辨率的影响。
     try {
       _pendingPointerEvents.addAll(PointerEventConverter.expand(packet.data, _devicePixelRatioForView));
       if (!locked) {
@@ -358,16 +349,13 @@ mixin GestureBinding on BindingBase implements HitTestable, HitTestDispatcher, H
   /// the results cached here.
   final Map<int, HitTestResult> _hitTests = <int, HitTestResult>{};
 
-  /// Dispatch an event to the targets found by a hit test on its position.
+  /// 在给定位置执行命中测试后,将事件分派给找到的目标的过程。
+  /// 该方法用于将给定的事件分派给命中测试的目标。
+  /// 根据事件类型将给定事件发送到 [dispatchEvent]：
   ///
-  /// This method sends the given event to [dispatchEvent] based on event types:
-  ///
-  ///  * [PointerDownEvent]s and [PointerSignalEvent]s are dispatched to the
-  ///    result of a new [hitTest].
-  ///  * [PointerUpEvent]s and [PointerMoveEvent]s are dispatched to the result of hit test of the
-  ///    preceding [PointerDownEvent]s.
-  ///  * [PointerHoverEvent]s, [PointerAddedEvent]s, and [PointerRemovedEvent]s
-  ///    are dispatched without a hit test result.
+  ///  * [PointerDownEvent] 和 [PointerSignalEvent] 被分派到新的 [hitTest] 的结果。
+  ///  * [PointerUpEvent] 和 [PointerMoveEvent] 被调度到前面的 [PointerDownEvent] 的命中测试结果。
+  ///  * [PointerHoverEvent]、[PointerAddedEvent] 和 [PointerRemovedEvent] 它们会被直接分派，而不需要命中测试结果。。
   void handlePointerEvent(PointerEvent event) {
     assert(!locked);
 
@@ -377,16 +365,20 @@ mixin GestureBinding on BindingBase implements HitTestable, HitTestDispatcher, H
       return;
     }
 
-    // Stop resampler if resampling is not enabled. This is a no-op if
-    // resampling was never enabled.
+    // 如果未启用重采样，请停止重采样。
+    // 如果从未启用重采样，则这是无操作。
     _resampler.stop();
     _handlePointerEventImmediately(event);
   }
 
   void _handlePointerEventImmediately(PointerEvent event) {
     HitTestResult? hitTestResult;
-    if (event is PointerDownEvent || event is PointerSignalEvent || event is PointerHoverEvent || event is PointerPanZoomStartEvent) {
-      assert(!_hitTests.containsKey(event.pointer), 'Pointer of ${event.toString(minLevel: DiagnosticLevel.debug)} unexpectedly has a HitTestResult associated with it.');
+    if (event is PointerDownEvent ||
+        event is PointerSignalEvent ||
+        event is PointerHoverEvent ||
+        event is PointerPanZoomStartEvent) {
+      assert(!_hitTests.containsKey(event.pointer),
+          'Pointer of ${event.toString(minLevel: DiagnosticLevel.debug)} unexpectedly has a HitTestResult associated with it.');
       hitTestResult = HitTestResult();
       hitTestInView(hitTestResult, event.position, event.viewId);
       if (event is PointerDownEvent || event is PointerPanZoomStartEvent) {
@@ -414,9 +406,7 @@ mixin GestureBinding on BindingBase implements HitTestable, HitTestDispatcher, H
       }
       return true;
     }());
-    if (hitTestResult != null ||
-        event is PointerAddedEvent ||
-        event is PointerRemovedEvent) {
+    if (hitTestResult != null || event is PointerAddedEvent || event is PointerRemovedEvent) {
       dispatchEvent(event, hitTestResult);
     }
   }
@@ -516,8 +506,7 @@ mixin GestureBinding on BindingBase implements HitTestable, HitTestDispatcher, H
     if (!locked) {
       if (resamplingEnabled) {
         _resampler.sample(samplingOffset, samplingClock);
-      }
-      else {
+      } else {
         _resampler.stop();
       }
     }

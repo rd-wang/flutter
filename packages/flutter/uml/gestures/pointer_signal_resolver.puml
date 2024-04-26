@@ -1,0 +1,12 @@
+@startuml
+set namespaceSeparator ::
+
+class "gestures::pointer_signal_resolver.dart::PointerSignalResolver" {
+  -void Function(dynamic)? _firstRegisteredCallback
+  -dynamic _currentEvent
+  +void register()
+  +void resolve()
+}
+
+
+@enduml

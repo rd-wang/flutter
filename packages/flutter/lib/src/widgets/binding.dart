@@ -4,7 +4,15 @@
 
 import 'dart:async';
 import 'dart:developer' as developer;
-import 'dart:ui' show AccessibilityFeatures, AppExitResponse, AppLifecycleState, FrameTiming, Locale, PlatformDispatcher, TimingsCallback;
+import 'dart:ui'
+    show
+        AccessibilityFeatures,
+        AppExitResponse,
+        AppLifecycleState,
+        FrameTiming,
+        Locale,
+        PlatformDispatcher,
+        TimingsCallback;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -81,10 +89,8 @@ abstract mixin class WidgetsBindingObserver {
   ///
   /// This method exposes the `pushRoute` notification from
   /// [SystemChannels.navigation].
-  @Deprecated(
-    'Use didPushRouteInformation instead. '
-    'This feature was deprecated after v3.8.0-14.0.pre.'
-  )
+  @Deprecated('Use didPushRouteInformation instead. '
+      'This feature was deprecated after v3.8.0-14.0.pre.')
   Future<bool> didPushRoute(String route) => Future<bool>.value(false);
 
   /// Called when the host tells the application to push a new
@@ -178,7 +184,7 @@ abstract mixin class WidgetsBindingObserver {
   ///
   ///  * [MediaQuery.sizeOf], which provides a similar service with less
   ///    boilerplate.
-  void didChangeMetrics() { }
+  void didChangeMetrics() {}
 
   /// Called when the platform's text scale factor changes.
   ///
@@ -231,7 +237,7 @@ abstract mixin class WidgetsBindingObserver {
   ///
   ///  * [MediaQuery.textScaleFactorOf], which provides a similar service with less
   ///    boilerplate.
-  void didChangeTextScaleFactor() { }
+  void didChangeTextScaleFactor() {}
 
   /// Called when the platform brightness changes.
   ///
@@ -242,7 +248,7 @@ abstract mixin class WidgetsBindingObserver {
   ///
   /// * [MediaQuery.platformBrightnessOf], which provides a similar service with
   ///   less boilerplate.
-  void didChangePlatformBrightness() { }
+  void didChangePlatformBrightness() {}
 
   /// Called when the system tells the app that the user's locale has
   /// changed. For example, if the user changes the system language
@@ -250,7 +256,7 @@ abstract mixin class WidgetsBindingObserver {
   ///
   /// This method exposes notifications from
   /// [dart:ui.PlatformDispatcher.onLocaleChanged].
-  void didChangeLocales(List<Locale>? locales) { }
+  void didChangeLocales(List<Locale>? locales) {}
 
   /// Called when the system puts the app in the background or returns
   /// the app to the foreground.
@@ -264,7 +270,7 @@ abstract mixin class WidgetsBindingObserver {
   ///
   ///  * [AppLifecycleListener], an alternative API for responding to
   ///    application lifecycle changes.
-  void didChangeAppLifecycleState(AppLifecycleState state) { }
+  void didChangeAppLifecycleState(AppLifecycleState state) {}
 
   /// Called when a request is received from the system to exit the application.
   ///
@@ -285,21 +291,20 @@ abstract mixin class WidgetsBindingObserver {
   ///
   /// This method exposes the `memoryPressure` notification from
   /// [SystemChannels.system].
-  void didHaveMemoryPressure() { }
+  void didHaveMemoryPressure() {}
 
   /// Called when the system changes the set of currently active accessibility
   /// features.
   ///
   /// This method exposes notifications from
   /// [dart:ui.PlatformDispatcher.onAccessibilityFeaturesChanged].
-  void didChangeAccessibilityFeatures() { }
+  void didChangeAccessibilityFeatures() {}
 }
 
-/// The glue between the widgets layer and the Flutter engine.
+/// widgets layer 和 Flutter engine 之间的粘合剂。
 ///
-/// The [WidgetsBinding] manages a single [Element] tree rooted at [rootElement].
-/// Calling [runApp] (which indirectly calls [attachRootWidget]) bootstraps that
-/// element tree.
+/// [WidgetsBinding] 管理以 [rootElement] 为根的单个 [Element] 树。
+/// 调用 [runApp]（间接调用 [attachRootWidget]）会引导该元素树。
 ///
 /// ## Relationship to render trees
 ///
@@ -338,7 +343,8 @@ abstract mixin class WidgetsBindingObserver {
 /// calling [Element.debugExpectsRenderObjectForSlot] on its ancestors. If it
 /// reaches an element that returns false, it is in a non-rendering zone. If it
 /// reaches a [RenderObjectElement] ancestor it is in a rendering zone.
-mixin WidgetsBinding on BindingBase, ServicesBinding, SchedulerBinding, GestureBinding, RendererBinding, SemanticsBinding {
+mixin WidgetsBinding
+    on BindingBase, ServicesBinding, SchedulerBinding, GestureBinding, RendererBinding, SemanticsBinding {
   @override
   void initInstances() {
     super.initInstances();
@@ -349,17 +355,21 @@ mixin WidgetsBinding on BindingBase, ServicesBinding, SchedulerBinding, GestureB
       return true;
     }());
 
-    // Initialization of [_buildOwner] has to be done after
-    // [super.initInstances] is called, as it requires [ServicesBinding] to
-    // properly setup the [defaultBinaryMessenger] instance.
+    // [_buildOwner] 的初始化必须在调用 [super.initInstances] 之后完成，
+    // 因为它需要 [ServicesBinding] 来正确设置 [defaultBinaryMessenger] 实例。
     _buildOwner = BuildOwner();
+    //通过SchedulerBinding初始化platformDispatcher的onBeginFrame、onDrawFrame回调
+    //如果app可见，通过platformDispatcher.scheduleFrame向engine发起绘制请求
     buildOwner!.onBuildScheduled = _handleBuildScheduled;
+    //语言环境变化处理
     platformDispatcher.onLocaleChanged = handleLocaleChanged;
+    //处理系统发送的push/pop页面请求
     SystemChannels.navigation.setMethodCallHandler(_handleNavigationInvocation);
     assert(() {
       FlutterErrorDetails.propertiesTransformers.add(debugTransformDebugCreator);
       return true;
     }());
+    //处理内置 macOS 平台菜单的 平台菜单委托
     platformMenuDelegate = DefaultPlatformMenuDelegate();
   }
 
@@ -372,15 +382,26 @@ mixin WidgetsBinding on BindingBase, ServicesBinding, SchedulerBinding, GestureB
   static WidgetsBinding? _instance;
 
   void _debugAddStackFilters() {
-    const PartialStackFrame elementInflateWidget = PartialStackFrame(package: 'package:flutter/src/widgets/framework.dart', className: 'Element', method: 'inflateWidget');
-    const PartialStackFrame elementUpdateChild = PartialStackFrame(package: 'package:flutter/src/widgets/framework.dart', className: 'Element', method: 'updateChild');
-    const PartialStackFrame elementRebuild = PartialStackFrame(package: 'package:flutter/src/widgets/framework.dart', className: 'Element', method: 'rebuild');
-    const PartialStackFrame componentElementPerformRebuild = PartialStackFrame(package: 'package:flutter/src/widgets/framework.dart', className: 'ComponentElement', method: 'performRebuild');
-    const PartialStackFrame componentElementFirstBuild = PartialStackFrame(package: 'package:flutter/src/widgets/framework.dart', className: 'ComponentElement', method: '_firstBuild');
-    const PartialStackFrame componentElementMount = PartialStackFrame(package: 'package:flutter/src/widgets/framework.dart', className: 'ComponentElement', method: 'mount');
-    const PartialStackFrame statefulElementFirstBuild = PartialStackFrame(package: 'package:flutter/src/widgets/framework.dart', className: 'StatefulElement', method: '_firstBuild');
-    const PartialStackFrame singleChildMount = PartialStackFrame(package: 'package:flutter/src/widgets/framework.dart', className: 'SingleChildRenderObjectElement', method: 'mount');
-    const PartialStackFrame statefulElementRebuild = PartialStackFrame(package: 'package:flutter/src/widgets/framework.dart', className: 'StatefulElement', method: 'performRebuild');
+    const PartialStackFrame elementInflateWidget = PartialStackFrame(
+        package: 'package:flutter/src/widgets/framework.dart', className: 'Element', method: 'inflateWidget');
+    const PartialStackFrame elementUpdateChild = PartialStackFrame(
+        package: 'package:flutter/src/widgets/framework.dart', className: 'Element', method: 'updateChild');
+    const PartialStackFrame elementRebuild = PartialStackFrame(
+        package: 'package:flutter/src/widgets/framework.dart', className: 'Element', method: 'rebuild');
+    const PartialStackFrame componentElementPerformRebuild = PartialStackFrame(
+        package: 'package:flutter/src/widgets/framework.dart', className: 'ComponentElement', method: 'performRebuild');
+    const PartialStackFrame componentElementFirstBuild = PartialStackFrame(
+        package: 'package:flutter/src/widgets/framework.dart', className: 'ComponentElement', method: '_firstBuild');
+    const PartialStackFrame componentElementMount = PartialStackFrame(
+        package: 'package:flutter/src/widgets/framework.dart', className: 'ComponentElement', method: 'mount');
+    const PartialStackFrame statefulElementFirstBuild = PartialStackFrame(
+        package: 'package:flutter/src/widgets/framework.dart', className: 'StatefulElement', method: '_firstBuild');
+    const PartialStackFrame singleChildMount = PartialStackFrame(
+        package: 'package:flutter/src/widgets/framework.dart',
+        className: 'SingleChildRenderObjectElement',
+        method: 'mount');
+    const PartialStackFrame statefulElementRebuild = PartialStackFrame(
+        package: 'package:flutter/src/widgets/framework.dart', className: 'StatefulElement', method: 'performRebuild');
 
     const String replacementString = '...     Normal element mounting';
 
@@ -480,8 +501,7 @@ mixin WidgetsBinding on BindingBase, ServicesBinding, SchedulerBinding, GestureB
       if (!kIsWeb) {
         registerBoolServiceExtension(
           name: WidgetsServiceExtensions.showPerformanceOverlay.name,
-          getter: () =>
-          Future<bool>.value(WidgetsApp.showPerformanceOverlayOverride),
+          getter: () => Future<bool>.value(WidgetsApp.showPerformanceOverlayOverride),
           setter: (bool value) {
             if (WidgetsApp.showPerformanceOverlayOverride == value) {
               return Future<void>.value();
@@ -518,19 +538,17 @@ mixin WidgetsBinding on BindingBase, ServicesBinding, SchedulerBinding, GestureB
 
       // Expose the ability to send Widget rebuilds as [Timeline] events.
       registerBoolServiceExtension(
-        name: WidgetsServiceExtensions.profileWidgetBuilds.name,
-        getter: () async => debugProfileBuildsEnabled,
-        setter: (bool value) async {
-          debugProfileBuildsEnabled = value;
-        }
-      );
+          name: WidgetsServiceExtensions.profileWidgetBuilds.name,
+          getter: () async => debugProfileBuildsEnabled,
+          setter: (bool value) async {
+            debugProfileBuildsEnabled = value;
+          });
       registerBoolServiceExtension(
-        name: WidgetsServiceExtensions.profileUserWidgetBuilds.name,
-        getter: () async => debugProfileBuildsEnabledUserWidgets,
-        setter: (bool value) async {
-          debugProfileBuildsEnabledUserWidgets = value;
-        }
-      );
+          name: WidgetsServiceExtensions.profileUserWidgetBuilds.name,
+          getter: () async => debugProfileBuildsEnabledUserWidgets,
+          setter: (bool value) async {
+            debugProfileBuildsEnabledUserWidgets = value;
+          });
     }
 
     assert(() {
@@ -563,6 +581,7 @@ mixin WidgetsBinding on BindingBase, ServicesBinding, SchedulerBinding, GestureB
   /// The [BuildOwner] in charge of executing the build pipeline for the
   /// widget tree rooted at this binding.
   BuildOwner? get buildOwner => _buildOwner;
+
   // Initialization of [_buildOwner] has to be done within the [initInstances]
   // method, as it requires [ServicesBinding] to properly setup the
   // [defaultBinaryMessenger] instance.
@@ -1019,10 +1038,8 @@ mixin WidgetsBinding on BindingBase, ServicesBinding, SchedulerBinding, GestureB
   /// Deprecated. Will be removed in a future version of Flutter.
   ///
   /// Use [rootElement] instead.
-  @Deprecated(
-    'Use rootElement instead. '
-    'This feature was deprecated after v3.9.0-16.0.pre.'
-  )
+  @Deprecated('Use rootElement instead. '
+      'This feature was deprecated after v3.9.0-16.0.pre.')
   Element? get renderViewElement => rootElement;
 
   bool _readyToProduceFrames = false;
@@ -1216,7 +1233,11 @@ void runApp(Widget app) {
 }
 
 String _debugDumpAppString() {
-  const String mode = kDebugMode ? 'DEBUG MODE' : kReleaseMode ? 'RELEASE MODE' : 'PROFILE MODE';
+  const String mode = kDebugMode
+      ? 'DEBUG MODE'
+      : kReleaseMode
+          ? 'RELEASE MODE'
+          : 'PROFILE MODE';
   final StringBuffer buffer = StringBuffer();
   buffer.writeln('${WidgetsBinding.instance.runtimeType} - $mode');
   if (WidgetsBinding.instance.rootElement != null) {
@@ -1265,7 +1286,7 @@ class RootWidget extends Widget {
   ///
   /// Used by [WidgetsBinding.attachToBuildOwner] (which is indirectly called by
   /// [runApp]) to bootstrap applications.
-  RootElement attach(BuildOwner owner, [ RootElement? element ]) {
+  RootElement attach(BuildOwner owner, [RootElement? element]) {
     if (element == null) {
       owner.lockState(() {
         element = createElement();
@@ -1363,7 +1384,6 @@ class RootElement extends Element with RootElementMixin {
       // No error widget possible here since it wouldn't have a view to render into.
       _child = null;
     }
-
   }
 
   @override
@@ -1389,7 +1409,15 @@ class RootElement extends Element with RootElementMixin {
 /// * [SemanticsBinding], which supports accessibility.
 /// * [RendererBinding], which handles the render tree.
 /// * [WidgetsBinding], which handles the widget tree.
-class WidgetsFlutterBinding extends BindingBase with GestureBinding, SchedulerBinding, ServicesBinding, PaintingBinding, SemanticsBinding, RendererBinding, WidgetsBinding {
+class WidgetsFlutterBinding extends BindingBase
+    with
+        GestureBinding,
+        SchedulerBinding,
+        ServicesBinding,
+        PaintingBinding,
+        SemanticsBinding,
+        RendererBinding,
+        WidgetsBinding {
   /// Returns an instance of the binding that implements
   /// [WidgetsBinding]. If no binding has yet been initialized, the
   /// [WidgetsFlutterBinding] class is used to create and initialize

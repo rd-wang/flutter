@@ -54,11 +54,11 @@ abstract final class SystemChannels {
   ///    [Navigator.replace], utilize this channel's methods to send route
   ///    change information from framework to engine.
   static const MethodChannel navigation = OptionalMethodChannel(
-      'flutter/navigation',
-      JSONMethodCodec(),
+    'flutter/navigation',
+    JSONMethodCodec(),
   );
 
-  /// A JSON [MethodChannel] for invoking miscellaneous platform methods.
+  /// 用于调用各种平台方法的 [MethodChannel] JSON 。
   ///
   /// The following outgoing methods are defined for this channel (invoked using
   /// [OptionalMethodChannel.invokeMethod]):
@@ -140,8 +140,8 @@ abstract final class SystemChannels {
   /// Calls to methods that are not implemented on the shell side are ignored
   /// (so it is safe to call methods when the relevant plugin might be missing).
   static const MethodChannel platform = OptionalMethodChannel(
-      'flutter/platform',
-      JSONMethodCodec(),
+    'flutter/platform',
+    JSONMethodCodec(),
   );
 
   /// A [MethodChannel] for handling text processing actions.
@@ -149,7 +149,7 @@ abstract final class SystemChannels {
   /// This channel exposes the text processing feature for supported platforms.
   /// Currently supported on Android only.
   static const MethodChannel processText = OptionalMethodChannel(
-      'flutter/processtext',
+    'flutter/processtext',
   );
 
   /// A JSON [MethodChannel] for handling text input.
@@ -234,8 +234,8 @@ abstract final class SystemChannels {
   /// Calls to methods that are not implemented on the shell side are ignored
   /// (so it is safe to call methods when the relevant plugin might be missing).
   static const MethodChannel textInput = OptionalMethodChannel(
-      'flutter/textinput',
-      JSONMethodCodec(),
+    'flutter/textinput',
+    JSONMethodCodec(),
   );
 
   /// A [MethodChannel] for handling spell check for text input.
@@ -257,7 +257,7 @@ abstract final class SystemChannels {
   ///     was canceled. The arguments are the [String] to be spell checked
   ///     and the [Locale] for the text to be spell checked with.
   static const MethodChannel spellCheck = OptionalMethodChannel(
-      'flutter/spellcheck',
+    'flutter/spellcheck',
   );
 
   /// A JSON [MethodChannel] for handling undo events.
@@ -287,11 +287,11 @@ abstract final class SystemChannels {
   ///  * [RawKeyEvent.fromMessage], which can decode this data into the [RawKeyEvent]
   ///    subclasses mentioned above.
   static const BasicMessageChannel<Object?> keyEvent = BasicMessageChannel<Object?>(
-      'flutter/keyevent',
-      JSONMessageCodec(),
+    'flutter/keyevent',
+    JSONMessageCodec(),
   );
 
-  /// A string [BasicMessageChannel] for lifecycle events.
+  /// 生命周期事件的字符串 [BasicMessageChannel]。
   ///
   /// Valid messages are string representations of the values of the
   /// [AppLifecycleState] enumeration. A handler can be registered using
@@ -302,11 +302,11 @@ abstract final class SystemChannels {
   ///  * [WidgetsBindingObserver.didChangeAppLifecycleState], which triggers
   ///    whenever a message is received on this channel.
   static const BasicMessageChannel<String?> lifecycle = BasicMessageChannel<String?>(
-      'flutter/lifecycle',
-      StringCodec(),
+    'flutter/lifecycle',
+    StringCodec(),
   );
 
-  /// A JSON [BasicMessageChannel] for system events.
+  /// 用于系统事件的 [BasicMessageChannel] JSON 。
   ///
   /// Events are exposed as [Map]s with string keys. The `type` key specifies
   /// the type of the event; the currently supported system event types are
@@ -318,11 +318,11 @@ abstract final class SystemChannels {
   ///    [WidgetsBindingObserver.didHaveMemoryPressure], which triggers whenever
   ///    a message is received on this channel.
   static const BasicMessageChannel<Object?> system = BasicMessageChannel<Object?>(
-      'flutter/system',
-      JSONMessageCodec(),
+    'flutter/system',
+    JSONMessageCodec(),
   );
 
-  /// A [BasicMessageChannel] for accessibility events.
+  /// 用于辅助功能事件的 [BasicMessageChannel]。
   ///
   /// See also:
   ///

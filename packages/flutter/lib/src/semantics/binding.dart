@@ -11,7 +11,7 @@ import 'debug.dart';
 
 export 'dart:ui' show AccessibilityFeatures, SemanticsActionEvent, SemanticsUpdateBuilder;
 
-/// The glue between the semantics layer and the Flutter engine.
+/// 语义层和 Flutter 引擎之间的粘合剂。
 mixin SemanticsBinding on BindingBase {
   @override
   void initInstances() {
@@ -44,6 +44,7 @@ mixin SemanticsBinding on BindingBase {
     assert(_semanticsEnabled.value == (_outstandingHandles > 0));
     return _semanticsEnabled.value;
   }
+
   late final ValueNotifier<bool> _semanticsEnabled = ValueNotifier<bool>(platformDispatcher.semanticsEnabled);
 
   /// Adds a `listener` to be called when [semanticsEnabled] changes.
@@ -114,8 +115,8 @@ mixin SemanticsBinding on BindingBase {
   void _handleSemanticsActionEvent(ui.SemanticsActionEvent action) {
     final Object? arguments = action.arguments;
     final ui.SemanticsActionEvent decodedAction = arguments is ByteData
-      ? action.copyWith(arguments: const StandardMessageCodec().decodeMessage(arguments))
-      : action;
+        ? action.copyWith(arguments: const StandardMessageCodec().decodeMessage(arguments))
+        : action;
     performSemanticsAction(decodedAction);
   }
 

@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-
 import 'package:flutter/foundation.dart';
 import 'package:vector_math/vector_math_64.dart';
 
@@ -14,7 +13,7 @@ export 'package:vector_math/vector_math_64.dart' show Matrix4;
 
 export 'events.dart' show PointerEvent;
 
-/// An object that can hit-test pointers.
+/// 可以命中测试指针的对象。
 abstract interface class HitTestable {
   /// Deprecated. Use [hitTestInView] instead.
   @Deprecated(
@@ -23,20 +22,22 @@ abstract interface class HitTestable {
   )
   void hitTest(HitTestResult result, Offset position);
 
-  /// Fills the provided [HitTestResult] with [HitTestEntry]s for objects that
-  /// are hit at the given `position` in the view identified by `viewId`.
+  /// 使用给定的 `position` 在由 `viewId` 标识的视图中
+  /// ，为 [HitTestResult] 填充 [HitTestEntry]。
+  /// 在特定视图中，针对给定的位置进行命中测试，
+  /// 并将结果存储在 [HitTestResult] 中的 [HitTestEntry] 中。
   void hitTestInView(HitTestResult result, Offset position, int viewId);
 }
 
-/// An object that can dispatch events.
+/// 可以调度事件的对象。
 abstract interface class HitTestDispatcher {
-  /// Override this method to dispatch events.
+  /// 重写此方法来调度事件
   void dispatchEvent(PointerEvent event, HitTestResult result);
 }
 
-/// An object that can handle events.
+/// 可以处理事件的对象。
 abstract interface class HitTestTarget {
-  /// Override this method to receive events.
+  /// 重写此方法以接收事件。
   void handleEvent(PointerEvent event, HitTestEntry<HitTestTarget> entry);
 }
 
@@ -109,9 +110,9 @@ class _OffsetTransformPart extends _TransformPart {
 class HitTestResult {
   /// Creates an empty hit test result.
   HitTestResult()
-     : _path = <HitTestEntry>[],
-       _transforms = <Matrix4>[Matrix4.identity()],
-       _localTransforms = <_TransformPart>[];
+      : _path = <HitTestEntry>[],
+        _transforms = <Matrix4>[Matrix4.identity()],
+        _localTransforms = <_TransformPart>[];
 
   /// Wraps `result` (usually a subtype of [HitTestResult]) to create a
   /// generic [HitTestResult].
@@ -120,9 +121,9 @@ class HitTestResult {
   /// added to the wrapped `result` (both share the same underlying data
   /// structure to store [HitTestEntry]s).
   HitTestResult.wrap(HitTestResult result)
-     : _path = result._path,
-       _transforms = result._transforms,
-       _localTransforms = result._localTransforms;
+      : _path = result._path,
+        _transforms = result._transforms,
+        _localTransforms = result._localTransforms;
 
   /// An unmodifiable list of [HitTestEntry] objects recorded during the hit test.
   ///
@@ -210,7 +211,7 @@ class HitTestResult {
   void pushTransform(Matrix4 transform) {
     assert(
       _debugVectorMoreOrLessEquals(transform.getRow(2), Vector4(0, 0, 1, 0)) &&
-      _debugVectorMoreOrLessEquals(transform.getColumn(2), Vector4(0, 0, 1, 0)),
+          _debugVectorMoreOrLessEquals(transform.getColumn(2), Vector4(0, 0, 1, 0)),
       'The third row and third column of a transform matrix for pointer '
       'events must be Vector4(0, 0, 1, 0) to ensure that a transformed '
       'point is directly under the pointing device. Did you forget to run the paint '
@@ -273,7 +274,7 @@ class HitTestResult {
     assert(_transforms.isNotEmpty);
   }
 
-  bool _debugVectorMoreOrLessEquals(Vector4 a, Vector4 b, { double epsilon = precisionErrorTolerance }) {
+  bool _debugVectorMoreOrLessEquals(Vector4 a, Vector4 b, {double epsilon = precisionErrorTolerance}) {
     bool result = true;
     assert(() {
       final Vector4 difference = a - b;

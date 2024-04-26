@@ -45,7 +45,8 @@ class ShortcutSerialization {
   /// Creates a [ShortcutSerialization] representing a single character.
   ///
   /// This is used by a [CharacterActivator] to serialize itself.
-  ShortcutSerialization.character(String character, {
+  ShortcutSerialization.character(
+    String character, {
     bool alt = false,
     bool control = false,
     bool meta = false,
@@ -73,20 +74,21 @@ class ShortcutSerialization {
     bool control = false,
     bool meta = false,
     bool shift = false,
-  })  : assert(trigger != LogicalKeyboardKey.alt &&
-               trigger != LogicalKeyboardKey.altLeft &&
-               trigger != LogicalKeyboardKey.altRight &&
-               trigger != LogicalKeyboardKey.control &&
-               trigger != LogicalKeyboardKey.controlLeft &&
-               trigger != LogicalKeyboardKey.controlRight &&
-               trigger != LogicalKeyboardKey.meta &&
-               trigger != LogicalKeyboardKey.metaLeft &&
-               trigger != LogicalKeyboardKey.metaRight &&
-               trigger != LogicalKeyboardKey.shift &&
-               trigger != LogicalKeyboardKey.shiftLeft &&
-               trigger != LogicalKeyboardKey.shiftRight,
-               'Specifying a modifier key as a trigger is not allowed. '
-               'Use provided boolean parameters instead.'),
+  })  : assert(
+            trigger != LogicalKeyboardKey.alt &&
+                trigger != LogicalKeyboardKey.altLeft &&
+                trigger != LogicalKeyboardKey.altRight &&
+                trigger != LogicalKeyboardKey.control &&
+                trigger != LogicalKeyboardKey.controlLeft &&
+                trigger != LogicalKeyboardKey.controlRight &&
+                trigger != LogicalKeyboardKey.meta &&
+                trigger != LogicalKeyboardKey.metaLeft &&
+                trigger != LogicalKeyboardKey.metaRight &&
+                trigger != LogicalKeyboardKey.shift &&
+                trigger != LogicalKeyboardKey.shiftLeft &&
+                trigger != LogicalKeyboardKey.shiftRight,
+            'Specifying a modifier key as a trigger is not allowed. '
+            'Use provided boolean parameters instead.'),
         _trigger = trigger,
         _character = null,
         _alt = alt,
@@ -96,9 +98,9 @@ class ShortcutSerialization {
         _internal = <String, Object?>{
           _kShortcutTrigger: trigger.keyId,
           _kShortcutModifiers: (alt ? _shortcutModifierAlt : 0) |
-            (control ? _shortcutModifierControl : 0) |
-            (meta ? _shortcutModifierMeta : 0) |
-            (shift ? _shortcutModifierShift : 0),
+              (control ? _shortcutModifierControl : 0) |
+              (meta ? _shortcutModifierMeta : 0) |
+              (shift ? _shortcutModifierShift : 0),
         };
 
   final Map<String, Object?> _internal;
@@ -264,22 +266,16 @@ abstract class PlatformMenuDelegate {
 /// serialization of a [PlatformMenuItem].
 typedef MenuItemSerializableIdGenerator = int Function(PlatformMenuItem item);
 
-/// The platform menu delegate that handles the built-in macOS platform menu
-/// generation using the 'flutter/menu' channel.
-///
-/// An instance of this class is set on [WidgetsBinding.platformMenuDelegate] by
-/// default when the [WidgetsBinding] is initialized.
-///
+/// 通过'flutter/menu'通道来实现。处理内置 macOS 平台菜单的 平台菜单委托
+/// 当初始化 [WidgetsBinding] 时，
+/// 默认情况下在 [WidgetsBinding.platformMenuDelegate] 上设置此类的实例。
 /// See also:
 ///
-///  * [PlatformMenuBar], the widget that adds a platform menu bar to an
-///    application.
-///  * [PlatformMenu], the class that describes a menu item with children
-///    that appear in a cascading menu.
-///  * [PlatformMenuItem], the class that describes the leaves of a menu
-///    hierarchy.
+///  * [PlatformMenuBar], 向应用程序添加平台菜单栏的小部件。
+///  * [PlatformMenu], 描述 级联菜单 中显示的带有子项的菜单项。
+///  * [PlatformMenuItem], 描述菜单层次结构的叶子。
 class DefaultPlatformMenuDelegate extends PlatformMenuDelegate {
-  /// Creates a const [DefaultPlatformMenuDelegate].
+  /// 创建一个静态的 [DefaultPlatformMenuDelegate].
   ///
   /// The optional [channel] argument defines the channel used to communicate
   /// with the platform. It defaults to [SystemChannels.menu] if not supplied.
@@ -375,7 +371,7 @@ class DefaultPlatformMenuDelegate extends PlatformMenuDelegate {
     final PlatformMenuItem item = _idMap[id]!;
     if (call.method == _kMenuSelectedCallbackMethod) {
       assert(item.onSelected == null || item.onSelectedIntent == null,
-        'Only one of PlatformMenuItem.onSelected or PlatformMenuItem.onSelectedIntent may be specified');
+          'Only one of PlatformMenuItem.onSelected or PlatformMenuItem.onSelectedIntent may be specified');
       item.onSelected?.call();
       if (item.onSelectedIntent != null) {
         Actions.maybeInvoke(FocusManager.instance.primaryFocus!.context!, item.onSelectedIntent!);
@@ -710,7 +706,8 @@ class PlatformMenuItem with Diagnosticable {
     this.shortcut,
     this.onSelected,
     this.onSelectedIntent,
-  }) : assert(onSelected == null || onSelectedIntent == null, 'Only one of onSelected or onSelectedIntent may be specified');
+  }) : assert(onSelected == null || onSelectedIntent == null,
+            'Only one of onSelected or onSelectedIntent may be specified');
 
   /// The required label used for rendering the menu item.
   final String label;
@@ -793,7 +790,7 @@ class PlatformMenuItem with Diagnosticable {
       _kIdKey: getId(item),
       _kLabelKey: item.label,
       _kEnabledKey: item.onSelected != null || item.onSelectedIntent != null,
-      if (shortcut != null)...shortcut.serializeForMenu().toChannelRepresentation(),
+      if (shortcut != null) ...shortcut.serializeForMenu().toChannelRepresentation(),
     };
   }
 

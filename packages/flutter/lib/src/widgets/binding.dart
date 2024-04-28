@@ -906,51 +906,44 @@ mixin WidgetsBinding
   @protected
   bool debugBuildingDirtyElements = false;
 
-  /// Pump the build and rendering pipeline to generate a frame.
+  /// 泵送 build 和 rendering pipeline以生成frame。
   ///
-  /// This method is called by [handleDrawFrame], which itself is called
-  /// automatically by the engine when it is time to lay out and paint a
-  /// frame.
+  /// 该方法由 [handleDrawFrame] 调用，当需要布局和绘制框架时，引擎会自动调用该方法。
   ///
-  /// Each frame consists of the following phases:
+  /// 每个帧由以下阶段组成：
   ///
-  /// 1. The animation phase: The [handleBeginFrame] method, which is registered
-  /// with [PlatformDispatcher.onBeginFrame], invokes all the transient frame
-  /// callbacks registered with [scheduleFrameCallback], in registration order.
-  /// This includes all the [Ticker] instances that are driving
-  /// [AnimationController] objects, which means all of the active [Animation]
-  /// objects tick at this point.
+  /// 1. 动画阶段  animation phase:
+  /// 在 [PlatformDispatcher.onBeginFrame] 中注册的 [handleBeginFrame] 方法
+  /// 按注册顺序调用在 [scheduleFrameCallback] 中注册的所有瞬态帧回调（transient frame callbacks ）
+  /// 包括驱动 [AnimationController] 对象的所有 [Ticker] 实例，
+  /// 这意味着所有活动的 [Animation] 对象此时都会tick。
   ///
-  /// 2. Microtasks: After [handleBeginFrame] returns, any microtasks that got
-  /// scheduled by transient frame callbacks get to run. This typically includes
-  /// callbacks for futures from [Ticker]s and [AnimationController]s that
-  /// completed this frame.
+  /// 2. 微任务 Microtasks:
+  /// [handleBeginFrame] 返回后，由瞬态帧回调(transient frame callbacks)调度的
+  /// 任何microtasks都会开始运行。这通常包括,
+  /// 在此frame中完成的，来自[Ticker] 和 [AnimationController] 的 future 的回调。
   ///
-  /// After [handleBeginFrame], [handleDrawFrame], which is registered with
-  /// [PlatformDispatcher.onDrawFrame], is called, which invokes all the
-  /// persistent frame callbacks, of which the most notable is this method,
-  /// [drawFrame], which proceeds as follows:
+  /// 在[handleBeginFrame]之后，调用[PlatformDispatcher.onDrawFrame]注册的[handleDrawFrame]，
+  /// 它会调用所有持久帧回调(persistent frame callbacks)，
+  /// 其中最值得注意的是这个方法[drawFrame]，其过程如下：
   ///
-  /// 3. The build phase: All the dirty [Element]s in the widget tree are
-  /// rebuilt (see [State.build]). See [State.setState] for further details on
-  /// marking a widget dirty for building. See [BuildOwner] for more information
-  /// on this step.
+  /// 3. 构建阶段 build phase:
+  /// 小部件树中的所有脏[Element]都将被重建（请参阅[State.build]）。
+  /// 有关将小部件标记为脏以进行构建的更多详细信息，请参阅 [State.setState]。
+  /// 有关此步骤的更多信息，请参阅 [BuildOwner]。
   ///
-  /// 4. The layout phase: All the dirty [RenderObject]s in the system are laid
-  /// out (see [RenderObject.performLayout]). See [RenderObject.markNeedsLayout]
-  /// for further details on marking an object dirty for layout.
+  /// 4. 布局阶段 layout phase:
+  /// 系统中所有脏的[RenderObject]都被布局（参见[RenderObject.performLayout]）。
+  /// 有关将对象标记为脏布局的更多详细信息，请参阅 [RenderObject.markNeedsLayout]。
   ///
-  /// 5. The compositing bits phase: The compositing bits on any dirty
-  /// [RenderObject] objects are updated. See
-  /// [RenderObject.markNeedsCompositingBitsUpdate].
+  /// 5. 合成阶段compositing bits phase:
+  /// 任何脏 [RenderObject] 对象上的compositing bits都会更新。请参阅[RenderObject.markNeedsCompositingBitsUpdate]。
   ///
-  /// 6. The paint phase: All the dirty [RenderObject]s in the system are
-  /// repainted (see [RenderObject.paint]). This generates the [Layer] tree. See
-  /// [RenderObject.markNeedsPaint] for further details on marking an object
-  /// dirty for paint.
+  /// 6. 绘制阶段 paint phase:
+  /// 系统中所有脏的[RenderObject]都被重新绘制（参见[RenderObject.paint]）。
+  /// 这会生成[Layer]树。有关将对象标记为脏以进行绘制的更多详细信息，请参阅 [RenderObject.markNeedsPaint]。
   ///
-  /// 7. The compositing phase: The layer tree is turned into a [Scene] and
-  /// sent to the GPU.
+  /// 7. 合成阶段 compositing phase:
   ///
   /// 8. The semantics phase: All the dirty [RenderObject]s in the system have
   /// their semantics updated (see [RenderObject.assembleSemanticsNode]). This
@@ -1005,9 +998,12 @@ mixin WidgetsBinding
 
     try {
       if (rootElement != null) {
+        // 调用BuildOwner.buildScope开始构建
         buildOwner!.buildScope(rootElement!);
       }
+      // 调用RendererBinding.drawFrame，开始布局、绘制阶段。
       super.drawFrame();
+      // 从element tree中移除不需要的element，unmount
       buildOwner!.finalizeTree();
     } finally {
       assert(() {
@@ -1047,8 +1043,7 @@ mixin WidgetsBinding
   @override
   bool get framesEnabled => super.framesEnabled && _readyToProduceFrames;
 
-  /// Used by [runApp] to wrap the provided `rootWidget` in the default [View].
-  ///
+  /// 由 [runApp] 用于将提供的 `rootWidget` 包装在默认的 [View] 中。
   /// The [View] determines into what [FlutterView] the app is rendered into.
   /// This is currently [PlatformDispatcher.implicitView] from [platformDispatcher].
   ///
@@ -1063,10 +1058,8 @@ mixin WidgetsBinding
     );
   }
 
-  /// Schedules a [Timer] for attaching the root widget.
-  ///
-  /// This is called by [runApp] to configure the widget tree. Consider using
-  /// [attachRootWidget] if you want to build the widget tree synchronously.
+  /// 安排一个[Timer]来附加root widget
+  /// 这由 [runApp] 调用来配置小部件树。如果您想同步构建小部件树，请考虑使用 [attachRootWidget]。
   @protected
   void scheduleAttachRootWidget(Widget rootWidget) {
     Timer.run(() {
@@ -1074,15 +1067,11 @@ mixin WidgetsBinding
     });
   }
 
-  /// Takes a widget and attaches it to the [rootElement], creating it if
-  /// necessary.
-  ///
-  /// This is called by [runApp] to configure the widget tree.
-  ///
+  /// 获取一个小部件并将其附加到 [rootElement]，并在必要时创建它。
+  /// 这由 [runApp] 调用来配置小部件树。
   /// See also:
-  ///
-  ///  * [RenderObjectToWidgetAdapter.attachToRenderTree], which inflates a
-  ///    widget and attaches it to the render tree.
+  ///  * [RenderObjectToWidgetAdapter.attachToRenderTree],
+  ///  它会inflates一个widget并将其附加到render tree。
   void attachRootWidget(Widget rootWidget) {
     attachToBuildOwner(RootWidget(
       debugShortDescription: '[root]',
@@ -1090,15 +1079,11 @@ mixin WidgetsBinding
     ));
   }
 
-  /// Called by [attachRootWidget] to attach the provided [RootWidget] to the
-  /// [buildOwner].
+  /// 由 [attachRootWidget] 调用，将提供的 [RootWidget] 附加到 [buildOwner]。
+  /// 如果需要，这将创建 [rootElement]，或重新使用现有的。
   ///
-  /// This creates the [rootElement], if necessary, or re-uses an existing one.
-  ///
-  /// This method is rarely called directly, but it can be useful in tests to
-  /// restore the element tree to a previous version by providing the
-  /// [RootWidget] of that version (see [WidgetTester.restartAndRestore] for an
-  /// exemplary use case).
+  /// 此方法很少直接调用，但在测试中通过提供该版本的 [RootWidget]
+  /// 将元素树恢复到以前的版本非常有用（有关示例性用例，请参阅 [WidgetTester.restartAndRestore]）。
   void attachToBuildOwner(RootWidget widget) {
     final bool isBootstrapFrame = rootElement == null;
     _readyToProduceFrames = true;
@@ -1253,13 +1238,10 @@ void debugDumpApp() {
   debugPrint(_debugDumpAppString());
 }
 
-/// A widget for the root of the widget tree.
+/// widget tree 的 root widget。
+/// 公开 [attach] 方法以将 widget tree 附加到 [BuildOwner]。该方法还引导element tree。
 ///
-/// Exposes an [attach] method to attach the widget tree to a [BuildOwner]. That
-/// method also bootstraps the element tree.
-///
-/// Used by [WidgetsBinding.attachRootWidget] (which is indirectly called by
-/// [runApp]) to bootstrap applications.
+/// 由 [WidgetsBinding.attachRootWidget]（由 [runApp] 间接调用）使用来引导应用程序。
 class RootWidget extends Widget {
   /// Creates a [RootWidget].
   const RootWidget({
@@ -1279,20 +1261,22 @@ class RootWidget extends Widget {
   @override
   RootElement createElement() => RootElement(this);
 
-  /// Inflate this widget and attaches it to the provided [BuildOwner].
+  /// Inflate 此小部件并将其附加到提供的 [BuildOwner]。
   ///
-  /// If `element` is null, this function will create a new element. Otherwise,
-  /// the given element will have an update scheduled to switch to this widget.
-  ///
-  /// Used by [WidgetsBinding.attachToBuildOwner] (which is indirectly called by
-  /// [runApp]) to bootstrap applications.
+  /// 如果“element”为空，该函数将创建一个新element。否则，给定element将计划更新以切换到此widget。
+  /// 由 [WidgetsBinding.attachToBuildOwner]（由 [runApp] 间接调用）使用来引导应用程序。
   RootElement attach(BuildOwner owner, [RootElement? element]) {
     if (element == null) {
       owner.lockState(() {
+        //创建了一个RootElement实例作为element tree的根节点
         element = createElement();
         assert(element != null);
+        //设置element的owner。owner将传播到该element的所有后代。
         element!.assignOwner(owner);
       });
+
+      ///标记需要构建的element，并rebuild
+      //然后，使用 [scheduleBuildFor] 按深度顺序构建所有标记为脏的元素。
       owner.buildScope(element!, () {
         element!.mount(/* parent */ null, /* slot */ null);
       });
@@ -1309,14 +1293,11 @@ class RootWidget extends Widget {
 
 /// The root of the element tree.
 ///
-/// This element class is the instantiation of a [RootWidget]. It can be used
-/// only as the root of an [Element] tree (it cannot be mounted into another
-/// [Element]; its parent must be null).
+/// 该element 是 [RootWidget] 的实例化。它只能用作 [Element] tree的root
+/// （它不能安装到另一个 [Element] 中；其父级必须为 null）。
 ///
-/// In typical usage, it will be instantiated for a [RootWidget] by calling
-/// [RootWidget.attach]. In this usage, it is normally instantiated by the
-/// bootstrapping logic in the [WidgetsFlutterBinding] singleton created by
-/// [runApp].
+/// 在典型用法中，它将通过调用 [RootWidget.attach] 实例化为 [RootWidget]。
+/// 在这种用法中，它通常由 [runApp] 创建的 [WidgetsFlutterBinding] 单例中的引导逻辑实例化。
 class RootElement extends Element with RootElementMixin {
   /// Creates a [RootElement] for the provided [RootWidget].
   RootElement(RootWidget super.widget);

@@ -871,19 +871,16 @@ mixin SchedulerBinding on BindingBase {
     platformDispatcher.onDrawFrame ??= _handleDrawFrame;
   }
 
-  /// Schedules a new frame using [scheduleFrame] if this object is not
-  /// currently producing a frame.
+  /// 如果该对象当前未生成帧，则使用 [scheduleFrame] 安排新帧。
   ///
-  /// Calling this method ensures that [handleDrawFrame] will eventually be
-  /// called, unless it's already in progress.
+  /// 调用此方法可确保最终调用 [handleDrawFrame]，除非它已经在进行中。
   ///
-  /// This has no effect if [schedulerPhase] is
-  /// [SchedulerPhase.transientCallbacks] or [SchedulerPhase.midFrameMicrotasks]
-  /// (because a frame is already being prepared in that case), or
-  /// [SchedulerPhase.persistentCallbacks] (because a frame is actively being
-  /// rendered in that case). It will schedule a frame if the [schedulerPhase]
-  /// is [SchedulerPhase.idle] (in between frames) or
-  /// [SchedulerPhase.postFrameCallbacks] (after a frame).
+  /// 如果 [schedulerPhase] 是 [SchedulerPhase.transientCallbacks]
+  /// 或 [SchedulerPhase.midFrameMicrotasks]，则此设置无效
+  /// (因为在这种情况下已经准备好了frame), 或者
+  /// [SchedulerPhase.persistentCallbacks]（因为在这种情况下正在主动渲染帧）
+  /// 如果 [schedulerPhase] 是 [SchedulerPhase.idle]（在帧之间）
+  /// 或 [SchedulerPhase.postFrameCallbacks]（在帧之后），它将调度一个帧。
   void ensureVisualUpdate() {
     switch (schedulerPhase) {
       case SchedulerPhase.idle:
@@ -976,45 +973,28 @@ mixin SchedulerBinding on BindingBase {
 
   bool _warmUpFrame = false;
 
-  /// Schedule a frame to run as soon as possible, rather than waiting for
-  /// the engine to request a frame in response to a system "Vsync" signal.
+  /// 安排帧尽快运行，而不是等待引擎请求帧以响应系统“Vsync”信号。
+  /// 这在应用程序启动期间使用，以便第一帧（可能非常昂贵）获得额外的几毫秒运行时间。
   ///
-  /// This is used during application startup so that the first frame (which is
-  /// likely to be quite expensive) gets a few extra milliseconds to run.
+  /// 锁定事件分发，直到计划的帧完成。
+  /// 如果已经使用 [scheduleFrame] 或 [scheduleForcedFrame] 调度了一个帧，则此调用可能会延迟该帧。
+  /// 如果任何预定帧已经开始或者另一个 [scheduleWarmUpFrame] 已经被调用，则该调用将被忽略。
+  /// 最好选 [scheduleFrame] 在正常操作中更新显示。
   ///
-  /// Locks events dispatching until the scheduled frame has completed.
+  /// ## 设计讨论
   ///
-  /// If a frame has already been scheduled with [scheduleFrame] or
-  /// [scheduleForcedFrame], this call may delay that frame.
+  /// 当 Flutter 引擎收到来自操作系统的请求时（由于历史原因称为 vsync），它会提示框架生成帧。
+  /// 但是，在应用程序启动后（或热重新加载后）几毫秒内，这种情况可能不会发生。
+  /// 利用首次配置 widget tree 和引擎请求更新之间的时间，框架安排一个_预热帧_。
   ///
-  /// If any scheduled frame has already begun or if another
-  /// [scheduleWarmUpFrame] was already called, this call will be ignored.
+  /// 预热帧可能永远不会真正渲染（因为引擎没有请求它，因此没有有效的上下文来绘制），
+  /// 但它会导致框架经历构建、布局和绘制的步骤，这些步骤总共可能需要几毫秒。
+  /// 因此，当引擎请求真实帧时，大部分工作已经完成，并且框架可以以最少的额外工作生成帧。
   ///
-  /// Prefer [scheduleFrame] to update the display in normal operation.
+  /// 预热帧在启动时由 [runApp] 安排，在热重载期间由 [RendererBinding.performReassemble] 安排。
   ///
-  /// ## Design discussion
-  ///
-  /// The Flutter engine prompts the framework to generate frames when it
-  /// receives a request from the operating system (known for historical reasons
-  /// as a vsync). However, this may not happen for several milliseconds after
-  /// the app starts (or after a hot reload). To make use of the time between
-  /// when the widget tree is first configured and when the engine requests an
-  /// update, the framework schedules a _warm-up frame_.
-  ///
-  /// A warm-up frame may never actually render (as the engine did not request
-  /// it and therefore does not have a valid context in which to paint), but it
-  /// will cause the framework to go through the steps of building, laying out,
-  /// and painting, which can together take several milliseconds. Thus, when the
-  /// engine requests a real frame, much of the work will already have been
-  /// completed, and the framework can generate the frame with minimal
-  /// additional effort.
-  ///
-  /// Warm-up frames are scheduled by [runApp] on startup, and by
-  /// [RendererBinding.performReassemble] during a hot reload.
-  ///
-  /// Warm-up frames are also scheduled when the framework is unblocked by a
-  /// call to [RendererBinding.allowFirstFrame] (corresponding to a call to
-  /// [RendererBinding.deferFirstFrame] that blocked the rendering).
+  /// 当框架通过调用 [RendererBinding.allowFirstFrame] 解除阻塞时，也会安排预热帧
+  /// (对应于对阻止渲染的 [RendererBinding.deferFirstFrame] 的调用)
   void scheduleWarmUpFrame() {
     if (_warmUpFrame || schedulerPhase != SchedulerPhase.idle) {
       return;
@@ -1026,22 +1006,24 @@ mixin SchedulerBinding on BindingBase {
       debugTimelineTask = TimelineTask()..start('Warm-up frame');
     }
     final bool hadScheduledFrame = _hasScheduledFrame;
-    // We use timers here to ensure that microtasks flush in between.
+    // 我们在这里使用timers来确保微任务在两者之间刷新。
+    // Timer任务会加入到event queue,遵循 dart的事件循环规则
+    // 在执行handleBeginFrame()前先处理完 microtask queue 中的任务
     Timer.run(() {
       assert(_warmUpFrame);
+      // 绘制Frame前工作，主要是处理Animate动画
       handleBeginFrame(null);
     });
     Timer.run(() {
       assert(_warmUpFrame);
+      // 开始Frame绘制
       handleDrawFrame();
-      // We call resetEpoch after this frame so that, in the hot reload case,
-      // the very next frame pretends to have occurred immediately after this
-      // warm-up frame. The warm-up frame's timestamp will typically be far in
-      // the past (the time of the last real frame), so if we didn't reset the
-      // epoch we would see a sudden jump from the old time in the warm-up frame
-      // to the new time in the "real" frame. The biggest problem with this is
-      // that implicit animations end up being triggered at the old time and
-      // then skipping every frame and finishing in the new time.
+      // 我们在此帧之后调用resetEpoch，以便在热重载情况下，下一帧假装在此预热帧之后立即发生。
+      // 预热帧的时间戳通常是很久以前的事（最后一个真实帧的时间）， 所以如果我们不重置纪元
+      // 我们会看到从热身帧中的旧时间突然跳到“真实”帧中的新时间。
+      // 最大的问题是隐式动画最终会在旧时间触发，然后跳过每一帧并在新时间完成。
+      // 即:在预热帧绘制结束后调用resetEpoch()来重置时间戳，
+      // 避免热重载情况从预热帧到热重载帧的时间差，导致隐式动画的跳帧情况。
       resetEpoch();
       _warmUpFrame = false;
       if (hadScheduledFrame) {
@@ -1049,8 +1031,9 @@ mixin SchedulerBinding on BindingBase {
       }
     });
 
-    // Lock events so touch events etc don't insert themselves until the
-    // scheduled frame has finished.
+    // 锁定事件，以便触摸事件等在预定帧完成之前不会自行插入。
+    // 在热身帧绘制结束前通过加锁来屏蔽期间的屏幕指针事件处理及_taskQueue中的回调，
+    // 保证在绘制过程中不会再触发新的重绘。
     lockEvents(() async {
       await endOfFrame;
       if (!kReleaseMode) {
@@ -1085,7 +1068,7 @@ mixin SchedulerBinding on BindingBase {
     _firstRawTimeStampInEpoch = null;
   }
 
-  /// Adjusts the given time stamp into the current epoch.
+  /// 将给定时间戳调整为当前纪元。
   ///
   /// This both offsets the time stamp to account for when the epoch started
   /// (both in raw time and in the epoch's own time line) and scales the time
@@ -1176,29 +1159,22 @@ mixin SchedulerBinding on BindingBase {
 
   final TimelineTask? _frameTimelineTask = kReleaseMode ? null : TimelineTask();
 
-  /// Called by the engine to prepare the framework to produce a new frame.
+  /// 由引擎调用以准备框架以生成新frame.
   ///
-  /// This function calls all the transient frame callbacks registered by
-  /// [scheduleFrameCallback]. It then returns, any scheduled microtasks are run
-  /// (e.g. handlers for any [Future]s resolved by transient frame callbacks),
-  /// and [handleDrawFrame] is called to continue the frame.
+  /// 该函数调用[scheduleFrameCallback]注册的所有瞬态帧回调
+  /// 然后返回，运行任何计划的微任务microtasks
+  /// (例如由瞬态帧回调解析的任何 [Future] 的处理程序),
+  /// 并调用 [handleDrawFrame] 来继续该帧。
   ///
-  /// If the given time stamp is null, the time stamp from the last frame is
-  /// reused.
+  /// 如果给定的时间戳为空，则重新使用最后一帧的时间戳。
   ///
-  /// To have a banner shown at the start of every frame in debug mode, set
-  /// [debugPrintBeginFrameBanner] to true. The banner will be printed to the
-  /// console using [debugPrint] and will contain the frame number (which
-  /// increments by one for each frame), and the time stamp of the frame. If the
-  /// given time stamp was null, then the string "warm-up frame" is shown
-  /// instead of the time stamp. This allows frames eagerly pushed by the
-  /// framework to be distinguished from those requested by the engine in
-  /// response to the "Vsync" signal from the operating system.
+  /// 要在调试模式下在每个帧的开头显示banner，将 [debugPrintBeginFrameBanner] 设置为 true。
+  /// banner将使用 [debugPrint] 打印到控制台，并将包含帧编号（每帧递增 1）,以及帧的时间戳。
+  /// 如果给定的时间戳为空，则显示字符串“预热帧”而不是时间戳。
+  /// 这使得框架急切推送的帧能够与引擎响应来自操作系统的“Vsync”信号而请求的帧区分开来。
   ///
-  /// You can also show a banner at the end of every frame by setting
-  /// [debugPrintEndFrameBanner] to true. This allows you to distinguish log
-  /// statements printed during a frame from those printed between frames (e.g.
-  /// in response to events or timers).
+  /// 您还可以通过将 [debugPrintEndFrameBanner] 设置为 true 在每帧末尾显示banner。
+  /// 这允许您区分帧期间打印的日志语句和帧之间打印的日志语句（例如响应事件或Timers）。
   void handleBeginFrame(Duration? rawTimeStamp) {
     _frameTimelineTask?.start('Frame');
     _firstRawTimeStampInEpoch ??= rawTimeStamp;
@@ -1229,18 +1205,21 @@ mixin SchedulerBinding on BindingBase {
     assert(schedulerPhase == SchedulerPhase.idle);
     _hasScheduledFrame = false;
     try {
-      // TRANSIENT FRAME CALLBACKS
+      // TRANSIENT FRAME CALLBACKS  处理回调前设置为瞬态
       _frameTimelineTask?.start('Animate');
       _schedulerPhase = SchedulerPhase.transientCallbacks;
       final Map<int, _FrameCallbackEntry> callbacks = _transientCallbacks;
       _transientCallbacks = <int, _FrameCallbackEntry>{};
+      //处理Animation回调
       callbacks.forEach((int id, _FrameCallbackEntry callbackEntry) {
         if (!_removedIds.contains(id)) {
+          //使用 [timestamp] 作为参数调用给定的 [callback]。
           _invokeFrameCallback(callbackEntry.callback, _currentFrameTimeStamp!, callbackEntry.debugStack);
         }
       });
       _removedIds.clear();
     } finally {
+      //回调处理完，设置为中间态，即先处理microTask任务队列
       _schedulerPhase = SchedulerPhase.midFrameMicrotasks;
     }
   }
@@ -1298,27 +1277,26 @@ mixin SchedulerBinding on BindingBase {
     }
   }
 
-  /// Called by the engine to produce a new frame.
+  /// 由引擎调用以产生新的frame.
   ///
-  /// This method is called immediately after [handleBeginFrame]. It calls all
-  /// the callbacks registered by [addPersistentFrameCallback], which typically
-  /// drive the rendering pipeline, and then calls the callbacks registered by
-  /// [addPostFrameCallback].
+  /// 该方法在[handleBeginFrame]之后立即调用。 它调用 [addPersistentFrameCallback] 注册的所有回调
+  /// , 通常驱动rendering pipeline 然后调用[addPostFrameCallback]注册的回调。
   ///
-  /// See [handleBeginFrame] for a discussion about debugging hooks that may be
-  /// useful when working with frame callbacks.
+  /// 有关debug hooks的讨论，请参阅 [handleBeginFrame]，这些讨论在使用帧回调时可能很有用。
   void handleDrawFrame() {
     assert(_schedulerPhase == SchedulerPhase.midFrameMicrotasks);
     _frameTimelineTask?.finish(); // end the "Animate" phase
     try {
       // PERSISTENT FRAME CALLBACKS
       _schedulerPhase = SchedulerPhase.persistentCallbacks;
+      // 处理Persistent类型回调,主要包括build\layout\draw流程
       for (final FrameCallback callback in List<FrameCallback>.of(_persistentCallbacks)) {
         _invokeFrameCallback(callback, _currentFrameTimeStamp!);
       }
 
       // POST-FRAME CALLBACKS
       _schedulerPhase = SchedulerPhase.postFrameCallbacks;
+      // 处理Post-Frame回调，主要是状态清理，准备调度下一帧绘制请求
       final List<FrameCallback> localPostFrameCallbacks = List<FrameCallback>.of(_postFrameCallbacks);
       _postFrameCallbacks.clear();
       Timeline.startSync('POST_FRAME');
@@ -1330,6 +1308,7 @@ mixin SchedulerBinding on BindingBase {
         Timeline.finishSync();
       }
     } finally {
+      //处理完成，设置为idle状态
       _schedulerPhase = SchedulerPhase.idle;
       _frameTimelineTask?.finish(); // end the Frame
       assert(() {
@@ -1375,11 +1354,10 @@ mixin SchedulerBinding on BindingBase {
     buffer.write('ms');
   }
 
-  // Calls the given [callback] with [timestamp] as argument.
+  // 使用 [timestamp] 作为参数调用给定的 [callback]。
   //
-  // Wraps the callback in a try/catch and forwards any error to
-  // [debugSchedulerExceptionHandler], if set. If not set, prints
-  // the error.
+  // 将回调包装在 try/catch 中，并将任何错误转发到 [debugSchedulerExceptionHandler]（如果设置）。
+  // 如果未设置，则打印错误。
   @pragma('vm:notify-debugger-on-exception')
   void _invokeFrameCallback(FrameCallback callback, Duration timeStamp, [StackTrace? callbackStack]) {
     assert(_FrameCallbackEntry.debugCurrentCallbackStack == null);

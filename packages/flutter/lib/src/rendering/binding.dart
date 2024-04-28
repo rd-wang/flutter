@@ -520,12 +520,11 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
     _firstFrameSent = false;
   }
 
-  /// Pump the rendering pipeline to generate a frame.
+  /// 泵送rendering pipeline以生成frame。
   ///
-  /// This method is called by [handleDrawFrame], which itself is called
-  /// automatically by the engine when it is time to lay out and paint a frame.
+  /// 该方法由 [handleDrawFrame] 调用，当需要layout和paint frame时，引擎会自动调用该方法
   ///
-  /// Each frame consists of the following phases:
+  /// 每个frame由以下阶段组成
   ///
   /// 1. The animation phase: The [handleBeginFrame] method, which is registered
   /// with [PlatformDispatcher.onBeginFrame], invokes all the transient frame

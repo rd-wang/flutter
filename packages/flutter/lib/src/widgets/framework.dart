@@ -2770,9 +2770,8 @@ class BuildOwner {
     assert(_debugStateLockLevel >= 0);
   }
 
-  /// Establishes a scope for updating the widget tree, and calls the given
-  /// `callback`, if any. Then, builds all the elements that were marked as
-  /// dirty using [scheduleBuildFor], in depth order.
+  /// 建立更新小部件树的范围，并调用给定的“回调”, 如果有的话。
+  /// 然后，使用 [scheduleBuildFor] 按深度顺序构建所有标记为脏的元素。
   ///
   /// This mechanism prevents build methods from transitively requiring other
   /// build methods to run, potentially causing infinite loops.
@@ -6657,16 +6656,14 @@ abstract class RootRenderObjectElement extends RenderObjectElement with RootElem
 /// Only root elements may have their owner set explicitly. All other
 /// elements inherit their owner from their parent.
 mixin RootElementMixin on Element {
-  /// Set the owner of the element. The owner will be propagated to all the
-  /// descendants of this element.
+
+  /// 设置element的owner。owner将传播到该element的所有后代。
+  /// The owner 管理脏元素列表。
   ///
-  /// The owner manages the dirty elements list.
-  ///
-  /// The [WidgetsBinding] introduces the primary owner,
-  /// [WidgetsBinding.buildOwner], and assigns it to the widget tree in the call
-  /// to [runApp]. The binding is responsible for driving the build pipeline by
-  /// calling the build owner's [BuildOwner.buildScope] method. See
-  /// [WidgetsBinding.drawFrame].
+  /// [WidgetsBinding] 引入了主要 owner[WidgetsBinding.buildOwner]，
+  /// 并在调用 [runApp] 时将其分配给widget tree。
+  /// 绑定负责通过调用 build owner's [BuildOwner.buildScope] 方法 来驱动 build pipeline。
+  /// See [WidgetsBinding.drawFrame].
   // ignore: use_setters_to_change_properties, (API predates enforcing the lint)
   void assignOwner(BuildOwner owner) {
     _owner = owner;

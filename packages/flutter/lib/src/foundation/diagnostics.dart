@@ -1427,7 +1427,7 @@ class TextTreeRenderer {
   }
 }
 
-/// 定义[value]的诊断数据。
+/// 诊断节点 定义[value]的诊断数据。
 /// 对于调试和分析模式，[DiagnosticsNode]通过[toStringDeep]提供高质量的多行字符串转储。
 /// 核心成员是[name], [toDescription], [getProperties], [value], and [getChildren]。
 /// 所有其他成员的存在通常是为了提供 有关如何[toStringDeep]和调试工具应格式化输出的 提示。
@@ -1484,12 +1484,10 @@ abstract class DiagnosticsNode {
   /// The name will be omitted if the [showName] property is false.
   final String? name;
 
-  /// Returns a description with a short summary of the node itself not
-  /// including children or properties.
+  /// 返回一个描述，其中包含节点本身的简短摘要，不包括子节点或属性。
   ///
-  /// `parentConfiguration` specifies how the parent is rendered as text art.
-  /// For example, if the parent does not line break between properties, the
-  /// description of a property should also be a single line if possible.
+  /// parentConfiguration指定父级如何呈现为文本.
+  /// 例如，如果父级在属性之间没有换行，则属性的描述如果可能也应该是单行。
   String toDescription({TextTreeConfiguration? parentConfiguration});
 
   /// Whether to show a separator between [name] and description.
@@ -1529,7 +1527,7 @@ abstract class DiagnosticsNode {
   /// Description to show if the node has no displayed properties or children.
   String? get emptyBodyDescription => null;
 
-  /// The actual object this is diagnostics data for.
+  /// 诊断数据的实际对象。
   Object? get value;
 
   /// Hint for how the node should be displayed.
@@ -1544,10 +1542,9 @@ abstract class DiagnosticsNode {
   /// Whether to allow truncation when displaying the node and its children.
   bool get allowTruncate => false;
 
-  /// Properties of this [DiagnosticsNode].
+  ///  [DiagnosticsNode]的属性
   ///
-  /// Properties and children are kept distinct even though they are both
-  /// [List<DiagnosticsNode>] because they should be grouped differently.
+  /// 即使属性和子项都是 [List<DiagnosticsNode>]，但它们仍保持不同，因为它们应该以不同的方式分组。
   List<DiagnosticsNode> getProperties();
 
   /// Children of this [DiagnosticsNode].
@@ -1743,7 +1740,7 @@ abstract class DiagnosticsNode {
     }
   }
 
-  /// Returns a string representation of this node and its descendants.
+  /// 返回此节点及其后代的字符串表示形式
   ///
   /// `prefixLineOne` will be added to the front of the first line of the
   /// output. `prefixOtherLines` will be added to the front of each other line.
@@ -3377,9 +3374,8 @@ abstract class DiagnosticableTree with Diagnosticable {
   List<DiagnosticsNode> debugDescribeChildren() => const <DiagnosticsNode>[];
 }
 
-/// A mixin that helps dump string and [DiagnosticsNode] representations of trees.
-///
-/// This mixin is identical to class [DiagnosticableTree].
+/// 一个有助于树的  转储字符串和 [DiagnosticsNode] 陈述 的mixin
+/// 该 mixin 与类 [DiagnosticableTree] 相同。
 mixin DiagnosticableTreeMixin implements DiagnosticableTree {
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {

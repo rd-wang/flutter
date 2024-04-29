@@ -10,11 +10,10 @@ import 'diagnostics.dart';
 
 const bool _kMemoryAllocations = bool.fromEnvironment('flutter.memory_allocations');
 
-/// If true, Flutter objects dispatch the memory allocation events.
+/// 如果为 true，Flutter 对象会分派内存分配事件。
 ///
-/// By default, the constant is true for debug mode and false
-/// for profile and release modes.
-/// To enable the dispatching for release mode, pass the compilation flag
+/// 默认情况下，该常量对于调试模式为 true，对于配置文件和发布模式为 false。
+/// 要启用发布模式的调度，请传递编译标志
 /// `--dart-define=flutter.memory_allocations=true`.
 const bool kFlutterMemoryAllocationsEnabled = _kMemoryAllocations || kDebugMode;
 
@@ -27,7 +26,7 @@ class _FieldNames {
 }
 
 /// A lifecycle event of an object.
-abstract class ObjectEvent{
+abstract class ObjectEvent {
   /// Creates an instance of [ObjectEvent].
   ObjectEvent({
     required this.object,
@@ -74,11 +73,13 @@ class ObjectCreated extends ObjectEvent {
 
   @override
   Map<Object, Map<String, Object>> toMap() {
-    return <Object, Map<String, Object>>{object: <String, Object>{
-      _FieldNames.libraryName: library,
-      _FieldNames.className: className,
-      _FieldNames.eventType: 'created',
-    }};
+    return <Object, Map<String, Object>>{
+      object: <String, Object>{
+        _FieldNames.libraryName: library,
+        _FieldNames.className: className,
+        _FieldNames.eventType: 'created',
+      }
+    };
   }
 }
 
@@ -91,40 +92,35 @@ class ObjectDisposed extends ObjectEvent {
 
   @override
   Map<Object, Map<String, Object>> toMap() {
-    return <Object, Map<String, Object>>{object: <String, Object>{
-      _FieldNames.eventType: 'disposed',
-    }};
+    return <Object, Map<String, Object>>{
+      object: <String, Object>{
+        _FieldNames.eventType: 'disposed',
+      }
+    };
   }
 }
 
 /// An interface for listening to object lifecycle events.
-@Deprecated(
-  'Use `FlutterMemoryAllocations` instead. '
-  'The class `MemoryAllocations` will be introduced in a pure Dart library. '
-  'This feature was deprecated after v3.18.0-18.0.pre.'
-)
+@Deprecated('Use `FlutterMemoryAllocations` instead. '
+    'The class `MemoryAllocations` will be introduced in a pure Dart library. '
+    'This feature was deprecated after v3.18.0-18.0.pre.')
 typedef MemoryAllocations = FlutterMemoryAllocations;
 
-/// An interface for listening to object lifecycle events.
+/// 用于监听对象生命周期事件的接口。
 ///
-/// If [kFlutterMemoryAllocationsEnabled] is true,
-/// [FlutterMemoryAllocations] listens to creation and disposal events
-/// for disposable objects in Flutter Framework.
-/// To dispatch other events objects, invoke
-/// [FlutterMemoryAllocations.dispatchObjectEvent].
+/// 如果 [kFlutterMemoryAllocationsEnabled] 为 true，
+/// 则 [FlutterMemoryAllocations] 监听 Flutter Framework 中一次性对象的创建和处置事件。
+/// 要调度其他事件对象，请调用 [FlutterMemoryAllocations.dispatchObjectEvent]。
 ///
-/// Use this class with condition `kFlutterMemoryAllocationsEnabled`,
-/// to make sure not to increase size of the application by the code
-/// of the class, if memory allocations are disabled.
+/// 将此类与条件kFlutterMemoryAllocationsEnabled一起使用
+/// 以确保在禁用内存分配的情况下不会通过类的代码增加应用程序的大小。
 ///
-/// The class is optimized for massive event flow and small number of
-/// added or removed listeners.
+/// 该类针对大量事件流和少量添加或删除侦听器进行了优化。
 class FlutterMemoryAllocations {
   FlutterMemoryAllocations._();
 
-  /// The shared instance of [FlutterMemoryAllocations].
-  ///
-  /// Only call this when [kFlutterMemoryAllocationsEnabled] is true.
+  /// [FlutterMemoryAllocations] 的共享实例。
+  /// 仅当 [kFlutterMemoryAllocationsEnabled] 为 true 时才调用此函数。
   static final FlutterMemoryAllocations instance = FlutterMemoryAllocations._();
 
   /// List of listeners.
@@ -139,7 +135,7 @@ class FlutterMemoryAllocations {
   /// Listeners can be removed with [removeListener].
   ///
   /// Only call this when [kFlutterMemoryAllocationsEnabled] is true.
-  void addListener(ObjectEventListener listener){
+  void addListener(ObjectEventListener listener) {
     if (!kFlutterMemoryAllocationsEnabled) {
       return;
     }
@@ -150,10 +146,8 @@ class FlutterMemoryAllocations {
     _listeners!.add(listener);
   }
 
-  /// Number of active notification loops.
-  ///
-  /// When equal to zero, we can delete listeners from the list,
-  /// otherwise should null them.
+  /// 活动通知循环的数量。
+  /// 当等于零时，我们可以从列表中删除监听器，否则应该将它们清空
   int _activeDispatchLoops = 0;
 
   /// If true, listeners were nulled by [removeListener].
@@ -165,7 +159,7 @@ class FlutterMemoryAllocations {
   /// Listeners can be added with [addListener].
   ///
   /// Only call this when [kFlutterMemoryAllocationsEnabled] is true.
-  void removeListener(ObjectEventListener listener){
+  void removeListener(ObjectEventListener listener) {
     if (!kFlutterMemoryAllocationsEnabled) {
       return;
     }
@@ -221,18 +215,11 @@ class FlutterMemoryAllocations {
     return _listeners?.isNotEmpty ?? false;
   }
 
-  /// Dispatch a new object event to listeners.
-  ///
-  /// Exceptions thrown by listeners will be caught and reported using
-  /// [FlutterError.reportError].
-  ///
-  /// Listeners added during an event dispatching, will start being invoked
-  /// for next events, but will be skipped for this event.
-  ///
-  /// Listeners, removed during an event dispatching, will not be invoked
-  /// after the removal.
-  ///
-  /// Only call this when [kFlutterMemoryAllocationsEnabled] is true.
+  /// 向侦听器分派新对象事件。
+  /// 监听器抛出的异常将被捕获并使用 [FlutterError.reportError]报告。
+  /// 在事件分派期间添加的侦听器将开始为下一个事件调用，但对于此事件将被跳过。
+  /// 在事件分派期间删除的侦听器在删除后将不会被调用。
+  /// 仅当[kFlutterMemoryAllocationsEnabled]为 true 时才调用此函数
   void dispatchObjectEvent(ObjectEvent event) {
     if (!kFlutterMemoryAllocationsEnabled) {
       return;
@@ -254,7 +241,7 @@ class FlutterMemoryAllocations {
           stack: stack,
           library: 'foundation library',
           context: ErrorDescription('MemoryAllocations while '
-          'dispatching notifications for $type'),
+              'dispatching notifications for $type'),
           informationCollector: () => <DiagnosticsNode>[
             DiagnosticsProperty<Object>(
               'The $type sending notification was',
@@ -269,9 +256,8 @@ class FlutterMemoryAllocations {
     _tryDefragmentListeners();
   }
 
-  /// Create [ObjectCreated] and invoke [dispatchObjectEvent] if there are listeners.
-  ///
-  /// This method is more efficient than [dispatchObjectEvent] if the event object is not created yet.
+  /// 则创建 [ObjectCreated] 并在有侦听器的情况下调用 [dispatchObjectEvent]。
+  /// 如果事件对象尚未创建，则此方法比 [dispatchObjectEvent] 更有效。
   void dispatchObjectCreated({
     required String library,
     required String className,

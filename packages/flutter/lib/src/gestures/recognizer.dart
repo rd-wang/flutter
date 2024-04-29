@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-
 import 'dart:async';
 import 'dart:collection';
 
@@ -72,33 +71,28 @@ enum MultitouchDragStrategy {
   sumAllPointers,
 }
 
-/// Signature for `allowedButtonsFilter` in [GestureRecognizer].
-/// Used to filter the input buttons of incoming pointer events.
-/// The parameter `buttons` comes from [PointerEvent.buttons].
+/// [GestureRecognizer] 中“allowedButtonsFilter”的签名。
+/// 用于过滤传入指针事件的输入按钮。参数`buttons`来自[PointerEvent.buttons]。
 typedef AllowedButtonsFilter = bool Function(int buttons);
 
-/// The base class that all gesture recognizers inherit from.
+/// 所有手势识别器继承的基类。
 ///
-/// Provides a basic API that can be used by classes that work with
-/// gesture recognizers but don't care about the specific details of
-/// the gestures recognizers themselves.
+/// 提供一个基本的 API，可供使用手势识别器的类使用，但不关心手势识别器本身的具体细节。
 ///
 /// See also:
 ///
-///  * [GestureDetector], the widget that is used to detect built-in gestures.
-///  * [RawGestureDetector], the widget that is used to detect custom gestures.
-///  * [debugPrintRecognizerCallbacksTrace], a flag that can be set to help
-///    debug issues with gesture recognizers.
+///  * [GestureDetector], 用于检测内置手势的小部件。
+///  * [RawGestureDetector], 用于检测自定义手势的小部件。
+///  * [debugPrintRecognizerCallbacksTrace], 可以设置该标志来帮助调试手势识别器问题。
 abstract class GestureRecognizer extends GestureArenaMember with DiagnosticableTreeMixin {
-  /// Initializes the gesture recognizer.
+  /// 初始化手势识别器。
   ///
-  /// The argument is optional and is only used for debug purposes (e.g. in the
-  /// [toString] serialization).
+  /// 该参数是可选的，仅用于调试目的（例如在toString序列化中）
   ///
   /// {@template flutter.gestures.GestureRecognizer.supportedDevices}
-  /// It's possible to limit this recognizer to a specific set of [PointerDeviceKind]s
-  /// by providing the optional [supportedDevices] argument. If [supportedDevices] is null,
-  /// the recognizer will accept pointer events from all device kinds.
+  /// 通过提供可选的 [supportedDevices] 参数，
+  /// 可以将此识别器限制为一组特定的 [PointerDeviceKind]。
+  /// 如果 [supportedDevices] 为 null，则识别器将接受来自所有设备类型的指针事件。
   /// {@endtemplate}
   GestureRecognizer({
     this.debugOwner,
@@ -116,43 +110,35 @@ abstract class GestureRecognizer extends GestureArenaMember with DiagnosticableT
     }
   }
 
-  /// The recognizer's owner.
+  /// 识别器的所有者。
   ///
-  /// This is used in the [toString] serialization to report the object for which
-  /// this gesture recognizer was created, to aid in debugging.
+  /// 这在 [toString] 序列化中用于报告 为其创建此手势识别器的对象，以帮助调试。
   final Object? debugOwner;
 
   /// Optional device specific configuration for device gestures that will
   /// take precedence over framework defaults.
   DeviceGestureSettings? gestureSettings;
 
-  /// The kind of devices that are allowed to be recognized as provided by
-  /// `supportedDevices` in the constructor, or the currently deprecated `kind`.
-  /// These cannot both be set. If both are null, events from all device kinds will be
-  /// tracked and recognized.
+  /// 允许被识别为构造函数中的“supportedDevices”提供的设备类型，或当前已弃用的“kind”
+  /// 这些不能同时设置。如果两者都为空，则来自所有设备类型的事件都将被跟踪和识别。
   Set<PointerDeviceKind>? supportedDevices;
 
   /// {@template flutter.gestures.multidrag._allowedButtonsFilter}
-  /// Called when interaction starts. This limits the dragging behavior
-  /// for custom clicks (such as scroll click). Its parameter comes
-  /// from [PointerEvent.buttons].
+  /// 交互开始时调用。这限制了自定义点击（例如滚动点击）的拖动行为。
+  /// 它的参数来自PointerEvent.buttons 。
   ///
-  /// Due to how [kPrimaryButton], [kSecondaryButton], etc., use integers,
-  /// bitwise operations can help filter how buttons are pressed.
-  /// For example, if someone simultaneously presses the primary and secondary
-  /// buttons, the default behavior will return false. The following code
-  /// accepts any button press with primary:
-  /// `(int buttons) => buttons & kPrimaryButton != 0`.
-  ///
-  /// When value is `(int buttons) => false`, allow no interactions.
-  /// When value is `(int buttons) => true`, allow all interactions.
-  ///
-  /// Defaults to all buttons.
+  /// 由于[kPrimaryButton] 、 [kSecondaryButton]等如何使用整数，
+  /// 按位运算可以帮助过滤按钮的按下方式。
+  /// 例如，如果有人同时按下主要按钮和辅助按钮，
+  /// 则默认行为将返回 false。以下代码接受任何带有 Primary 的按钮按下：
+  /// (int buttons) => buttons & kPrimaryButton != 0 。
+  /// 当值为(int buttons) => false时，不允许交互。
+  /// 当值为(int buttons) => true时，允许所有交互。
+  /// 默认为所有按钮。
   /// {@endtemplate}
   final AllowedButtonsFilter _allowedButtonsFilter;
 
-  // The default value for [allowedButtonsFilter].
-  // Accept any input.
+  /// [allowedButtonsFilter] 的默认值。接受任何输入。
   static bool _defaultButtonAcceptBehavior(int buttons) => true;
 
   /// Holds a mapping between pointer IDs and the kind of devices they are
@@ -194,7 +180,7 @@ abstract class GestureRecognizer extends GestureArenaMember with DiagnosticableT
   /// pointer being added while [addAllowedPointerPanZoom] is only called for pointers
   /// that are allowed by this recognizer.
   @protected
-  void addAllowedPointerPanZoom(PointerPanZoomStartEvent event) { }
+  void addAllowedPointerPanZoom(PointerPanZoomStartEvent event) {}
 
   /// Registers a new pointer that might be relevant to this gesture
   /// detector.
@@ -228,7 +214,7 @@ abstract class GestureRecognizer extends GestureArenaMember with DiagnosticableT
   /// pointer being added while [addAllowedPointer] is only called for pointers
   /// that are allowed by this recognizer.
   @protected
-  void addAllowedPointer(PointerDownEvent event) { }
+  void addAllowedPointer(PointerDownEvent event) {}
 
   /// Handles a pointer being added that's not allowed by this recognizer.
   ///
@@ -237,21 +223,19 @@ abstract class GestureRecognizer extends GestureArenaMember with DiagnosticableT
   /// See:
   /// - [OneSequenceGestureRecognizer.handleNonAllowedPointer].
   @protected
-  void handleNonAllowedPointer(PointerDownEvent event) { }
+  void handleNonAllowedPointer(PointerDownEvent event) {}
 
   /// Checks whether or not a pointer is allowed to be tracked by this recognizer.
   @protected
   bool isPointerAllowed(PointerDownEvent event) {
-    return (supportedDevices == null ||
-            supportedDevices!.contains(event.kind)) &&
-        _allowedButtonsFilter(event.buttons);
+    return (supportedDevices == null || supportedDevices!.contains(event.kind)) && _allowedButtonsFilter(event.buttons);
   }
 
   /// Handles a pointer pan/zoom being added that's not allowed by this recognizer.
   ///
   /// Subclasses can override this method and reject the gesture.
   @protected
-  void handleNonAllowedPointerPanZoom(PointerPanZoomStartEvent event) { }
+  void handleNonAllowedPointerPanZoom(PointerPanZoomStartEvent event) {}
 
   /// Checks whether or not a pointer pan/zoom is allowed to be tracked by this recognizer.
   @protected
@@ -299,7 +283,7 @@ abstract class GestureRecognizer extends GestureArenaMember with DiagnosticableT
   /// e.g. the arguments passed to the callback.
   @protected
   @pragma('vm:notify-debugger-on-exception')
-  T? invokeCallback<T>(String name, RecognizerCallback<T> callback, { String Function()? debugReport }) {
+  T? invokeCallback<T>(String name, RecognizerCallback<T> callback, {String Function()? debugReport}) {
     T? result;
     try {
       assert(() {
@@ -308,7 +292,7 @@ abstract class GestureRecognizer extends GestureArenaMember with DiagnosticableT
           // The 19 in the line below is the width of the prefix used by
           // _debugLogDiagnostic in arena.dart.
           final String prefix = debugPrintGestureArenaDiagnostics ? '${' ' * 19}❙ ' : '';
-          debugPrint('$prefix$this calling $name callback.${ (report?.isNotEmpty ?? false) ? " $report" : "" }');
+          debugPrint('$prefix$this calling $name callback.${(report?.isNotEmpty ?? false) ? " $report" : ""}');
         }
         return true;
       }());
@@ -317,9 +301,9 @@ abstract class GestureRecognizer extends GestureArenaMember with DiagnosticableT
       InformationCollector? collector;
       assert(() {
         collector = () => <DiagnosticsNode>[
-          StringProperty('Handler', name),
-          DiagnosticsProperty<GestureRecognizer>('Recognizer', this, style: DiagnosticsTreeStyle.errorProperty),
-        ];
+              StringProperty('Handler', name),
+              DiagnosticsProperty<GestureRecognizer>('Recognizer', this, style: DiagnosticsTreeStyle.errorProperty),
+            ];
         return true;
       }());
       FlutterError.reportError(FlutterErrorDetails(
@@ -392,10 +376,10 @@ abstract class OneSequenceGestureRecognizer extends GestureRecognizer {
   void handleEvent(PointerEvent event);
 
   @override
-  void acceptGesture(int pointer) { }
+  void acceptGesture(int pointer) {}
 
   @override
-  void rejectGesture(int pointer) { }
+  void rejectGesture(int pointer) {}
 
   /// Called when the number of pointers this recognizer is tracking changes from one to zero.
   ///
@@ -451,6 +435,7 @@ abstract class OneSequenceGestureRecognizer extends GestureRecognizer {
   /// is shortly after creating the recognizer.
   GestureArenaTeam? get team => _team;
   GestureArenaTeam? _team;
+
   /// The [team] can only be set once.
   set team(GestureArenaTeam? value) {
     assert(value != null);
@@ -565,14 +550,14 @@ abstract class PrimaryPointerGestureRecognizer extends OneSequenceGestureRecogni
     super.debugOwner,
     super.supportedDevices,
     super.allowedButtonsFilter,
-  }) : assert(
-         preAcceptSlopTolerance == null || preAcceptSlopTolerance >= 0,
-         'The preAcceptSlopTolerance must be positive or null',
-       ),
-       assert(
-         postAcceptSlopTolerance == null || postAcceptSlopTolerance >= 0,
-         'The postAcceptSlopTolerance must be positive or null',
-       );
+  })  : assert(
+          preAcceptSlopTolerance == null || preAcceptSlopTolerance >= 0,
+          'The preAcceptSlopTolerance must be positive or null',
+        ),
+        assert(
+          postAcceptSlopTolerance == null || postAcceptSlopTolerance >= 0,
+          'The postAcceptSlopTolerance must be positive or null',
+        );
 
   /// If non-null, the recognizer will call [didExceedDeadline] after this
   /// amount of time has elapsed since starting to track the primary pointer.
@@ -655,13 +640,9 @@ abstract class PrimaryPointerGestureRecognizer extends OneSequenceGestureRecogni
     assert(state != GestureRecognizerState.ready);
     if (state == GestureRecognizerState.possible && event.pointer == primaryPointer) {
       final bool isPreAcceptSlopPastTolerance =
-          !_gestureAccepted &&
-          preAcceptSlopTolerance != null &&
-          _getGlobalDistance(event) > preAcceptSlopTolerance!;
+          !_gestureAccepted && preAcceptSlopTolerance != null && _getGlobalDistance(event) > preAcceptSlopTolerance!;
       final bool isPostAcceptSlopPastTolerance =
-          _gestureAccepted &&
-          postAcceptSlopTolerance != null &&
-          _getGlobalDistance(event) > postAcceptSlopTolerance!;
+          _gestureAccepted && postAcceptSlopTolerance != null && _getGlobalDistance(event) > postAcceptSlopTolerance!;
 
       if (event is PointerMoveEvent && (isPreAcceptSlopPastTolerance || isPostAcceptSlopPastTolerance)) {
         resolve(GestureDisposition.rejected);
@@ -784,7 +765,7 @@ class OffsetPair {
   final Offset global;
 
   /// Adds the `other.global` to [global] and `other.local` to [local].
-  OffsetPair operator+(OffsetPair other) {
+  OffsetPair operator +(OffsetPair other) {
     return OffsetPair(
       local: local + other.local,
       global: global + other.global,
@@ -792,7 +773,7 @@ class OffsetPair {
   }
 
   /// Subtracts the `other.global` from [global] and `other.local` from [local].
-  OffsetPair operator-(OffsetPair other) {
+  OffsetPair operator -(OffsetPair other) {
     return OffsetPair(
       local: local - other.local,
       global: global - other.global,

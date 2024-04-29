@@ -575,6 +575,7 @@ mixin RendererBinding on BindingBase, ServicesBinding, SchedulerBinding, Gesture
   // When editing the above, also update widgets/binding.dart's copy.
   @protected
   void drawFrame() {
+    //更新所有 dirty render objects 的布局信息。
     rootPipelineOwner.flushLayout();
     rootPipelineOwner.flushCompositingBits();
     rootPipelineOwner.flushPaint();

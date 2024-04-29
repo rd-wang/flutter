@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -18,19 +17,17 @@ enum GestureDisposition {
   rejected,
 }
 
-/// Represents an object participating in an arena.
+/// 代表参与竞技场的对象。
 ///
-/// Receives callbacks from the GestureArena to notify the object when it wins
-/// or loses a gesture negotiation. Exactly one of [acceptGesture] or
-/// [rejectGesture] will be called for each arena this member was added to,
-/// regardless of what caused the arena to be resolved. For example, if a
-/// member resolves the arena itself, that member still receives an
-/// [acceptGesture] callback.
+/// 从 GestureArena 接收回调，以在对象赢得或失败手势谈判时通知该对象。
+/// 对于添加该成员的每个竞技场，无论是什么原因导致竞技场被解析
+/// 都将准确调用 [acceptGesture] 或 [rejectGesture] 之一，
+/// 例如，如果成员自行解析竞技场，则该成员仍会收到acceptGesture回调。
 abstract class GestureArenaMember {
-  /// Called when this member wins the arena for the given pointer id.
+  /// 当该成员赢得给定pointer id 的竞技场时调用。
   void acceptGesture(int pointer);
 
-  /// Called when this member loses the arena for the given pointer id.
+  /// 当该成员失去给定pointer id 的竞技场时调用。
   void rejectGesture(int pointer);
 }
 
@@ -222,7 +219,8 @@ class GestureArenaManager {
     if (state == null) {
       return; // This arena has already resolved.
     }
-    assert(_debugLogDiagnostic(pointer, '${ disposition == GestureDisposition.accepted ? "Accepting" : "Rejecting" }: $member'));
+    assert(_debugLogDiagnostic(
+        pointer, '${disposition == GestureDisposition.accepted ? "Accepting" : "Rejecting"}: $member'));
     assert(state.members.contains(member));
     if (disposition == GestureDisposition.rejected) {
       state.members.remove(member);
@@ -281,12 +279,13 @@ class GestureArenaManager {
     member.acceptGesture(pointer);
   }
 
-  bool _debugLogDiagnostic(int pointer, String message, [ _GestureArena? state ]) {
+  bool _debugLogDiagnostic(int pointer, String message, [_GestureArena? state]) {
     assert(() {
       if (debugPrintGestureArenaDiagnostics) {
         final int? count = state?.members.length;
         final String s = count != 1 ? 's' : '';
-        debugPrint('Gesture arena ${pointer.toString().padRight(4)} ❙ $message${ count != null ? " with $count member$s." : ""}');
+        debugPrint(
+            'Gesture arena ${pointer.toString().padRight(4)} ❙ $message${count != null ? " with $count member$s." : ""}');
       }
       return true;
     }());

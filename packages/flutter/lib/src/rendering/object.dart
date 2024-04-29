@@ -1013,13 +1013,11 @@ class PipelineOwner with DiagnosticableTreeMixin {
   bool _debugDoingLayout = false;
   bool _debugDoingChildLayout = false;
 
-  /// Update the layout information for all dirty render objects.
+  /// 更新所有 dirty render objects 的布局信息。
   ///
-  /// This function is one of the core stages of the rendering pipeline. Layout
-  /// information is cleaned prior to painting so that render objects will
-  /// appear on screen in their up-to-date locations.
-  ///
-  /// See [RendererBinding] for an example of how this function is used.
+  /// 该函数是rendering pipeline的核心阶段之一。
+  /// 在绘制之前会清理布局信息，以便渲染对象将出现在屏幕上的最新位置。
+  /// 有关如何使用此函数的示例，请参阅 [RendererBinding]。
   void flushLayout() {
     if (!kReleaseMode) {
       Map<String, String>? debugTimelineArguments;
@@ -1115,10 +1113,8 @@ class PipelineOwner with DiagnosticableTreeMixin {
 
   final List<RenderObject> _nodesNeedingCompositingBitsUpdate = <RenderObject>[];
 
-  /// Updates the [RenderObject.needsCompositing] bits.
-  ///
-  /// Called as part of the rendering pipeline after [flushLayout] and before
-  /// [flushPaint].
+  /// 更新 [RenderObject.needsCompositing] bits.
+  /// 在 [flushLayout] 之后和 [flushPaint] 之前作为rendering pipeline的一部分调用。
   void flushCompositingBits() {
     if (!kReleaseMode) {
       FlutterTimeline.startSync('UPDATING COMPOSITING BITS$_debugRootSuffixForTimelineEventNames');
@@ -2881,16 +2877,12 @@ abstract class RenderObject with DiagnosticableTreeMixin implements HitTestTarge
     }
   }
 
-  late bool _needsCompositing; // initialized in the constructor
-  /// Whether we or one of our descendants has a compositing layer.
-  ///
-  /// If this node needs compositing as indicated by this bit, then all ancestor
-  /// nodes will also need compositing.
-  ///
-  /// Only legal to call after [PipelineOwner.flushLayout] and
-  /// [PipelineOwner.flushCompositingBits] have been called.
+  late bool _needsCompositing; // 在构造函数中初始化
+  /// 无论我们还是我们的后代之一都有合成层 compositing layer。
+  /// 如果该节点需要按照_needsCompositing指示进行合成，则所有祖先节点也将需要合成。
+  /// 仅在调用 [PipelineOwner.flushLayout] 和 [PipelineOwner.flushCompositingBits] 后调用才合法。
   bool get needsCompositing {
-    assert(!_needsCompositingBitsUpdate); // make sure we don't use this bit when it is dirty
+    assert(!_needsCompositingBitsUpdate); // 确保我们不会在dirty的时候使用它
     return _needsCompositing;
   }
 

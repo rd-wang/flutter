@@ -944,25 +944,21 @@ mixin WidgetsBinding
   /// 这会生成[Layer]树。有关将对象标记为脏以进行绘制的更多详细信息，请参阅 [RenderObject.markNeedsPaint]。
   ///
   /// 7. 合成阶段 compositing phase:
+  /// [Layer]树转为[Scene] 并发送给GPU。
   ///
-  /// 8. The semantics phase: All the dirty [RenderObject]s in the system have
-  /// their semantics updated (see [RenderObject.assembleSemanticsNode]). This
-  /// generates the [SemanticsNode] tree. See
-  /// [RenderObject.markNeedsSemanticsUpdate] for further details on marking an
-  /// object dirty for semantics.
+  /// 8. 语义阶段 semantics phase:
+  /// 系统中所有脏的 [RenderObject] 都已更新其语义（请参阅 [RenderObject.assembleSemanticsNode]）。
+  /// 这会生成 [SemanticsNode] 树。
+  /// 有关将对象标记为脏语义的更多详细信息，请参阅 [RenderObject.markNeedsSemanticsUpdate]。
   ///
-  /// For more details on steps 4-8, see [PipelineOwner].
+  /// 有关步骤 4-8 的更多详细信息，请参阅 [PipelineOwner]。
   ///
-  /// 9. The finalization phase in the widgets layer: The widgets tree is
-  /// finalized. This causes [State.dispose] to be invoked on any objects that
-  /// were removed from the widgets tree this frame. See
-  /// [BuildOwner.finalizeTree] for more details.
+  /// 9. 小部件层的最终确定阶段 The finalization phase in the widgets layer:
+  /// 小部件树已完成。这会导致在本frame 从 widgets tree 中删除的任何对象上调用 [State.dispose]。
+  /// 有关更多详细信息，请参阅 [BuildOwner.finalizeTree]。
   ///
-  /// 10. The finalization phase in the scheduler layer: After [drawFrame]
-  /// returns, [handleDrawFrame] then invokes post-frame callbacks (registered
-  /// with [addPostFrameCallback]).
-  //
-  // When editing the above, also update rendering/binding.dart's copy.
+  /// 10. 调度程序层的最终确定阶段：The finalization phase in the scheduler layer:
+  /// [drawFrame] 返回后，[handleDrawFrame] 会调用帧后回调（在 [addPostFrameCallback] 中注册）。
   @override
   void drawFrame() {
     assert(!debugBuildingDirtyElements);
